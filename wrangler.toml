@@ -1,0 +1,24 @@
+name = "degen-pig"
+main = "worker/index.js"
+compatibility_date = "2025-09-01"
+
+# The game page, pictures and badges. Requests that match no file go to the worker.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[durable_objects.bindings]]
+name = "TABLE"
+class_name = "Table"
+
+[[durable_objects.bindings]]
+name = "LOBBY"
+class_name = "Lobby"
+
+[[durable_objects.bindings]]
+name = "ACCOUNTS"
+class_name = "Accounts"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Table", "Lobby", "Accounts"]

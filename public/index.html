@@ -1,0 +1,1731 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0C1A16">
+<meta name="description" content="Degen Pig: a push-your-luck dice game. Play pass-and-play or online with friends.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Degen Pig</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: one-screen phone column. Scoreboard strip on top, the wooden dice table fills the middle, the turn panel and two thumb-sized buttons dock at the bottom. */
+:root{
+  color-scheme:dark;
+  --felt:#0C1A16; --panel:#13271F; --line:#22402F; --ivory:#F6F1E4; --muted:#9DB5A8;
+  --gold:#F2C230; --ink:#14201C; --red:#D93A3A; --red-text:#FF7A70; --wood:#6E4322; --core:#D9D0BA;
+  --au1:#FFF6C2; --au2:#F6CF45; --au3:#B97C12; --au4:#FBE58A; --au5:#D49B1C; --au6:#7A4D08;
+  --s1:#3987E5; --s2:#D95926; --s3:#199E70; --s4:#C98500; --s5:#D55181; --s6:#008300;
+  --display:'Bowlby One','Arial Black',Impact,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+html,body{height:100%}
+body{background:var(--felt);color:var(--ivory);font-family:var(--body);font-size:16px;line-height:1.35;overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+*{box-sizing:border-box}
+button,input{font:inherit;color:inherit}
+input{-webkit-user-select:text;user-select:text}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+#app{height:100%;max-width:560px;margin:0 auto;padding-inline:16px;padding-block:10px 14px;display:flex;flex-direction:column;gap:10px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
+.logo{font-family:var(--display);font-size:clamp(16px,5vw,24px);white-space:nowrap;letter-spacing:.08em;color:var(--gold);line-height:1}
+/* Metallic gold lettering for the game's wordmark: a banded gold gradient clipped to the letters, with a dark edge underneath. */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .logo,.brand{background:linear-gradient(180deg,var(--au1) 0%,var(--au2) 20%,var(--au3) 47%,var(--au4) 54%,var(--au5) 76%,var(--au6) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  .logo{filter:drop-shadow(0 1px 0 rgba(40,20,0,.85))}
+  .brand{filter:drop-shadow(0 2px 0 rgba(30,12,0,.75)) drop-shadow(0 3px 5px rgba(10,4,0,.5))}
+}
+#app:not([data-phase="setup"]) .brand{background:none;-webkit-text-fill-color:currentColor;color:rgba(26,11,2,.5);filter:none;text-shadow:0 1px 1px rgba(255,216,165,.2),0 -1px 1px rgba(8,3,0,.55)}
+.title{display:flex;align-items:center;gap:8px;min-width:0}
+.pig{flex:none;width:34px;height:34px;display:block}
+.top-right{display:flex;align-items:center;gap:8px}
+.link{min-height:44px;padding:0 14px;border-radius:999px;background:transparent;border:1px solid var(--line);font-weight:700;font-size:14px;cursor:pointer}
+
+.board{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:6px;flex:none}
+/* Each score box wears its player's colour: a dark tint of it as the fill so ivory text stays readable, the full colour as the border. */
+.tile{--pc:var(--line);position:relative;padding:7px 5px 8px;border-radius:12px;background:var(--panel);background:color-mix(in srgb,var(--pc) 34%,var(--felt));border:2px solid var(--pc);display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.tile .nm{font-size:12px;font-weight:700;color:var(--ivory);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .sc{font-family:var(--display);font-size:20px;line-height:1;font-variant-numeric:tabular-nums}
+.tile .bar{width:100%;height:5px;border-radius:3px;background:rgba(4,10,8,.55);display:flex;overflow:hidden}
+.tile .bar i{display:block;background:var(--ivory)}
+.tile .bar i.pend{background:var(--gold)}
+.tile .tag{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;line-height:10px;height:10px;color:var(--ivory)}
+.tile.active{background:color-mix(in srgb,var(--pc) 58%,var(--felt));outline:3px solid var(--ivory);outline-offset:1px}
+.tile.lead{box-shadow:0 0 0 3px var(--gold)}
+.tile.lead.active{outline-offset:4px}
+.tile.done{opacity:.55}
+
+.banner{flex:none;padding:10px 14px;border-radius:14px;background:var(--gold);color:var(--ink);font-weight:700;font-size:14px;line-height:1.3}
+.banner b{font-family:var(--display);font-weight:400;letter-spacing:.06em;margin-right:6px}
+
+.tray{position:relative;flex:1 1 0;min-height:170px;border-radius:22px;background:var(--wood) url(wood-table.jpg) center/cover;box-shadow:inset 0 8px 28px rgba(10,4,0,.7),inset 0 0 0 2px rgba(20,8,0,.55);touch-action:none;cursor:pointer}
+#app[data-phase="setup"] .tray{flex:0 0 26%}
+#app[data-phase="over"] .tray{display:none}
+.inlay{position:absolute;inset:10px;border:2px solid rgba(242,194,48,.45);border-radius:14px;pointer-events:none}
+.brand{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:clamp(26px,11.4vw,62px);white-space:nowrap;letter-spacing:.12em;padding-left:.12em;color:var(--gold);pointer-events:none}
+.shadow{position:absolute;left:0;top:0;width:var(--d);height:var(--d);border-radius:22%;background:rgba(15,7,2,.62);filter:blur(calc(var(--d)*.09));pointer-events:none;will-change:transform}
+.die{position:absolute;left:0;top:0;width:var(--d);height:var(--d);perspective:calc(var(--d)*7);pointer-events:none;will-change:transform;transition:opacity .25s}
+.cube{position:absolute;inset:0;transform-style:preserve-3d}
+.core{position:absolute;inset:4%;border-radius:12%;background:var(--core)}
+.core.cx{transform:rotateY(90deg)}
+.core.cy{transform:rotateX(90deg)}
+.face{position:absolute;inset:0;padding:15%;border-radius:18%;background:var(--ivory);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);backface-visibility:hidden;box-shadow:inset 0 0 calc(var(--d)*.14) rgba(70,45,10,.3);transition:background-color .2s}
+.f1{transform:translateZ(calc(var(--d)/2))}
+.f6{transform:rotateY(180deg) translateZ(calc(var(--d)/2))}
+.f2{transform:rotateY(90deg) translateZ(calc(var(--d)/2))}
+.f5{transform:rotateY(-90deg) translateZ(calc(var(--d)/2))}
+.f3{transform:rotateX(90deg) translateZ(calc(var(--d)/2))}
+.f4{transform:rotateX(-90deg) translateZ(calc(var(--d)/2))}
+.pip{width:72%;height:72%;border-radius:50%;background:var(--ink);place-self:center}
+.tl{grid-area:1/1}.tr{grid-area:1/3}.ml{grid-area:2/1}.c{grid-area:2/2}.mr{grid-area:2/3}.bl{grid-area:3/1}.br{grid-area:3/3}
+.f1 .pip{background:var(--red);width:100%;height:100%}
+.die.gold .face,.die.gold .core{background:var(--gold)}
+.die.gold .f1 .pip{background:var(--ink)}
+.die.bust .face,.die.bust .core{background:var(--red)}
+.die.bust .f1 .pip{background:var(--ivory)}
+.die.dim{opacity:.4}
+
+.callout{position:absolute;left:50%;top:18px;transform:translateX(-50%);padding:7px 16px;border-radius:999px;background:var(--felt);font-weight:800;font-size:15px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 16px rgba(10,4,0,.5)}
+.callout.gold{background:var(--gold);color:var(--ink)}
+.callout.red{background:var(--red);color:var(--ivory);font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.1em;padding:6px 22px}
+.hint{position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:13px;font-weight:700;color:rgba(255,232,200,.82);text-shadow:0 1px 2px rgba(10,4,0,.9);pointer-events:none}
+
+.dock{flex:none;display:flex;flex-direction:column;gap:10px}
+.dock.scroll{flex:1 1 0;min-height:0;overflow-y:auto;gap:14px;padding-bottom:4px}
+.who{font-size:18px;font-weight:800;text-align:center;text-wrap:balance}
+.stats{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:end;gap:6px;text-align:center}
+.stat{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.lab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.val{font-family:var(--display);font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat.big .lab{color:var(--gold)}
+.stat.big .val{font-size:clamp(46px,15vw,64px);line-height:1;color:var(--gold)}
+.rolls{display:flex;gap:6px;overflow-x:auto;justify-content:safe center;min-height:30px;scrollbar-width:none}
+.rolls span{flex:none;padding:4px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap}
+.rolls span b{color:var(--ivory);font-weight:800;margin-left:4px}
+.rolls span.dbl{border-color:var(--gold)}
+.rolls span.dbl em{font-style:normal;color:var(--gold);font-weight:800;margin-left:2px}
+.rolls span.x{text-decoration:line-through}
+.actions{display:flex;gap:10px}
+.btn{flex:1 1 0;min-height:58px;padding:8px 12px;border-radius:16px;font-size:18px;font-weight:800;cursor:pointer;border:2px solid transparent;line-height:1.15}
+.btn.primary{background:var(--gold);color:var(--ink);flex-grow:1.25}
+.btn.ghost{background:transparent;border-color:var(--ivory);color:var(--ivory)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.note{font-size:13px;color:var(--muted);text-align:center;min-height:18px;text-wrap:balance}
+
+.field{display:flex;flex-direction:column;gap:8px}
+.field>label,.field>.flab,legend{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0}
+fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:48px;height:48px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:24px;font-weight:800;cursor:pointer}
+.stepper output{font-family:var(--display);font-size:28px;min-width:1.2em;text-align:center}
+.names{display:flex;flex-direction:column;gap:8px}
+.prow{display:flex;gap:8px}
+.prow .txt{flex:1 1 0;min-width:0}
+.kind{flex:none;width:138px;min-height:48px;border-radius:14px;background:var(--panel);border:2px solid var(--line);font-weight:700;font-size:13px;cursor:pointer}
+.kind.cpu{border-color:var(--gold);color:var(--gold)}
+.presets{display:flex;gap:8px;flex-wrap:wrap}
+.cpuchip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--muted);color:var(--muted);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
+.txt::placeholder{color:var(--muted);opacity:.8}
+.txt{width:100%;min-height:48px;padding:0 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-weight:700}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.seg label{position:relative;display:flex;align-items:center;justify-content:center;min-height:48px;padding:6px 10px;border-radius:14px;background:var(--panel);border:2px solid var(--line);font-weight:700;font-size:14px;text-align:center;cursor:pointer}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg label:has(input:checked){border-color:var(--gold);color:var(--gold)}
+.seg label:has(input:focus-visible){outline:3px solid var(--gold);outline-offset:2px}
+.intro{font-size:15px;color:var(--muted);margin:0;text-wrap:balance}
+
+.win{font-family:var(--display);font-size:clamp(26px,8vw,36px);line-height:1.1;color:var(--gold);text-align:center;margin:0;text-wrap:balance}
+.winsub{text-align:center;color:var(--muted);margin:0;font-weight:600;text-wrap:balance}
+#winSub2{margin-top:-8px;font-weight:400;font-size:14px}
+.tally{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 2px;margin-bottom:-6px}
+.table{display:flex;flex-direction:column;gap:6px}
+.chartcard{background:var(--panel);border-radius:16px;padding:14px 12px 12px;display:flex;flex-direction:column;gap:10px}
+.charthead{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:0 2px}
+.charthead h2{margin:0;font-size:15px;font-weight:800}
+.charthead span{font-size:12px;color:var(--muted);text-align:right}
+.chart{width:100%;cursor:crosshair}
+.tabs{display:flex;align-items:center;gap:6px}
+.tab{min-height:40px;padding:0 14px;border-radius:999px;background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
+.tab.on{background:var(--ivory);border-color:var(--ivory);color:var(--ink)}
+.swipe{margin-left:auto;font-size:12px;color:var(--muted);padding-right:2px}
+.pager{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.pager::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:10px}
+.dseg{display:inline-flex;flex:none;gap:2px;padding:3px;border-radius:999px;background:var(--felt)}
+.dbtn{min-height:34px;padding:0 10px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.dbtn.on{background:var(--ivory);color:var(--ink)}
+.dist{display:flex;flex-direction:column;gap:9px;padding:0 2px}
+.drow{display:grid;grid-template-columns:minmax(0,1fr) 150px 48px 38px;align-items:end;gap:8px}
+.dhead{align-items:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dhead>span{text-align:right}
+.bars{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px}
+.dhead .bars b{text-align:center;font-size:12px;color:var(--ivory);letter-spacing:0}
+.bc{display:flex;flex-direction:column;align-items:center;gap:2px}
+.bw{height:30px;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.bw i{display:block;width:72%;max-width:16px;border-radius:4px 4px 0 0}
+.bc b{font-size:11px;font-weight:700;line-height:13px;font-variant-numeric:tabular-nums}
+.bars u{position:absolute;left:0;right:0;height:0;border-top:1px dashed var(--muted);text-decoration:none;opacity:.8}
+.dn{display:flex;align-items:center;gap:6px;min-width:0;font-size:13px;font-weight:700;padding-bottom:1px}
+.dn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dv{text-align:right;font-family:var(--display);font-weight:400;font-size:16px;line-height:15px;font-variant-numeric:tabular-nums}
+.cap{margin:0;padding:0 2px;font-size:12px;line-height:1.45;color:var(--muted)}
+.chart svg{display:block;width:100%;height:210px;overflow:visible}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .g100{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 4}
+.chart .ax{fill:var(--muted);font-size:11px;font-family:var(--body);font-variant-numeric:tabular-nums}
+.chart .clab{fill:var(--ivory);font-size:12px;font-weight:700;font-family:var(--body)}
+.chart .cross{stroke:var(--ivory);stroke-width:1;opacity:.55}
+.chart .ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.chart .dot{stroke:var(--panel);stroke-width:2}
+.chart .ring{fill:var(--panel);stroke-width:2}
+.chart .lk{stroke:var(--panel);stroke-width:1.5}
+.key{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);white-space:nowrap}
+.key i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--muted);vertical-align:0}
+.key i.kr{background:transparent;border:2px solid var(--muted);width:9px;height:9px;box-sizing:border-box}
+.readout{display:flex;flex-direction:column;gap:6px;padding:0 2px}
+.readout .rh{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.readout .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 14px}
+.readout .it{display:flex;align-items:center;gap:6px;font-size:13px;min-width:0}
+.readout .it .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;min-width:0}
+.readout .it b{margin-left:auto;font-variant-numeric:tabular-nums}
+.readout .it em{font-style:normal;color:var(--muted);font-size:12px;white-space:nowrap}
+.sw{display:inline-block;flex:none;width:11px;height:11px;border-radius:50%}
+.row .nm .sw{margin-right:8px}
+.facts{margin:0;padding:0 2px;list-style:none;display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted)}
+.facts b{color:var(--ivory);font-weight:700}
+.row{display:grid;grid-template-columns:20px minmax(0,1fr) 62px 56px 40px;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;background:var(--panel);font-weight:700}
+.row .rk{color:var(--muted)}
+.row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .sc{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums;text-align:right}
+.row .tt{font-family:var(--display);font-size:20px;font-variant-numeric:tabular-nums;text-align:right;color:var(--ivory)}
+.row.rhead{background:none;padding-block:0 0;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:0}
+.row.rhead span:nth-child(n+3){text-align:right}
+.row .net{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:17px}
+.row .net.up{color:var(--gold)}
+.row.first{border:2px solid var(--gold)}
+
+dialog{background:var(--panel);color:var(--ivory);border:1px solid var(--line);border-radius:20px;width:min(92vw,460px);max-height:86vh;padding:20px}
+dialog::backdrop{background:rgba(4,10,8,.7)}
+dialog h2{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.04em;margin:0 0 12px;color:var(--gold)}
+dialog ol{margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+dialog .actions{flex-direction:column}
+dialog .btn{flex:none;min-height:52px;font-size:16px}
+.dlgp{margin:0 0 16px;font-size:15px;color:var(--ivory);line-height:1.45}
+.btn.danger{background:transparent;border-color:var(--red-text);color:var(--red-text)}
+.sechead{margin:6px 0 -4px;padding:0 2px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ledger-wrap{overflow-x:auto;border-radius:14px;background:var(--panel)}
+.ledger{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+.ledger th,.ledger td{padding:9px 10px;text-align:right;white-space:nowrap}
+.ledger th{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.ledger th:first-child,.ledger td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
+.ledger tr+tr td{border-top:1px solid var(--line)}
+.ledger td.nm{font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+.ledger td.nm .sw{margin-right:8px;vertical-align:-1px}
+.ledger td.w{color:var(--gold);font-weight:800}
+.ledger td.tot{font-family:var(--display);font-size:16px}
+.ledger td.wins{color:var(--muted)}
+
+.tile .hotb{position:absolute;top:-12px;right:-5px;padding:0 6px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:11px;font-weight:800;line-height:16px;border:2px solid var(--felt)}
+.seal{position:absolute;left:20px;top:20px;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--ink);display:grid;place-items:center;font-family:var(--display);font-size:22px;box-shadow:0 6px 16px rgba(10,4,0,.55),inset 0 0 0 3px rgba(20,32,28,.22);pointer-events:none;transform:rotate(-8deg);animation:sealpulse .9s ease-in-out infinite alternate}
+@keyframes sealpulse{from{transform:rotate(-8deg) scale(1)}to{transform:rotate(-8deg) scale(1.12)}}
+#app.hot .inlay{border-color:var(--gold);box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)}
+.x2chip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
+.statwrap{position:relative}
+.burn{position:absolute;inset:-44px -8px -8px;border-radius:16px;background:linear-gradient(to bottom,transparent,var(--felt) 14px);overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding-bottom:8px;z-index:3}
+.burn canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.burn #fire2{z-index:3;mix-blend-mode:screen}
+.burn .lab{position:relative;z-index:2;color:var(--ivory);text-shadow:0 1px 3px rgba(20,4,0,.9);text-align:center}
+.burn .val{position:relative;z-index:2;display:inline-block;font-size:clamp(54px,18vw,76px);line-height:1;color:var(--ivory);-webkit-text-stroke:7px #2A0F05;paint-order:stroke fill}
+
+/* ---- main menu, settings and online screens ---- */
+#app[data-phase="menu"] .tray{flex:0 0 30%}
+#app[data-phase="settings"] .tray,#app[data-phase="online"] .tray,#app[data-phase="ach"] .tray{display:none}
+/* achievements screen and unlock toast */
+.achwho{display:flex;flex-wrap:wrap;gap:6px}
+.achlist{display:flex;flex-direction:column;gap:8px}
+.acard{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;background:var(--panel)}
+.acard .ab{flex:none;width:58px;display:grid;place-items:center}
+.bcrop{display:block;overflow:hidden;flex:none}
+.bcrop img,.acard img,.achtoast img{display:block;max-width:none}
+.acard.locked .ab img{filter:grayscale(1) brightness(.62);opacity:.7}
+.acard .at{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.acard .an{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.acard.locked .an{color:var(--muted)}
+.acard .ar{font-size:13px;line-height:1.35;color:var(--muted)}
+.acard .ar b{color:var(--ivory);font-weight:700}
+.acard.done .ar{color:var(--gold);font-weight:700}
+.achip{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:999px;border:1px solid currentColor;line-height:15px}
+.apb{height:5px;border-radius:3px;background:rgba(4,10,8,.55);overflow:hidden;margin-top:2px}
+.apb i{display:block;height:100%;background:var(--gold)}
+.apv{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.apips{display:flex;gap:4px;margin-top:1px}
+.apips i{width:8px;height:8px;border-radius:50%;box-sizing:border-box;border:1.5px solid #5E6F68}
+.achtoast{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:20;width:min(92vw,380px);display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--panel);border:2px solid var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.55);animation:achin .3s ease-out}
+.achtoast.out{opacity:0;transition:opacity .3s}
+.achtoast span{display:flex;flex-direction:column;min-width:0}
+.achtoast small{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.achtoast b{font-size:17px;font-weight:800}
+.achtoast em{font-style:normal;font-size:13px;color:var(--muted)}
+@keyframes achin{from{transform:translate(-50%,-30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@media (prefers-reduced-motion:reduce){.achtoast{animation:none}}
+#app[data-phase="menu"] #rulesBtn{visibility:hidden}
+.back{align-self:flex-start;flex:none}
+.menu{display:flex;flex-direction:column;gap:10px}
+.btn.big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:none;width:100%;min-height:66px}
+.btn.big small{font-size:13px;font-weight:600;opacity:.78}
+.screen-h{margin:0;font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.05em;color:var(--gold)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel)}
+.opt b{display:block;font-size:16px}
+.opt small{display:block;margin-top:2px;font-size:13px;line-height:1.35;color:var(--muted)}
+.tog{flex:none;position:relative;width:54px;height:32px;border-radius:999px;background:var(--line);border:0;padding:0;cursor:pointer}
+.tog::after{content:'';position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;background:var(--muted);transition:transform .15s}
+.tog[aria-checked="true"]{background:var(--gold)}
+.tog[aria-checked="true"]::after{transform:translateX(22px);background:var(--ink)}
+.seg.seg3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.defrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.defrow .btn{flex:none;min-height:48px;padding:8px 16px;font-size:15px}
+.defrow span{font-size:13px;color:var(--muted)}
+/* online play: lobby, host form, waiting room */
+#app[data-phase="host"] .tray,#app[data-phase="room"] .tray{display:none}
+.joinrow{display:flex;gap:8px}
+.joinrow .txt{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.12em}
+.joinrow .btn{flex:none;min-height:48px;padding:0 18px;font-size:16px}
+.onmsg{margin:0;min-height:0;font-size:14px;font-weight:700;color:var(--red-text)}
+.onmsg:empty{display:none}
+.onmsg.ok{color:var(--gold)}
+.lobby{display:flex;flex-direction:column;gap:8px}
+.lrow{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel)}
+.lrow .lt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.lrow .lt b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow .lt span{font-size:13px;color:var(--muted)}
+.lrow .btn{flex:none;min-height:44px;padding:0 16px;font-size:15px}
+.lock{display:inline-block;width:11px;height:12px;margin-right:6px;vertical-align:-1px;color:var(--gold)}
+.empty{padding:14px;border-radius:14px;border:1px dashed var(--line);font-size:14px;color:var(--muted)}
+.codebox{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel);flex-wrap:wrap}
+.codebox span{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.codebox b{font-family:var(--display);font-weight:400;font-size:26px;letter-spacing:.14em;color:var(--gold)}
+.codebox .link{margin-left:auto}
+.seatlist{display:flex;flex-direction:column;gap:6px}
+.seat{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-weight:700}
+.seat.open{background:transparent;border:1px dashed var(--line);color:var(--muted);font-weight:600}
+.seat small{margin-left:auto;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.clock{align-self:center;padding:2px 12px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--muted)}
+.clock.mine{border-color:var(--gold);color:var(--gold)}
+.clock.low{border-color:var(--red-text);color:var(--red-text)}
+.netnote{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:21;max-width:min(92vw,380px);padding:10px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:14px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.5);text-align:center}
+.awaychip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--red-text);color:var(--red-text);font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
+/* between games: scores first, graphs and dice stats one tap away */
+#over:not(.showstats) .chartcard,#over:not(.showstats) #facts{display:none}
+#over.showstats #tally,#over.showstats #standings,#over.showstats #tallyCap{display:none}
+#over .actions .btn{font-size:16px;padding:8px 6px}
+.rrchip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--gold);color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.04em;vertical-align:middle}
+.tile .sc.au{color:var(--gold)}
+.tile .pw{display:flex;gap:2px;height:6px}
+.tile .pw i{width:6px;height:6px;border-radius:50%;border:1.5px solid rgba(246,241,228,.7);box-sizing:border-box;background:rgba(4,10,8,.35)}
+.tile .pw i.on{background:#FFD83A;border-color:#FFD83A}
+.tile .pw.full i{box-shadow:0 0 5px #FFD83A}
+.row.g5{grid-template-columns:18px minmax(0,1fr) 50px 48px 50px 32px;gap:6px}
+.row .gd{font-family:var(--display);font-size:18px;text-align:right;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1.05}
+.row .gd small{display:block;margin-top:2px;font-family:var(--body);font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.tog::after{transition:none}}
+
+@media (max-height:660px){
+  #app{gap:8px;padding-block:8px 10px}
+  .btn{min-height:52px}
+  .stat.big .val{font-size:44px}
+  .val{font-size:24px}
+  .who{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){.die,.face{transition:none}.seal{animation:none}}
+</style>
+
+<div id="app" data-phase="menu">
+  <header class="top">
+    <div class="title"><svg class="pig" viewBox="0 0 200 200" role="img" aria-label="Degen Pig logo: a gold pig in sunglasses and a crown"><defs><linearGradient id="pg-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6C2"/><stop offset=".22" stop-color="#F6CF45"/><stop offset=".52" stop-color="#C8901A"/><stop offset=".6" stop-color="#F0D262"/><stop offset=".82" stop-color="#D49B1C"/><stop offset="1" stop-color="#8A5A0A"/></linearGradient><linearGradient id="pg-s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF9D6"/><stop offset=".5" stop-color="#F8DA6A"/><stop offset="1" stop-color="#C98F18"/></linearGradient><linearGradient id="pg-e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98F18"/><stop offset="1" stop-color="#7A4D08"/></linearGradient></defs><path d="M44 86 L26 46 Q62 48 78 70 Z" fill="url(#pg-g)" stroke="#8A5A0A" stroke-width="3" stroke-linejoin="round"/><path d="M156 86 L174 46 Q138 48 122 70 Z" fill="url(#pg-g)" stroke="#8A5A0A" stroke-width="3" stroke-linejoin="round"/><path d="M46 76 L38 54 Q56 56 66 68 Z" fill="url(#pg-e)"/><path d="M154 76 L162 54 Q144 56 134 68 Z" fill="url(#pg-e)"/><ellipse cx="100" cy="122" rx="66" ry="58" fill="url(#pg-g)" stroke="#8A5A0A" stroke-width="3"/><ellipse cx="100" cy="144" rx="32" ry="21" fill="url(#pg-s)" stroke="#8A5A0A" stroke-width="3"/><ellipse cx="89" cy="144" rx="5.5" ry="8" fill="#3B2305"/><ellipse cx="111" cy="144" rx="5.5" ry="8" fill="#3B2305"/><path d="M38 100 L162 100" stroke="#14201C" stroke-width="6" stroke-linecap="round"/><rect x="48" y="95" width="46" height="29" rx="10" fill="#14201C"/><rect x="106" y="95" width="46" height="29" rx="10" fill="#14201C"/><path d="M58 103 L70 103 M116 103 L128 103" stroke="#F6CF45" stroke-width="3.5" stroke-linecap="round"/><path d="M86 171 Q104 179 119 167" fill="none" stroke="#3B2305" stroke-width="4" stroke-linecap="round"/><path d="M68 70 L64 26 L84 46 L100 14 L116 46 L136 26 L132 70 Z" fill="url(#pg-s)" stroke="#8A5A0A" stroke-width="3" stroke-linejoin="round"/><circle cx="64" cy="24" r="5" fill="url(#pg-s)" stroke="#8A5A0A" stroke-width="2.5"/><circle cx="100" cy="12" r="5" fill="url(#pg-s)" stroke="#8A5A0A" stroke-width="2.5"/><circle cx="136" cy="24" r="5" fill="url(#pg-s)" stroke="#8A5A0A" stroke-width="2.5"/><circle cx="100" cy="56" r="5" fill="#D93A3A" stroke="#3B2305" stroke-width="2"/></svg><div class="logo">DEGEN PIG</div></div>
+    <div class="top-right">
+      <button class="link" id="rulesBtn" type="button">Rules of the Game</button>
+    </div>
+  </header>
+
+  <div class="board" id="board" hidden></div>
+  <div class="banner" id="banner" hidden></div>
+
+  <div class="tray" id="tray" tabindex="0" role="button" aria-label="Dice table. Tap or flick to roll the dice.">
+    <div class="brand" aria-hidden="true">DEGEN PIG</div>
+    <div class="inlay"></div>
+    <div class="seal" id="seal" hidden aria-hidden="true">×2</div>
+    <div class="shadow" id="sh0"></div>
+    <div class="shadow" id="sh1"></div>
+    <div class="die" id="die0"></div>
+    <div class="die" id="die1"></div>
+    <div class="callout" id="callout" aria-live="polite" hidden></div>
+    <div class="hint" id="hint">Tap or flick the table to roll</div>
+  </div>
+
+  <section class="dock scroll" id="menu">
+    <div class="menu">
+      <button class="btn primary big" id="mPass" type="button">Pass n Play<small>Share one phone around the table</small></button>
+      <button class="btn ghost big" id="mOnline" type="button">Online Play<small>Everyone on their own phone</small></button>
+      <button class="btn ghost big" id="mSettings" type="button">Settings<small>Sound and game types</small></button>
+      <button class="btn ghost big" id="mAch" type="button">Achievements<small>Badges each player has earned</small></button>
+      <button class="btn ghost big" id="mRules" type="button">Rules of the Game</button>
+    </div>
+    <p class="cap" id="menuRules"></p>
+  </section>
+
+  <section class="dock scroll" id="online" hidden>
+    <button type="button" class="link back" id="backOnline">‹ Main menu</button>
+    <h1 class="screen-h">Online Play</h1>
+    <div class="field"><label for="onName">Your name</label><input class="txt" id="onName" maxlength="10" placeholder="Name at the table" autocomplete="off"></div>
+    <div class="actions"><button class="btn primary" id="hostBtn" type="button">Host a table</button></div>
+    <div class="joinrow"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
+    <p class="onmsg" id="onMsg" role="status"></p>
+    <h2 class="sechead">Open tables</h2>
+    <div class="lobby" id="lobbyList"></div>
+    <h2 class="sechead" id="histHead" hidden>Your recent games</h2>
+    <div class="lobby" id="histList"></div>
+  </section>
+
+  <section class="dock scroll" id="host" hidden>
+    <button type="button" class="link back" id="backHost">‹ Online Play</button>
+    <h1 class="screen-h">Host a table</h1>
+    <div class="field"><label for="hName">Table name</label><input class="txt" id="hName" maxlength="24" placeholder="Monday night pigs" autocomplete="off"></div>
+    <div class="field">
+      <span class="flab" id="hSeatsLab">Seats</span>
+      <div class="stepper" role="group" aria-labelledby="hSeatsLab"><button type="button" id="hLess" aria-label="Fewer seats">−</button><output id="hSeats">4</output><button type="button" id="hMore" aria-label="More seats">+</button></div>
+    </div>
+    <fieldset>
+      <legend>Who can join</legend>
+      <div class="seg"><label><input type="radio" name="vis" id="hPub" value="pub" checked>Public</label><label><input type="radio" name="vis" id="hPriv" value="priv">Private</label></div>
+    </fieldset>
+    <div class="field" id="hPwRow" hidden><label for="hPw">Password</label><input class="txt" id="hPw" maxlength="20" placeholder="Players need this to join" autocomplete="off"></div>
+    <p class="cap" id="hRules"></p>
+    <div class="actions"><button class="btn primary" id="hCreate" type="button">Open the table</button></div>
+    <p class="onmsg" id="hMsg" role="status"></p>
+  </section>
+
+  <section class="dock scroll" id="room" hidden>
+    <h1 class="screen-h" id="rName"></h1>
+    <p class="cap" id="rInfo"></p>
+    <div class="codebox"><span>Table code</span><b id="rCode"></b><button class="link" id="rShare" type="button">Share invite</button></div>
+    <div class="seatlist" id="rSeats"></div>
+    <p class="cap" id="rNote"></p>
+    <div class="actions"><button class="btn primary" id="rStart" type="button">Start now</button><button class="btn ghost" id="rLeave" type="button">Leave</button></div>
+  </section>
+
+  <section class="dock scroll" id="settings" hidden>
+    <button type="button" class="link back" id="backSettings">‹ Main menu</button>
+    <h1 class="screen-h">Settings</h1>
+    <div class="defrow"><button class="btn ghost" id="defaultsBtn" type="button">Use the default rules</button><span id="defNote"></span></div>
+    <div class="opts">
+      <div class="opt"><span><b>Sound effects</b><small>Dice, oinks, coins and fire.</small></span><button class="tog" id="tSound" type="button" role="switch" aria-checked="true" aria-label="Sound effects"></button></div>
+    </div>
+    <fieldset>
+      <legend>Final turn starts when someone reaches</legend>
+      <div class="seg seg3">
+        <label><input type="radio" name="target" id="tg100" value="100">100 Pig</label>
+        <label><input type="radio" name="target" id="tg150" value="150">150 Pig</label>
+        <label><input type="radio" name="target" id="tg200" value="200">200 Pig</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Turn timer for online games</legend>
+      <div class="seg seg3">
+        <label><input type="radio" name="timer" id="tm15" value="15">15 seconds</label>
+        <label><input type="radio" name="timer" id="tm30" value="30">30 seconds</label>
+        <label><input type="radio" name="timer" id="tm60" value="60">1 minute</label>
+      </div>
+    </fieldset>
+    <div class="opts">
+      <div class="opt"><span><b>Golden Points</b><small>Every point a player has above the target counts as a golden point, shown on the score boxes and in the summary.</small></span><button class="tog" id="tGolden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
+      <div class="opt"><span><b>Disable Doubles</b><small>Turns off every ×2: doubles score face value, and no catch-up or snake-eyes bonuses.</small></span><button class="tog" id="tNoDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
+      <div class="opt"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
+      <div class="opt"><span><b>Verify Double</b><small>After rolling a double, a player cannot lock in. They must keep rolling until a roll is not a double.</small></span><button class="tog" id="tVerify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
+      <div class="opt"><span><b>One Power</b><small>Each player has 5 dots under their score. Every 1 they roll fills a dot in yellow. Fill all 5 and their next turn pays double, then the dots reset.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="One Power"></button></div>
+    </div>
+  </section>
+
+  <section class="dock scroll" id="setup" hidden>
+    <button type="button" class="link back" id="backSetup">‹ Main menu</button>
+    <p class="intro" id="intro">Roll two dice as often as you dare. Doubles pay double, any 1 wipes the turn, and snake eyes burns your whole score. First to 100 sets the bar.</p>
+    <div class="field">
+      <span class="flab" id="countLab">Players</span>
+      <div class="stepper" role="group" aria-labelledby="countLab">
+        <button type="button" id="less" aria-label="Fewer players">−</button>
+        <output id="count">4</output>
+        <button type="button" id="more" aria-label="More players">+</button>
+      </div>
+    </div>
+    <fieldset>
+      <legend>Who is playing</legend>
+      <div class="presets">
+        <button type="button" class="link" id="presetSolo">Solo vs computers</button>
+        <button type="button" class="link" id="presetAll">Everyone human</button>
+      </div>
+      <div class="names" id="names">
+        <div class="prow" id="prow0"><input class="txt" id="name0" maxlength="10" placeholder="Player 1" aria-label="Player 1 name" autocomplete="off"><button type="button" class="kind" id="kind0">Human</button></div>
+        <div class="prow" id="prow1"><input class="txt" id="name1" maxlength="10" placeholder="Player 2" aria-label="Player 2 name" autocomplete="off"><button type="button" class="kind" id="kind1">Human</button></div>
+        <div class="prow" id="prow2"><input class="txt" id="name2" maxlength="10" placeholder="Player 3" aria-label="Player 3 name" autocomplete="off"><button type="button" class="kind" id="kind2">Human</button></div>
+        <div class="prow" id="prow3"><input class="txt" id="name3" maxlength="10" placeholder="Player 4" aria-label="Player 4 name" autocomplete="off"><button type="button" class="kind" id="kind3">Human</button></div>
+        <div class="prow" id="prow4"><input class="txt" id="name4" maxlength="10" placeholder="Player 5" aria-label="Player 5 name" autocomplete="off"><button type="button" class="kind" id="kind4">Human</button></div>
+        <div class="prow" id="prow5"><input class="txt" id="name5" maxlength="10" placeholder="Player 6" aria-label="Player 6 name" autocomplete="off"><button type="button" class="kind" id="kind5">Human</button></div>
+      </div>
+    </fieldset>
+    <div class="actions"><button class="btn primary" id="startBtn" type="button">Start game</button></div>
+  </section>
+
+  <section class="dock" id="play" hidden>
+    <div class="clock" id="clock" hidden></div>
+    <div class="who" id="who"></div>
+    <div class="statwrap">
+    <div class="burn" id="burn" hidden><canvas id="fire"></canvas><span class="lab" id="burnLab">Snake eyes</span><span class="val" id="burnVal">0</span><canvas id="fire2"></canvas></div>
+    <div class="stats" id="stats">
+      <div class="stat"><span class="lab" id="l1"></span><span class="val" id="v1"></span></div>
+      <div class="stat big"><span class="lab" id="l2"></span><span class="val" id="v2"></span></div>
+      <div class="stat"><span class="lab" id="l3"></span><span class="val" id="v3"></span></div>
+    </div>
+    </div>
+    <div class="rolls" id="rolls"></div>
+    <div class="actions">
+      <button class="btn primary" id="rollBtn" type="button">Roll</button>
+      <button class="btn ghost" id="lockBtn" type="button">Lock in</button>
+    </div>
+    <div class="note" id="note"></div>
+  </section>
+
+  <section class="dock scroll" id="ach" hidden>
+    <button type="button" class="link back" id="backAch">‹ Main menu</button>
+    <h1 class="screen-h">Achievements</h1>
+    <div class="achwho" id="achWho" role="group" aria-label="Whose achievements"></div>
+    <p class="cap" id="achSum"></p>
+    <div class="achlist" id="achList"></div>
+  </section>
+
+  <section class="dock scroll" id="over" hidden>
+    <h1 class="win" id="winLine"></h1>
+    <p class="winsub" id="winSub"></p>
+    <p class="winsub" id="winSub2"></p>
+    <div class="chartcard">
+      <div class="tabs">
+        <button type="button" class="tab on" id="tab0" aria-pressed="true">Score graph</button>
+        <button type="button" class="tab" id="tab1" aria-pressed="false">Dice rolls</button>
+        <span class="swipe">Swipe to switch</span>
+      </div>
+      <div class="pager" id="pager">
+        <section class="page" id="page0">
+          <div class="charthead"><h2>Score after each round</h2><span class="key"><span><i></i>Locked in</span><span><i class="kr"></i>Dropped to 0</span></span></div>
+          <div class="chart" id="chart" role="img" aria-label="Line graph of every player&#39;s score after each round"></div>
+          <div class="readout" id="readout"></div>
+        </section>
+        <section class="page" id="page1">
+          <div class="charthead"><h2 id="distH">Dice rolled by each player</h2><span class="dseg" id="dseg" hidden><button type="button" class="dbtn on" id="dGame" aria-pressed="true">This game</button><button type="button" class="dbtn" id="dAll" aria-pressed="false">All games</button></span></div>
+          <div class="dist" id="dist"></div>
+          <p class="cap" id="distSum"></p>
+          <p class="cap">Every roll throws two dice, so each roll adds two to these counts. The dashed line is an even one-sixth share. Doubles are matching pairs of 2 to 6. Lost is the points at risk wiped out by a 1.</p>
+        </section>
+      </div>
+    </div>
+    <ul class="facts" id="facts"></ul>
+    <div class="tally" id="tally"></div>
+    <div class="table" id="standings"></div>
+    <p class="cap" id="tallyCap">Total and Wins keep adding up with every game until you go back to the main menu.</p>
+    <div class="actions">
+      <button class="btn primary" id="againBtn" type="button">Play again</button>
+      <button class="btn ghost" id="statsBtn" type="button">View stats</button>
+      <button class="btn ghost" id="newBtn" type="button">Main menu</button>
+    </div>
+  </section>
+
+  <div class="achtoast" id="achToast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="rules" aria-labelledby="rulesTitle">
+    <h2 id="rulesTitle">How to play</h2>
+    <ol id="rulesList"></ol>
+    <div class="actions">
+      <button class="btn primary" id="closeRules" type="button">Back to the game</button>
+      <button class="btn ghost" id="soundBtn" type="button">Sound: on</button>
+      <button class="btn ghost" id="quitBtn" type="button">End this game</button>
+    </div>
+  </dialog>
+
+  <dialog id="leaveDlg" aria-labelledby="leaveTitle">
+    <h2 id="leaveTitle">Back to the main menu?</h2>
+    <p class="dlgp" id="leaveText">All scores for these players will be lost: this game, the scoreboard totals and the games-won tally.</p>
+    <div class="actions">
+      <button class="btn primary" id="stayBtn" type="button">Stay here</button>
+      <button class="btn danger" id="leaveBtn" type="button">Leave and lose the scores</button>
+    </div>
+  </dialog>
+
+  <dialog id="pwDlg" aria-labelledby="pwTitle">
+    <h2 id="pwTitle">Private table</h2>
+    <p class="dlgp" id="pwText">This table needs a password.</p>
+    <input class="txt" id="pwIn" maxlength="20" autocomplete="off" aria-label="Table password" style="margin-bottom:16px">
+    <div class="actions">
+      <button class="btn primary" id="pwGo" type="button">Join the table</button>
+      <button class="btn ghost" id="pwCancel" type="button">Cancel</button>
+    </div>
+  </dialog>
+
+  <dialog id="endDlg" aria-labelledby="endTitle">
+    <h2 id="endTitle">Table closed</h2>
+    <p class="dlgp" id="endText"></p>
+    <div class="actions"><button class="btn primary" id="endOk" type="button">Back to Online Play</button></div>
+  </dialog>
+
+  <div class="netnote" id="netNote" role="status" aria-live="polite" hidden></div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function rand(a,b){return a+Math.random()*(b-a)}
+function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n}catch(e){return Math.floor(Math.random()*n)}}
+function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
+
+var DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,timer:30};
+var S={phase:'menu',cfg:{target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+  players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
+  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true};
+
+
+/* ---------- achievements: saved on this device for each human player name ---------- */
+var TIER=['Piglet','Hog','Boar','Golden Pig'],TIERC=['#E8A774','#DCE4E9','#F09A45','#F2C230'];
+function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+/* k: max = best single value, cnt = lifetime total, min = lowest value (fewer is better), one = a single badge of tier t */
+var ACH=[
+ {id:'hogwild',n:'Hog Wild',c:'turn',k:'max',L:[50,75,100,150],d:function(x){return 'Bank '+x+' points in one turn'}},
+ {id:'greedy',n:'Greedy Pig',c:'turn',k:'max',L:[8,10,12,15],d:function(x){return 'Roll '+x+' times in one turn, then lock in'}},
+ {id:'badbeat',n:'Bad Beat',c:'turn',k:'max',L:[30,50,75,100],d:function(x){return 'Bust with '+x+' points at risk'}},
+ {id:'doubledouble',n:'Double Double',c:'turn',k:'one',t:1,d:'Roll two doubles back to back'},
+ {id:'runninghot',n:'Running Hot',c:'turn',k:'one',t:2,d:'Roll three doubles back to back'},
+ {id:'onfire',n:'On Fire',c:'turn',k:'one',t:3,d:'Roll four doubles back to back'},
+ {id:'doubleboxcars',n:'Double Boxcars',c:'turn',k:'one',t:3,d:'Roll double sixes twice in a row'},
+ {id:'suckout',n:'Suckout',c:'game',k:'max',L:[null,50,75,100],d:function(x){return 'Win after starting your final turn '+x+'+ points behind'}},
+ {id:'phoenix',n:'Phoenix',c:'game',k:'max',L:[10,25,50,75],d:function(x){return 'Win after snake eyes burned '+x+'+ of your banked points'}},
+ {id:'speedpig',n:'Speed Pig',c:'game',k:'min',L:[8,6,5,4],d:function(x){return 'Win in '+x+' turns or fewer'}},
+ {id:'rivered',n:'Rivered ’Em',c:'game',k:'one',t:1,d:'Win on your final turn after someone else hit the target'},
+ {id:'doubletrouble',n:'Double Trouble',c:'game',k:'one',t:1,d:'Roll snake eyes twice in one game'},
+ {id:'cleangame',n:'Clean Game',c:'game',k:'one',t:2,d:'Win without busting once'},
+ {id:'wire',n:'Wire to Wire',c:'game',k:'one',t:2,d:'Lead or share the lead after every round, then win'},
+ {id:'snakecharmer',n:'Snake Charmer',c:'game',k:'one',t:3,d:'Win a game in which you rolled snake eyes twice'},
+ {id:'degen',n:'Degen',c:'life',k:'cnt',L:[25,100,500,1000],d:function(x){return 'Play '+fmt(x)+' games'}},
+ {id:'shark',n:'Shark',c:'life',k:'cnt',L:[10,50,200,500],d:function(x){return 'Win '+fmt(x)+' games'}},
+ {id:'piggybank',n:'Piggy Bank',c:'life',k:'cnt',L:[5000,25000,100000,250000],d:function(x){return 'Bank '+fmt(x)+' points in total'}},
+ {id:'diceroller',n:'Dice Roller',c:'life',k:'cnt',L:[1000,5000,25000,100000],d:function(x){return 'Roll the dice '+fmt(x)+' times'}},
+ {id:'seeingdouble',n:'Seeing Double',c:'life',k:'cnt',L:[100,500,1500,5000],d:function(x){return 'Roll '+fmt(x)+' doubles'}},
+ {id:'bigturns',n:'Big Turns',c:'life',k:'cnt',L:[10,50,200,500],d:function(x){return 'Bank 50+ in one turn, '+fmt(x)+' times'}},
+ {id:'comeback',n:'Comeback Kid',c:'life',k:'cnt',L:[5,25,75,200],d:function(x){return 'Win '+fmt(x)+' games after starting your final turn 50+ behind'}},
+ {id:'hotstreak',n:'Hot Streak',c:'life',k:'max',L:[3,4,5,7],d:function(x){return 'Win '+x+' games in a row against 2+ other players'}},
+ {id:'grinder',n:'Grinder',c:'life',k:'max',L:[3,7,30,100],d:function(x){return 'Play on '+x+' days in a row'}},
+ {id:'goldenhoard',n:'Golden Hoard',c:'life',k:'cnt',L:[250,1000,5000,25000],d:function(x){return 'Earn '+fmt(x)+' Golden Points in total, with Golden Points on'}},
+ {id:'secondchance',n:'Second Chance',c:'set',k:'one',t:0,d:'Use a re-roll and lock in that same turn, with Re-roll Pig on'},
+ {id:'powertrip',n:'Power Trip',c:'set',k:'one',t:1,d:'Bank 30+ on a One Power turn, with One Power on'},
+ {id:'verified',n:'Verified',c:'set',k:'one',t:2,d:'Survive three forced rolls in a row, with Verify Double on'},
+ {id:'goldenhog',n:'Golden Hog',c:'set',k:'one',t:2,d:'Finish a game with 50+ Golden Points, with Golden Points on'},
+ {id:'homegame',n:'Home Game',c:'multi',k:'cnt',L:[5,25,100,250],online:1,d:function(x){return 'Host '+x+' online tables that fill and play'}},
+ {id:'nemesis',n:'Nemesis',c:'multi',k:'max',L:[10,25,50,100],d:function(x){return 'Beat the same friend '+x+' times'}},
+ {id:'fulltable',n:'Full Table',c:'multi',k:'cnt',L:[1,10,50,200],online:1,d:function(x){return 'Play '+x+' full 6-player online game'+(x===1?'':'s')}},
+ {id:'tilted',n:'Tilted',c:'shame',k:'max',L:[5,7,10,null],hint:'Hint: a truly awful run of turns',d:function(x){return 'Bust '+x+' turns in a row'}},
+ {id:'snakecollector',n:'Snake Collector',c:'shame',k:'cnt',L:[25,100,250,500],hint:'Hint: snake eyes, again and again',d:function(x){return 'Roll snake eyes '+x+' times'}},
+ {id:'burntbacon',n:'Burnt Bacon',c:'shame',k:'cnt',L:[1000,10000,50000,100000],hint:'Hint: let the 1s eat enough of your points',d:function(x){return 'Lose '+fmt(x)+' points to 1s'}},
+ {id:'roughstart',n:'Rough Start',c:'shame',k:'one',t:0,hint:'Hint: the worst possible way to start a game',d:'Roll snake eyes on your very first roll of a game'}
+];
+var ACHBY={};ACH.forEach(function(a){ACHBY[a.id]=a});
+var ACHCAT=[['turn','Single turn'],['game','Single game'],['life','Lifetime'],['set','Setting-specific'],['multi','Multiplayer'],['shame','Hidden hall of shame']];
+var AD=null,achQ=[],achSel=null,toastBusy=false;
+function achLoad(){if(AD)return AD;try{AD=JSON.parse(localStorage.getItem('degenpig-ach')||'null')}catch(e){AD=null}if(!AD||typeof AD!=='object'||!AD.p||typeof AD.p!=='object')AD={p:{}};return AD}
+function achSave(){try{localStorage.setItem('degenpig-ach',JSON.stringify(AD))}catch(e){}}
+function achKey(n){return String(n||'').trim().toLowerCase()}
+function achRec(p){if(!p||p.bot)return null;var d=achLoad(),k=achKey(p.name);if(!k)return null;var r=d.p[k];if(!r||typeof r!=='object')r=d.p[k]={};if(!r.v)r.v={};if(!r.opp)r.opp={};r.name=p.name;return r}
+/* how many levels are earned, counted as the highest level index + 1 (0 = none); a single badge is 0 or 1 */
+function achLevel(a,r){var v=r&&r.v?r.v[a.id]:null;if(a.k==='one')return v?1:0;if(v==null)return 0;var n=0;a.L.forEach(function(x,i){if(x!=null&&(a.k==='min'?v<=x:v>=x))n=i+1});return n}
+function achSet(p,id,val,mode){
+  var r=achRec(p);if(!r)return;var a=ACHBY[id],old=achLevel(a,r),cur=r.v[id];
+  if(mode==='add')r.v[id]=(cur||0)+val;else if(mode==='max'){if(cur==null||val>cur)r.v[id]=val}else if(mode==='min'){if(cur==null||val<cur)r.v[id]=val}else r.v[id]=1;
+  var nw=achLevel(a,r);if(nw>old)achQ.push({a:a,lv:nw,who:r.name});achSave();
+}
+function dayStr(off){var d=new Date();d.setDate(d.getDate()+(off||0));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function achRoll(p,a,b){
+  if(p.bot||!p.g)return;var g=p.g,one=a===1||b===1,snake=a===1&&b===1&&!S.inReroll,pair=a===b&&!one;
+  achSet(p,'diceroller',1,'add');if(pair)achSet(p,'seeingdouble',1,'add');
+  if(snake){achSet(p,'snakecollector',1,'add');if(!g.rolls)achSet(p,'roughstart',1)}
+  g.rolls++;
+  g.dbl=pair?g.dbl+1:0;if(g.dbl>=2)achSet(p,'doubledouble',1);if(g.dbl>=3)achSet(p,'runninghot',1);if(g.dbl>=4)achSet(p,'onfire',1);
+  g.six=(a===6&&b===6)?g.six+1:0;if(g.six>=2)achSet(p,'doubleboxcars',1);
+  if(RL().verify){if(one||!S.mustRoll)g.forced=0;else{g.forced++;if(g.forced>=3)achSet(p,'verified',1)}}   /* a forced roll is one made while a double still has to be followed up */
+}
+function achBust(p,risk,burn,snake){
+  if(p.bot||!p.g)return;var g=p.g,r=achRec(p);g.busts++;
+  if(risk>0)achSet(p,'badbeat',risk,'max');if(risk+burn>0)achSet(p,'burntbacon',risk+burn,'add');
+  if(snake&&burn>g.burnMax)g.burnMax=burn;if(snake&&p.st&&p.st.sn>=2)achSet(p,'doubletrouble',1);
+  if(r){r.bs=(r.bs||0)+1;achSet(p,'tilted',r.bs,'max')}
+}
+function achLock(p,amt,rolls){
+  if(p.bot)return;var r=achRec(p);if(r)r.bs=0;
+  achSet(p,'hogwild',amt,'max');achSet(p,'greedy',rolls,'max');achSet(p,'piggybank',amt,'add');if(amt>=50)achSet(p,'bigturns',1,'add');
+  if(S.rrUsed)achSet(p,'secondchance',1);if(S.powerTurn&&amt>=30)achSet(p,'powertrip',1);
+}
+function achRound(){S.players.forEach(function(p,i){if(!p.g)return;var mx=Math.max.apply(null,S.players.map(function(q,j){return j===i?-1:q.score}));if(p.score<mx)p.g.wireFail=true})}
+function achGame(w){
+  var n=S.players.length,today=dayStr(0),yest=dayStr(-1);
+  S.players.forEach(function(p,i){
+    if(p.bot||!p.g)return;var g=p.g,won=w.indexOf(i)>=0,r=achRec(p);if(!r)return;
+    achSet(p,'degen',1,'add');
+    if(r.day!==today){r.ds=r.day===yest?(r.ds||0)+1:1;r.day=today;achSet(p,'grinder',r.ds,'max')}
+    if(RL().golden){var gp=golden(i);if(gp>0)achSet(p,'goldenhoard',gp,'add');if(gp>=50)achSet(p,'goldenhog',1)}
+    if(n>=3){if(won){r.ws=(r.ws||0)+1;achSet(p,'hotstreak',r.ws,'max')}else{r.ws=0;achSave()}}
+    if(!won)return;
+    achSet(p,'shark',1,'add');
+    if(g.finalDef!=null&&g.finalDef>0){achSet(p,'suckout',g.finalDef,'max');if(g.finalDef>=50)achSet(p,'comeback',1,'add')}
+    if(g.burnMax>0)achSet(p,'phoenix',g.burnMax,'max');
+    achSet(p,'speedpig',g.turns,'min');
+    if(S.trigger>=0&&S.trigger!==i)achSet(p,'rivered',1);
+    if(!g.busts)achSet(p,'cleangame',1);
+    if(!g.wireFail)achSet(p,'wire',1);
+    if(p.st&&p.st.sn>=2)achSet(p,'snakecharmer',1);
+    S.players.forEach(function(q,j){if(j===i||q.bot||w.indexOf(j)>=0)return;var k=achKey(q.name);if(!k||k===achKey(p.name))return;r.opp[k]=(r.opp[k]||0)+1;achSet(p,'nemesis',r.opp[k],'max')});
+  });
+}
+function tierOf(a,lv){return a.k==='one'?a.t:lv-1}
+function firstLv(a){if(a.k==='one')return 1;for(var i=0;i<4;i++)if(a.L[i]!=null)return i+1;return 1}
+/* a badge picture: single badges are one file; a track's file holds its four levels side by side, so show one quarter */
+function badgeImg(a,lv,w){
+  var h=Math.round(w*1.16);
+  if(a.k==='one')return '<img src="badges/'+a.id+'.svg" alt="" width="'+w+'" height="'+h+'">';
+  return '<span class="bcrop" style="width:'+w+'px;height:'+h+'px"><img src="badges/'+a.id+'.svg" alt="" style="width:'+(w*4)+'px;height:'+h+'px;margin-left:-'+(w*(lv-1))+'px"></span>';
+}
+function achToast(){
+  if(toastBusy||!achQ.length)return;var q=achQ.shift(),el=$('achToast'),t=tierOf(q.a,q.lv);toastBusy=true;
+  /* several unlocks for the same player at once share one toast, showing the rarest badge */
+  var more=[];achQ=achQ.filter(function(o){if(o.who===q.who){more.push(o);return false}return true});
+  more.forEach(function(o){var ot=tierOf(o.a,o.lv);if(ot>t){more.push(q);q=o;t=ot;more.splice(more.indexOf(o),1)}});
+  var sub=more.length?esc(q.who)+' · '+TIER[t]+' · and '+more.map(function(o){return esc(o.a.n)}).join(', '):esc(q.who)+' · '+TIER[t];
+  el.innerHTML=badgeImg(q.a,q.a.k==='one'?1:q.lv,44)+'<span><small>'+(more.length?(more.length+1)+' achievements unlocked':'Achievement unlocked')+'</small><b>'+esc(q.a.n)+'</b><em>'+sub+'</em></span>';
+  el.classList.remove('out');el.hidden=false;
+  setTimeout(function(){el.classList.add('out');setTimeout(function(){el.hidden=true;toastBusy=false;achToast()},320)},2800);
+}
+function renderAch(){
+  var d0=achLoad(),d={p:{}},keys;for(var k0 in d0.p)d.p[k0]=d0.p[k0];
+  if(ON.rec&&ON.rec.v)d.p['@online']={name:(ON.rec.name||myId().name||'You')+' (online)',v:ON.rec.v};
+  keys=Object.keys(d.p).filter(function(k){return d.p[k]&&d.p[k].v}).sort(function(a,b){return (b==='@online')-(a==='@online')});
+  if(!achSel||keys.indexOf(achSel)<0){achSel=keys.indexOf('@online')>=0?'@online':null;for(var i=0;i<S.names.length&&!achSel;i++){var k=achKey(S.names[i]);if(k&&keys.indexOf(k)>=0)achSel=k}if(!achSel&&keys.length)achSel=keys[0]}
+  var r=achSel?d.p[achSel]:null;
+  $('achWho').innerHTML=keys.length>1?keys.map(function(k){return '<button type="button" class="tab'+(k===achSel?' on':'')+'" data-k="'+esc(k)+'" aria-pressed="'+(k===achSel)+'">'+esc(d.p[k].name||k)+'</button>'}).join(''):'';
+  var tot=0,got=0;ACH.forEach(function(a){if(a.k==='one'){tot++;if(achLevel(a,r))got++}else a.L.forEach(function(x,i){if(x!=null){tot++;if(i<achLevel(a,r))got++}})});
+  $('achSum').textContent=r?(r.name+' has unlocked '+got+' of '+tot+' badge levels. '+(achSel==='@online'?'Achievements from online games are saved to your player profile.':'Each player’s achievements are saved on this device under their name. Computer players don’t earn them.')):'Nobody has earned anything on this device yet. Play Pass n Play and each player’s achievements are saved here under their name. Computer players don’t earn them.';
+  var h='';
+  ACHCAT.forEach(function(c){
+    h+='<h2 class="sechead">'+c[1]+'</h2>';
+    ACH.filter(function(a){return a.c===c[0]}).forEach(function(a){
+      var lv=achLevel(a,r),v=r&&r.v?r.v[a.id]:null,locked=lv===0,cls='acard',name=esc(a.n),txt='',extra='',side='';
+      if(a.k==='one'){
+        side='<span class="achip" style="color:'+TIERC[a.t]+'">'+TIER[a.t]+'</span>';
+        if(locked&&a.c==='shame'){name='???';txt=esc(a.hint)}
+        else txt=locked?'<b>To unlock:</b> '+esc(a.d):esc(a.d);
+        if(!locked)cls+=' done';
+      }else{
+        var nx=-1;for(var j=lv;j<4;j++)if(a.L[j]!=null){nx=j;break}
+        if(nx<0){cls+=' done';txt='All levels unlocked. '+esc(a.d(a.L[a.k==='min'?3:(a.L[3]!=null?3:2)]))+'.'}
+        else if(locked&&a.c==='shame'){name='???';txt=esc(a.hint)}
+        else txt='<b>'+(locked?'To unlock':'Next')+' ('+TIER[nx]+'):</b> '+esc(a.d(a.L[nx]));
+        if(a.online)txt+=' <b>Online play only.</b>';
+        if(nx>=0&&!(locked&&a.c==='shame')){
+          if(a.k==='cnt'||(a.k==='max'&&a.id!=='suckout'&&a.id!=='phoenix')){var cv=v||0,pc=Math.min(100,Math.round(cv/a.L[nx]*100));extra='<div class="apb"><i style="width:'+pc+'%"></i></div><span class="apv">'+(a.k==='cnt'?fmt(cv)+' / '+fmt(a.L[nx]):'Best so far: '+fmt(cv))+'</span>'}
+          else if(v!=null)extra='<span class="apv">'+(a.k==='min'?'Fastest win so far: '+v+' turns':'Best so far: '+v)+'</span>';
+        }
+        side='<span class="apips" aria-label="'+(lv?TIER[lv-1]+' level reached':'No levels yet')+'">'+a.L.map(function(x,i){return x==null?'':'<i style="'+(i<lv?'background:'+TIERC[i]+';border-color:'+TIERC[i]:'')+'"></i>'}).join('')+'</span>';
+      }
+      if(locked)cls+=' locked';
+      var pic=(locked&&a.c==='shame')?'<img src="badges/locked.svg" alt="" width="54" height="63">':badgeImg(a,locked?firstLv(a):lv,54);
+      h+='<div class="'+cls+'"><div class="ab">'+pic+'</div><div class="at"><div class="an">'+name+(locked?'<span class="achip" style="color:var(--muted)">Locked</span>':'')+'</div><div class="ar">'+txt+'</div>'+extra+'</div><div>'+side+'</div></div>';
+    });
+  });
+  $('achList').innerHTML=h;
+}
+
+/* ---------- saved setup (this device only) ---------- */
+function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
+  if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
+  if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
+  if(p.sound===false)S.sound=false;
+  if(p.cfg){var c=p.cfg;S.cfg={target:[100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,timer:[15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
+function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,cfg:S.cfg}))}catch(e){}}
+
+/* ---------- dice graphics ---------- */
+var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
+var FACE={1:[0,0],2:[0,-90],3:[-90,0],4:[90,0],5:[0,90],6:[0,180]};
+var tray=$('tray'),T={w:300,h:200},D=80,placed=false;
+var dice=[0,1].map(function(i){
+  var el=$('die'+i),h='<div class="cube"><div class="core"></div><div class="core cx"></div><div class="core cy"></div>';
+  for(var f=1;f<=6;f++){h+='<div class="face f'+f+'">'+PIPS[f].map(function(p){return '<i class="pip '+p+'"></i>'}).join('')+'</div>'}
+  el.innerHTML=h+'</div>';
+  return {el:el,cube:el.firstChild,sh:$('sh'+i),x:0,y:0,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,spin:i?9:-12};
+});
+function margin(){return 12+D*0.64}
+function draw(d){
+  var s=1+d.z*0.55;
+  d.el.style.transform='translate3d('+(d.x-D/2)+'px,'+(d.y-D/2)+'px,0) rotate('+d.spin+'deg) scale('+s+')';
+  d.cube.style.transform='rotateX('+d.rx+'deg) rotateY('+d.ry+'deg)';
+  d.sh.style.transform='translate3d('+(d.x-D/2+d.z*D*0.45)+'px,'+(d.y-D/2+D*0.1+d.z*D*0.8)+'px,0) rotate('+d.spin+'deg) scale('+(1+d.z*0.25)+')';
+  d.sh.style.opacity=String(0.9-d.z*0.5);
+}
+function showFaces(){dice.forEach(function(d,i){var f=FACE[S.dice[i]];d.rx=f[0];d.ry=f[1];d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')})}
+function layout(){
+  var r=tray.getBoundingClientRect();if(r.width<10||r.height<10)return;
+  T={w:r.width,h:r.height};D=clamp(Math.min(T.w*0.25,T.h*0.44),44,124);
+  tray.style.setProperty('--d',D+'px');
+  var m=margin();
+  if(!placed){placed=true;dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}
+  dice.forEach(function(d){d.x=clamp(d.x,m,Math.max(m,T.w-m));d.y=clamp(d.y,m,Math.max(m,T.h-m));draw(d)});
+}
+function collide(){
+  var a=dice[0],b=dice[1],dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy),min=D*1.12;
+  if(dist>=min)return 0;if(dist<0.01){dx=1;dy=0;dist=1}
+  var nx=dx/dist,ny=dy/dist,o=(min-dist)/2;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;
+  var an=a.vx*nx+a.vy*ny,bn=b.vx*nx+b.vy*ny;
+  var cl=an-bn;if(cl>0){var k=0.85;a.vx+=(bn-an)*nx*k;a.vy+=(bn-an)*ny*k;b.vx+=(an-bn)*nx*k;b.vy+=(an-bn)*ny*k;return cl}
+  return 0;
+}
+function throwDice(vals,dir){
+  return new Promise(function(resolve){
+    var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+    var m=margin(),base=Math.max(T.w,T.h)*1.7,ang,speed,sx,sy;
+    if(dir){ang=Math.atan2(dir.dy,dir.dx);speed=base*dir.speed;sx=dir.x;sy=dir.y}
+    else{ang=-Math.PI/2+rand(-0.55,0.55);speed=base*rand(1.05,1.4);sx=T.w/2+rand(-T.w*0.15,T.w*0.15);sy=T.h-m}
+    dice.forEach(function(d,i){
+      d.el.className='die';
+      var a=ang+(i?0.3:-0.3)+rand(-0.15,0.15),perp=ang+Math.PI/2,off=(i?1:-1)*D*0.7,sp=speed*rand(0.85,1.15),f=FACE[vals[i]];
+      d.t=0;d.tk=rand(0.05,0.1);d.dur=reduce?180:rand(1250,1650);
+      d.rx0=d.rx;d.ry0=d.ry;d.sp0=d.spin;
+      d.rxT=f[0]+360*(2+Math.floor(Math.random()*2))*(Math.random()<0.5?-1:1);
+      d.ryT=f[1]+360*(2+Math.floor(Math.random()*2))*(Math.random()<0.5?-1:1);
+      d.spT=rand(-26,26)+(Math.random()<0.5?180:0)*(Math.random()<0.5?-1:1);
+      if(reduce){d.z=0;d.vz=0;d.vx=0;d.vy=0}
+      else{d.x=clamp(sx+Math.cos(perp)*off,m,T.w-m);d.y=clamp(sy+Math.sin(perp)*off,m,T.h-m);d.vx=Math.cos(a)*sp;d.vy=Math.sin(a)*sp;d.z=1;d.vz=0}
+    });
+    pickWood();if(reduce){sfxKnock(0.8,'drop');setTimeout(function(){sfxKnock(0.5,'drop')},90)}
+    var last=performance.now();
+    function step(now){
+      var dt=clamp((now-last)/1000,0.001,0.034);last=now;m=margin();
+      dice.forEach(function(d){
+        d.t+=dt*1000;var p=Math.min(1,d.t/d.dur),e=1-Math.pow(1-p,3);
+        if(p<1){d.x+=d.vx*dt;d.y+=d.vy*dt;var fr=Math.exp(-3.1*dt);d.vx*=fr;d.vy*=fr}else{d.vx=0;d.vy=0}
+        var hit=0;
+        if(d.x<m){d.x=m;hit=Math.abs(d.vx);d.vx=hit*0.72}else if(d.x>T.w-m){d.x=T.w-m;hit=Math.abs(d.vx);d.vx=-hit*0.72}
+        if(d.y<m){d.y=m;hit=Math.max(hit,Math.abs(d.vy));d.vy=Math.abs(d.vy)*0.72}else if(d.y>T.h-m){d.y=T.h-m;hit=Math.max(hit,Math.abs(d.vy));d.vy=-Math.abs(d.vy)*0.72}
+        if(hit>base*0.06)sfxKnock(hit/base*1.1,'wall');
+        if(d.z>0||d.vz!==0){d.vz-=9*dt;d.z+=d.vz*dt;if(d.z<=0){d.z=0;if(d.vz<-0.9){sfxKnock(-d.vz/4.3,'drop');d.vz=-d.vz*0.45}else d.vz=0}}
+        var spd=Math.hypot(d.vx,d.vy);
+        if(d.z===0&&spd>base*0.07){d.tk-=dt;if(d.tk<=0){sfxKnock(0.12+0.4*spd/base,'tick');d.tk=rand(0.06,0.12)}}
+        d.rx=d.rx0+(d.rxT-d.rx0)*e;d.ry=d.ry0+(d.ryT-d.ry0)*e;d.spin=d.sp0+(d.spT-d.sp0)*e;
+      });
+      var cs=collide();if(cs>base*0.05)sfxKnock(cs/base,'clack');
+      dice.forEach(function(d){d.x=clamp(d.x,m,Math.max(m,T.w-m));d.y=clamp(d.y,m,Math.max(m,T.h-m));draw(d)});
+      if(dice.every(function(d){return d.t>=d.dur&&d.z===0&&d.vz===0})){
+        dice.forEach(function(d,i){var f=FACE[vals[i]];d.rx=f[0];d.ry=f[1];d.spin=((d.spin+180)%360+360)%360-180;draw(d)});
+        resolve();
+      }else requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ---------- game rules ---------- */
+function P(i){return S.players[i]}
+function RL(){return S.rules||S.cfg}                       /* the rule set of the game in progress (or the saved settings) */
+function inGame(){return S.phase==='order'||S.phase==='play'||S.phase==='final'}
+function golden(i){return Math.max(0,P(i).score-RL().target)}
+function regular(i){return RL().golden?Math.min(P(i).score,RL().target):P(i).score}   /* with Golden Points, points above the target are counted apart */
+function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power}
+function cfgSummary(c){var x=[c.target+' Pig'];if(c.noDbl)x.push('Doubles disabled');if(c.golden)x.push('Golden Points');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');if(c.power)x.push('One Power');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
+function points(a,b,m){return (a===1||b===1)?0:(a+b)*(a===b&&!RL().noDbl?2:1)*(m||1)}
+function barScore(){return Math.max.apply(null,S.players.map(function(p){return p.score}))}
+function leaders(){var b=barScore();return S.players.map(function(p,i){return p.score===b?i:-1}).filter(function(i){return i>=0})}
+function ordActive(){return S.ord&&!S.ord.done?S.ord.cont[S.ord.i]:-1}
+function activeIdx(){return S.phase==='order'?ordActive():(S.phase==='play'||S.phase==='final')?S.cur:-1}
+function nextIdx(){if(S.phase==='final')return S.queue.length>1?S.queue[1]:-1;return S.order[(S.pos+1)%S.n]}
+function finalRollMode(){return S.phase==='final'&&S.finalMode==='roll'}
+function canRoll(){
+  if(S.busy)return false;
+  if(S.phase==='menu'||S.phase==='setup')return true;
+  if(S.pend)return false;
+  if(S.phase==='order')return !S.ord.done;
+  if(S.phase==='play')return !S.bust;
+  if(S.phase==='final')return S.finalMode==='roll'?!S.finalDone:!S.bust;
+  return false;
+}
+function say(text,kind){S.callout=text?{text:text,kind:kind||''}:null}
+
+var STYLE={c:'Cautious',b:'Balanced',g:'Greedy'},BOTNAME={c:'Cal',b:'Bea',g:'Gus'};
+function botName(i){var t=S.types[i],k=0;for(var j=0;j<i;j++)if(S.types[j]===t)k++;return BOTNAME[t]+(k?' '+(k+1):'')}
+function isBotTurn(){var i=activeIdx();return i>=0&&!!S.players[i]&&!!S.players[i].bot}
+/* How a computer player decides. Rolling again is worth it while the expected gain (about 6.7 a roll, doubled on a doubles turn)
+   beats the expected loss: 10 in 36 rolls wipe the turn, and snake eyes (1 in 36) burns the banked score too. */
+function botDecide(i){
+  var p=P(i),B=p.score,Tn=S.turn,m=S.hotTurn?2:1,st=p.bot,k=st==='c'?0.75:st==='g'?1.35:1,margin=st==='c'?6:st==='g'?20:12;
+  if(Tn<=0||S.mustRoll)return 'roll';
+  var maxO=Math.max.apply(null,S.players.filter(function(q,j){return j!==i}).map(function(q){return q.score}));
+  var total=B+Tn,thr=(240*m-B)/11*k;
+  if(S.phase==='final'){
+    if(total<=maxO)return 'roll';
+    var goal=maxO+1+(S.queue.length>1?Math.round(margin/2):0);
+    return (total>=goal||Tn>=thr*1.5)?'lock':'roll';
+  }
+  if(maxO>85&&total<maxO-25)thr*=1.3;
+  var TG=RL().target;
+  if(total>=TG)return (total>=Math.max(TG,maxO+margin)||Tn>=thr*1.5)?'lock':'roll';
+  return Tn>=Math.max(thr,6)?'lock':'roll';
+}
+var botTimer=0;
+function scheduleBot(){
+  if(botTimer){clearTimeout(botTimer);botTimer=0}
+  if(S.online)return;
+  if(S.busy||!isBotTurn())return;
+  if(S.phase==='order'&&S.ord.done)return;
+  botTimer=setTimeout(botAct,(S.bust||S.finalDone)?1500:S.phase==='order'?700:950);
+}
+function botAct(){
+  botTimer=0;if(S.busy||!isBotTurn())return;
+  if(S.phase==='order'){if(!S.ord.done)doRoll(botThrow());return}
+  if(S.phase!=='play'&&S.phase!=='final')return;
+  if(S.bust||S.finalDone){nextPlayer();render();return}
+  if(S.pend){if(botReroll(S.cur))doReroll();else takeBust();return}
+  if(botDecide(S.cur)==='lock'){lockIn();render()}else doRoll(botThrow());
+}
+/* Re-roll Pig for computer players: a re-roll risks the banked score (a 1 counts as snake eyes) to save the turn total. */
+function botReroll(i){
+  var p=P(i);if(S.phase==='final'||p.score===0)return true;
+  var k=p.bot==='c'?1.3:p.bot==='g'?0.75:1,m=S.hotTurn?2:1;
+  return 11*p.score*k<25*14*m;   /* risk the bank (11 in 36) only while it is small next to a fresh turn's worth */
+}
+function botThrow(){return {dx:rand(-0.6,0.6),dy:1,x:T.w/2+rand(-T.w*0.15,T.w*0.15),y:margin(),speed:rand(1.05,1.4)}}
+function startGame(){
+  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power};
+  S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):'P'+(i+1)),score:0,wins:0,hot:false,bot:bot})}
+  S.games=0;S.ledger=[];S.baseOrder=null;S.sess=S.players.map(function(){return {f:[0,0,0,0,0,0],d:0,lost:0,rolls:0}});
+  beginOrder();
+}
+function beginOrder(){
+  S.order=[];S.pos=0;S.turn=0;S.rolls=[];S.bust=false;S.finalDone=false;S.queue=[];S.trigger=-1;
+  S.players.forEach(function(p){p.score=0;p.hot=false;p.rr=RL().reroll?3:0;p.pw=0;p.pwReady=false;p.g={turns:0,rolls:0,busts:0,burnMax:0,finalDef:null,dbl:0,six:0,forced:0,wireFail:false};p.st={f:[0,0,0,0,0,0],d:0,lost:0,sn:0}});S.pend=null;S.inReroll=false;S.rrFail=false;S.hotTurn=false;S.powerTurn=false;S.snake=false;S.burnShow=null;
+  /* Game 1 draws a random seating order. Every later game keeps that order and moves the first turn one seat along. */
+  var all,G=S.games||0;
+  if(G>0&&S.baseOrder&&S.baseOrder.length===S.players.length){var r=G%S.baseOrder.length;all=S.baseOrder.slice(r).concat(S.baseOrder.slice(0,r))}
+  else{all=S.players.map(function(_,i){return i});for(var k=all.length-1;k>0;k--){var j=rint(k+1),tmp=all[k];all[k]=all[j];all[j]=tmp}S.baseOrder=all.slice()}
+  S.order=all;S.ord=null;S.hist=S.players.map(function(){return []});chartSel=-1;
+  startPlay();say((G>0?'Game '+(G+1)+': ':'')+P(S.order[0]).name+' goes first');
+}
+function orderResult(sum){
+  var o=S.ord,p=o.cont[o.i];o.keys[p].push(sum);say(P(p).name+' rolled '+sum);o.i++;
+  if(o.i<o.cont.length)return;
+  var round=o.keys[o.cont[0]].length-1,top=Math.max.apply(null,o.cont.map(function(c){return o.keys[c][round]}));
+  var tied=o.cont.filter(function(c){return o.keys[c][round]===top});
+  if(tied.length>1){o.cont=tied;o.i=0;o.msg='Tie at '+top+'. '+tied.map(function(c){return P(c).name}).join(' and ')+' roll again.';return}
+  S.order=S.players.map(function(_,i){return i}).sort(function(a,b){
+    var ka=o.keys[a],kb=o.keys[b],n=Math.max(ka.length,kb.length);
+    for(var k=0;k<n;k++){var va=k<ka.length?ka[k]:-1,vb=k<kb.length?kb[k]:-1;if(va!==vb)return vb-va}
+    return a-b});
+  o.done=true;o.msg='Turn order: '+S.order.map(function(i){return P(i).name}).join(', ')+'.';
+}
+function startPlay(){S.phase='play';S.pos=0;S.cur=S.order[0];S.turn=0;S.rolls=[];S.bust=false;S.marks=['',''];say(null);beginTurn()}
+/* Catch-up, checked as a turn starts: every roll is doubled for a player on zero once the leader has more than 75 banked,
+   and for any player going into their final turn more than 75 behind the leader. */
+function onDoubles(i){
+  if(RL().noDbl)return false;                 /* Disable Doubles turns off every x2 */
+  if(P(i).st&&P(i).st.sn>=2)return true;   /* two snake eyes in one game: doubled for the rest of it */
+  var mine=P(i).score,lead=Math.max.apply(null,S.players.map(function(q,j){return j===i?-1:q.score}));
+  if(mine===0&&lead>75)return true;
+  return S.phase==='final'&&lead-mine>75;
+}
+function checkCatchUp(){}
+function beginTurn(){var p=P(S.cur);S.pwFull=false;S.powerTurn=false;S.rrUsed=false;
+  if(p.g){p.g.turns++;p.g.dbl=0;p.g.six=0;p.g.forced=0;if(S.phase==='final'&&p.g.finalDef==null)p.g.finalDef=barScore()-p.score}
+  if(RL().power&&p.pwReady){p.pwReady=false;p.pw=0;S.powerTurn=true}   /* One Power: a full row of dots doubles this turn, then resets */
+  S.hotTurn=S.powerTurn||onDoubles(S.cur);if(S.hotTurn)setTimeout(sfxHot,450)}
+function nextPlayer(){
+  checkCatchUp();
+  S.turn=0;S.rolls=[];S.bust=false;S.snake=false;S.pend=null;S.inReroll=false;S.rrFail=false;S.mustRoll=false;S.finalDone=false;S.finalMsg='';S.marks=['',''];S.hotTurn=false;say(null);
+  if(S.phase==='final'){S.queue.shift();if(!S.queue.length){endGame();return}S.cur=S.queue[0]}
+  else{S.pos=(S.pos+1)%S.n;S.cur=S.order[S.pos];if(S.pos===0)achRound()}
+  beginTurn();
+}
+function lockIn(){
+  if(S.busy||S.bust||S.mustRoll||S.turn<=0||(S.phase!=='play'&&S.phase!=='final'))return;
+  var p=P(S.cur),amt=S.turn;p.score+=amt;rec(S.cur,'lock',amt,amt,S.rolls.length);achLock(p,amt,S.rolls.length);sfxLock(amt);checkCatchUp();
+  if(S.phase==='play'&&p.score>=RL().target){
+    S.trigger=S.cur;S.phase='final';S.queue=[];
+    for(var k=1;k<S.n;k++)S.queue.push(S.order[(S.pos+k)%S.n]);
+    S.cur=S.queue[0];S.turn=0;S.rolls=[];S.mustRoll=false;S.marks=['',''];S.hotTurn=false;beginTurn();
+    say(p.name+' locked in '+p.score+(RL().golden?' · '+Math.max(0,p.score-RL().target)+' golden':''),'gold');
+  }else{nextPlayer();if(S.phase!=='over')say(p.name+' banked '+amt)}
+}
+function rollText(a,b,pts,dbl,m){
+  if(dbl)return 'Doubles! '+(a+b)+' ×'+(2*m)+' = '+pts;
+  return m>1?a+' + '+b+' = '+(a+b)+', ×2 = '+pts:a+' + '+b+' = '+pts;
+}
+function rollResult(a,b){
+  var one=(a===1||b===1),snake=(a===1&&b===1),pair=(a===b&&!one),dbl=pair&&!RL().noDbl;
+  S.marks=one?[a===1?'bust':'dim',b===1?'bust':'dim']:dbl?['gold','gold']:['',''];
+  if(!inGame()){say(snake?'SNAKE EYES':one?'BUST':rollText(a,b,points(a,b,1),dbl,1),one?'red':dbl?'gold':'');return {bust:one,dbl:dbl,snake:snake,burn:0}}
+  if(S.phase==='order'){S.marks=['',''];orderResult(a+b);return {}}
+  var p=P(S.cur),m=S.hotTurn?2:1;
+  if(p.st){p.st.f[a-1]++;p.st.f[b-1]++;if(pair)p.st.d++}
+  achRoll(p,a,b);
+  if(RL().power&&one&&!p.pwReady){p.pw=Math.min(5,(p.pw||0)+(a===1)+(b===1));if(p.pw>=5){p.pwReady=true;S.pwFull=true}}   /* One Power: each 1 fills a dot */
+  if(S.inReroll){S.inReroll=false;if(one)return applyBust(a,b,false,true)}      /* Re-roll Pig: any 1 on a re-roll drops the score to 0 */
+  else if(one&&!snake&&S.rolls.length===0&&RL().reroll&&(p.rr||0)>0){             /* only a single 1 on the first roll of a turn */
+    S.pend={a:a,b:b,snake:snake};say(snake?'SNAKE EYES':'ROLLED A 1','red');return {bust:true,pend:true}}
+  if(one)return applyBust(a,b,snake,false);
+  var pts=points(a,b,m);S.turn+=pts;S.rolls.push({a:a,b:b,pts:pts,dbl:dbl,m:m});
+  S.mustRoll=!!RL().verify&&pair;   /* Verify Double: a double must be followed by another roll before locking in */say(rollText(a,b,pts,dbl,m),(dbl||m>1)?'gold':'');
+  return {dbl:dbl};
+}
+/* fromReroll: a 1 on a Re-roll Pig re-roll drops the score to 0 like snake eyes, but never counts toward the two-snake-eyes bonus. */
+function applyBust(a,b,snake,fromReroll){
+  var p=P(S.cur),burn=0,zero=snake||!!fromReroll;
+  if(p.st){p.st.lost+=S.turn;if(snake)p.st.sn=(p.st.sn||0)+1}
+  if(zero){burn=p.score;p.score=0}
+  achBust(p,S.turn,burn,snake);
+  S.rolls.forEach(function(r){r.x=true});S.rolls.push({a:a,b:b,pts:0,bust:true,m:1});
+  S.lost=S.turn;S.lostBank=burn;S.snake=snake;S.rrFail=!!fromReroll;
+  rec(S.cur,fromReroll?'zero':snake?'snake':'bust',zero?burn:S.turn,S.turn,S.rolls.length);S.turn=0;S.bust=true;
+  say(fromReroll?'RE-ROLL BUST':snake?'SNAKE EYES':'BUST','red');
+  return {bust:true,snake:snake,burn:burn};
+}
+function rec(i,ev,amt,risk,rolls){if(!S.hist||!S.hist[i])return;S.hist[i].push({s:P(i).score,ev:ev,amt:amt,risk:risk||0,rolls:rolls||0,hot:!!S.hotTurn})}
+function endGame(){
+  var w=leaders();
+  if(S.hist){var R=Math.max.apply(null,S.hist.map(function(h){return h.length}));S.hist.forEach(function(h,i){while(h.length<R)h.push({s:P(i).score,ev:'pad',amt:0,hot:false})})}
+  chartSel=-1;
+  w.forEach(function(i){P(i).wins=(P(i).wins||0)+1});S.games=(S.games||0)+1;
+  if(S.sess)S.players.forEach(function(p,i){var a=S.sess[i],st=p.st;if(!a||!st)return;st.f.forEach(function(v,k){a.f[k]+=v});a.d+=st.d;a.lost+=st.lost;a.rolls+=st.f.reduce(function(x,y){return x+y},0)/2});   /* dice stats for every game this session */
+  (S.ledger=S.ledger||[]).push({s:S.players.map(function(_,i){return regular(i)}),g:S.players.map(function(_,i){return golden(i)}),w:w.slice()});
+  achGame(w);
+  S.phase='over';S.winners=w;S.hotTurn=false;S.marks=['',''];say(null);
+}
+function doRoll(dir){
+  if(!canRoll())return;
+  S.busy=true;S.rolling=true;say(null);S.marks=['',''];render();
+  var vals=[d6(),d6()];ac();
+  throwDice(vals,dir).then(function(){S.rolling=false;S.dice=vals;after(rollResult(vals[0],vals[1])||{})});
+}
+/* Sounds, buzz and the snake-eyes fire after a roll (or after a player takes a bust they could have re-rolled). */
+function after(fx){
+  try{if(navigator.vibrate&&!fx.quiet&&!(S.online&&S.cur!==S.me))navigator.vibrate(fx.bust?[60,40,120]:12)}catch(e){}
+  if(fx.bust&&!fx.quiet)sfxBust();else if(fx.dbl)sfxDoubles(S.hotTurn);
+  if(fx.burn>0){
+    S.burnShow={i:S.cur,val:fx.burn};render();
+    burnScore(S.cur,fx.burn).then(function(){S.burnShow=null;S.busy=false;render();onNext()});
+  }else{S.busy=false;render();onNext()}
+}
+function doReroll(){
+  var p=P(S.cur);if(!S.pend||S.busy||!((p.rr||0)>0))return;
+  p.rr--;S.rrUsed=true;S.rolls.push({a:S.pend.a,b:S.pend.b,pts:0,rr:true});S.pend=null;S.inReroll=true;doRoll(null);
+}
+function takeBust(){
+  if(!S.pend||S.busy)return;var q=S.pend;S.pend=null;S.busy=true;
+  var fx=applyBust(q.a,q.b,q.snake,false);fx.quiet=true;after(fx);
+}
+
+/* ---------- fire over a score burned by snake eyes ---------- */
+function burnScore(idx,from){
+  return new Promise(function(resolve){
+    var el=$('burn'),cv=$('fire'),cv2=$('fire2'),num=$('burnVal'),reduce=false;
+    try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+    $('burnLab').textContent=(S.rrFail?'Re-roll bust':'Snake eyes')+' · '+P(idx).name+' loses it all';
+    num.textContent=from;el.hidden=false;
+    var r=el.getBoundingClientRect(),dpr=Math.min(2,window.devicePixelRatio||1);
+    var W=cv.width=cv2.width=Math.max(2,Math.round(r.width*dpr)),H=cv.height=cv2.height=Math.max(2,Math.round(r.height*dpr));
+    var ctx=cv.getContext('2d'),ctx2=cv2.getContext('2d'),parts=[];
+    var dur=reduce?500:clamp(1000+from*14,1300,2400),hold=reduce?500:700,t0=performance.now(),last=t0;
+    sfxFire(dur+hold);
+    var tile=document.querySelector('#board .tile[data-i="'+idx+'"] .sc');
+    function frame(now){
+      var t=now-t0,dt=clamp((now-last)/1000,0.001,0.034);last=now;
+      var p=Math.min(1,t/dur),v=Math.round(from*(1-p*p*(3-2*p)));
+      num.textContent=v;if(tile)tile.textContent=v;if(S.burnShow)S.burnShow.val=v;
+      var heat=t<dur?1:Math.max(0,1-(t-dur)/hold);
+      if(!reduce){
+        num.style.transform=p<1?'translate('+rand(-2,2).toFixed(1)+'px,'+rand(-2,2).toFixed(1)+'px) rotate('+rand(-5,5).toFixed(1)+'deg)':'none';
+        var n=Math.round(heat*(W/dpr)/20*(0.5+Math.random()));
+        for(var k=0;k<n;k++){var c=(Math.random()+Math.random()+Math.random())/3;
+          parts.push({x:W*(0.1+0.8*c),y:H+rand(0,12)*dpr,vx:rand(-18,18)*dpr,vy:-rand(70,200)*dpr,life:0,max:rand(0.45,1.05),r:rand(12,28)*dpr})}
+        ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,W,H);ctx.globalCompositeOperation='lighter';
+        for(var i=parts.length-1;i>=0;i--){
+          var q=parts[i];q.life+=dt;if(q.life>=q.max){parts.splice(i,1);continue}
+          q.x+=(q.vx+Math.sin(q.life*9+q.r)*22*dpr)*dt;q.y+=q.vy*dt;
+          var f=q.life/q.max,rad=q.r*(1-f*0.75),a=(1-f)*0.34,col=f<0.3?'255,236,160':f<0.62?'255,150,40':'214,52,24';
+          var g=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,rad);
+          g.addColorStop(0,'rgba('+col+','+a.toFixed(3)+')');g.addColorStop(1,'rgba('+col+',0)');
+          ctx.fillStyle=g;ctx.beginPath();ctx.arc(q.x,q.y,rad,0,6.2832);ctx.fill();
+        }
+        ctx2.clearRect(0,0,W,H);ctx2.globalAlpha=0.4;ctx2.drawImage(cv,0,0);
+      }
+      if(t<dur+hold||(!reduce&&parts.length&&t<dur+hold+900))requestAnimationFrame(frame);
+      else{num.style.transform='none';el.hidden=true;resolve()}
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+/* ---------- sound: everything is synthesized, no audio files ---------- */
+var AC=null,OUT=null,NOISE=null,lastTick=0,woodNow=null,woodLast=-1;
+var WOOD=[
+  {body:165,mode:2.7,dec:0.11,click:1500,q:2.5,bright:0.8},
+  {body:235,mode:2.3,dec:0.075,click:2300,q:4,bright:1},
+  {body:128,mode:3.1,dec:0.15,click:1100,q:1.8,bright:0.65},
+  {body:198,mode:2.05,dec:0.09,click:1850,q:3.2,bright:0.9}
+];
+function pickWood(){var i;do{i=Math.floor(Math.random()*WOOD.length)}while(i===woodLast);woodLast=i;var w=WOOD[i],k=rand(0.93,1.08);
+  woodNow={body:w.body*k,mode:w.mode,dec:w.dec*rand(0.9,1.15),click:w.click*rand(0.9,1.12),q:w.q,bright:w.bright}}
+function ac(){
+  if(!S.sound)return null;
+  if(!AC){try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();
+    var comp=AC.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=4;
+    OUT=AC.createGain();OUT.gain.value=0.85;OUT.connect(comp);comp.connect(AC.destination);
+    NOISE=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);var ch=NOISE.getChannelData(0);for(var i=0;i<ch.length;i++)ch[i]=Math.random()*2-1;
+  }catch(e){AC=null;return null}}
+  if(AC.state==='suspended'){try{AC.resume()}catch(e){}}
+  return AC;
+}
+function env(g,t,peak,att,dec){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(0.0002,peak),t+att);g.gain.exponentialRampToValueAtTime(0.0001,t+att+dec)}
+function noise(t,dur,type,freq,q,peak,att){
+  var src=AC.createBufferSource();src.buffer=NOISE;src.loop=true;
+  var f=AC.createBiquadFilter();f.type=type;f.frequency.value=freq;f.Q.value=q;
+  var g=AC.createGain();env(g,t,peak,att||0.002,dur);src.connect(f);f.connect(g);g.connect(OUT);
+  src.start(t,Math.random()*0.9);src.stop(t+(att||0.002)+dur+0.05);return f;
+}
+function tone(t,type,f0,f1,dur,peak,att){
+  var o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t);
+  if(f1&&f1!==f0)o.frequency.exponentialRampToValueAtTime(f1,t+dur);
+  var g=AC.createGain();env(g,t,peak,att||0.003,dur);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+(att||0.003)+dur+0.08);
+}
+/* One die-on-wood contact. kind: drop (landing), wall (rail), tick (edge tumbling), clack (die against die). */
+function sfxKnock(v,kind){
+  if(!ac())return;var t=AC.currentTime,w=woodNow||WOOD[0],dt=rand(0.94,1.07);v=clamp(v,0.05,1);
+  if(kind==='tick'){if(t-lastTick<0.03)return;lastTick=t}
+  if(kind==='clack'){noise(t,0.03,'bandpass',rand(3200,4600),5,0.5*v);tone(t,'triangle',rand(1900,2500),0,0.035,0.18*v);return}
+  var k=kind==='tick'?0.45:kind==='wall'?0.8:1;
+  noise(t,0.028+0.02*k,'bandpass',w.click*dt*(kind==='tick'?1.25:1),w.q,0.55*v*w.bright*k);
+  tone(t,'sine',w.body*dt*(kind==='wall'?0.82:1),w.body*dt*0.86,w.dec*k,0.7*v*k);
+  tone(t,'triangle',w.body*w.mode*dt,0,w.dec*0.55*k,0.22*v*k);
+  if(kind==='drop')noise(t,0.09,'lowpass',420,0.7,0.35*v);
+}
+function sfxDoubles(big){
+  if(!ac())return;var t=AC.currentTime+0.05,notes=big?[659,831,988,1319,1661]:[659,831,988,1319];
+  notes.forEach(function(f,i){var tt=t+i*0.075;tone(tt,'triangle',f,0,0.42,0.22);tone(tt,'sine',f*2,0,0.3,0.1)});
+  noise(t+notes.length*0.075,0.5,'highpass',6000,0.7,0.07,0.01);
+}
+/* Banking a score: a run of coins dropping into the pile (more coins for a bigger bank), then a short register ring. */
+function coin(t,v){
+  var f=rand(2300,4300);
+  tone(t,'sine',f,0,rand(0.1,0.2),0.3*v);tone(t,'sine',f*rand(1.48,1.63),0,rand(0.07,0.14),0.18*v);tone(t,'triangle',f*2.76,0,0.05,0.07*v);
+  noise(t,0.012,'highpass',6000,0.7,0.32*v);
+}
+function sfxLock(amt){
+  if(!ac())return;var t=AC.currentTime+0.01,n=clamp(Math.round((amt||24)/6),4,10);
+  for(var i=0;i<n;i++){coin(t,1-i*0.04);t+=rand(0.045,0.075)}
+  tone(t+0.03,'sine',1319,0,0.5,0.3);tone(t+0.03,'sine',1976,0,0.4,0.17);tone(t+0.11,'sine',2637,0,0.55,0.2);
+}
+/* A 1 on the dice: one squeaky pig oink. A buzzy voice whose pitch bends up and back, pushed through two moving
+   mouth resonances, closing on a short hummed "n". */
+function sfxBust(){
+  if(!ac())return;
+  var t=AC.currentTime+0.03,dur=0.2,base=300*rand(0.97,1.03),pk=0.4;
+  function sweep(param,v){param.setValueAtTime(v[0],t);param.linearRampToValueAtTime(v[1],t+dur*pk);param.linearRampToValueAtTime(v[2],t+dur)}
+  var o=AC.createOscillator();o.type='sawtooth';sweep(o.frequency,[base*0.9,base*1.75,base*0.8]);
+  var am=AC.createGain();am.gain.value=0.85;
+  var l=AC.createOscillator();l.type='sine';l.frequency.value=85*rand(0.9,1.1);var lg=AC.createGain();lg.gain.value=0.15;l.connect(lg);lg.connect(am.gain);
+  var f1=AC.createBiquadFilter();f1.type='bandpass';f1.Q.value=5;sweep(f1.frequency,[800,1400,700]);
+  var f2=AC.createBiquadFilter();f2.type='bandpass';f2.Q.value=7;sweep(f2.frequency,[2400,3000,2200]);
+  var G1=2.8,G2=1.68,g1=AC.createGain(),g2=AC.createGain(),n0=t+dur*0.7,n1=n0+dur*0.1;
+  g1.gain.setValueAtTime(G1,t);g1.gain.setValueAtTime(G1,n0);g1.gain.linearRampToValueAtTime(G1*0.2,n1);
+  g2.gain.setValueAtTime(G2,t);g2.gain.setValueAtTime(G2,n0);g2.gain.linearRampToValueAtTime(G2*0.1,n1);
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;lp.Q.value=1.2;
+  var gn=AC.createGain();gn.gain.setValueAtTime(0.0001,t);gn.gain.setValueAtTime(0.0001,n0);gn.gain.linearRampToValueAtTime(0.84,n1);
+  var e=AC.createGain();e.gain.setValueAtTime(0.0001,t);e.gain.exponentialRampToValueAtTime(1,t+0.015);e.gain.setValueAtTime(1,t+dur*0.8);e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(am);am.connect(f1);am.connect(f2);am.connect(lp);f1.connect(g1);f2.connect(g2);lp.connect(gn);g1.connect(e);g2.connect(e);gn.connect(e);e.connect(OUT);
+  o.start(t);l.start(t);o.stop(t+dur+0.05);l.stop(t+dur+0.05);
+  noise(t,dur*0.5,'bandpass',2500,2,0.02,0.012);
+}
+function sfxHot(){if(!ac())return;var t=AC.currentTime;tone(t,'triangle',330,660,0.18,0.2);tone(t+0.16,'triangle',494,988,0.22,0.22);tone(t+0.36,'sine',1319,0,0.4,0.18)}
+function sfxFire(ms){
+  if(!ac())return;var t=AC.currentTime,d=ms/1000;
+  var src=AC.createBufferSource();src.buffer=NOISE;src.loop=true;
+  var f=AC.createBiquadFilter();f.type='lowpass';f.Q.value=0.8;f.frequency.setValueAtTime(500,t);f.frequency.linearRampToValueAtTime(1500,t+d*0.35);f.frequency.linearRampToValueAtTime(260,t+d);
+  var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.5,t+0.18);g.gain.setValueAtTime(0.5,t+d*0.6);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  src.connect(f);f.connect(g);g.connect(OUT);src.start(t);src.stop(t+d+0.1);
+  for(var i=0;i<Math.round(d*14);i++)noise(t+rand(0.05,d*0.9),0.012,'highpass',3000,1,rand(0.1,0.35));
+  tone(t,'triangle',520,70,d*0.8,0.16);
+}
+
+/* ---------- drawing the screen ---------- */
+/* ---------- end-of-game summary: each player's score after every round ---------- */
+var chartSel=-1;
+function histRounds(){return S.hist&&S.hist.length?Math.max.apply(null,S.hist.map(function(h){return h.length})):0}
+function drawLedger(){
+  var L=S.ledger||[],el=$('ledger');if(!L.length){el.innerHTML='';return}
+  var tot=S.players.map(function(_,i){return L.reduce(function(a,g){return a+(g.s[i]||0)},0)});
+  var rows=S.players.map(function(_,i){return i}).sort(function(a,b){return tot[b]-tot[a]||a-b});
+  var h='<thead><tr><th scope="col">Player</th>'+L.map(function(_,g){return '<th scope="col">Game '+(g+1)+'</th>'}).join('')+'<th scope="col">Total</th><th scope="col">Wins</th></tr></thead><tbody>';
+  rows.forEach(function(i){var p=P(i);
+    h+='<tr><td class="nm"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+'</td>'+
+      L.map(function(g){return '<td'+(g.w.indexOf(i)>=0?' class="w"':'')+'>'+(g.s[i]||0)+'</td>'}).join('')+
+      '<td class="tot">'+tot[i]+'</td><td class="wins">'+(p.wins||0)+'</td></tr>'});
+  el.innerHTML=h+'</tbody>';
+  var wrap=el.parentNode;wrap.scrollLeft=wrap.scrollWidth;
+}
+function drawSummary(){drawChart();drawReadout();drawFacts();drawDist()}
+var distAll=false;
+function drawDist(){
+  var el=$('dist'),max=1,BH=30,G=S.games||1,all=distAll&&G>1&&!!S.sess;
+  $('dseg').hidden=G<2;$('dAll').textContent='All '+G+' games';
+  $('dGame').classList.toggle('on',!all);$('dAll').classList.toggle('on',all);$('dGame').setAttribute('aria-pressed',all?'false':'true');$('dAll').setAttribute('aria-pressed',all?'true':'false');
+  function SRC(i){return all?S.sess[i]:P(i).st}
+  S.players.forEach(function(p,i){var x=SRC(i);if(x)x.f.forEach(function(v){if(v>max)max=v})});
+  var h='<div class="drow dhead"><span></span><div class="bars">'+[1,2,3,4,5,6].map(function(n){return '<b>'+n+'</b>'}).join('')+'</div><span>Doubles</span><span>Lost</span></div>';
+  S.players.forEach(function(p,i){
+    var st=SRC(i)||{f:[0,0,0,0,0,0],d:0,lost:0},tot=st.f.reduce(function(a,b){return a+b},0),col='var(--s'+(i+1)+')';
+    h+='<div class="drow"><span class="dn"><i class="sw" style="background:'+col+'"></i><span>'+esc(p.name)+'</span></span><div class="bars">'+
+      st.f.map(function(v){return '<div class="bc"><div class="bw"><i style="height:'+(v?Math.max(2,Math.round(v/max*BH)):0)+'px;background:'+col+'"></i></div><b>'+v+'</b></div>'}).join('')+
+      (tot?'<u style="bottom:'+(15+tot/6/max*BH).toFixed(1)+'px"></u>':'')+'</div><b class="dv">'+st.d+'</b><b class="dv">'+st.lost+'</b></div>';
+  });
+  el.innerHTML=h;
+  var T={r:0,one:0,d:0,lost:0};S.players.forEach(function(p,i){var x=SRC(i);if(!x)return;var n=x.f.reduce(function(a,b){return a+b},0);T.r+=n/2;T.one+=x.f[0];T.d+=x.d;T.lost+=x.lost});
+  $('distSum').textContent=(all?'Across all '+G+' games: ':'This game: ')+T.r+' roll'+(T.r===1?'':'s')+', '+T.d+' double'+(T.d===1?'':'s')+', '+T.one+' dice showing a 1, and '+T.lost+' points at risk lost to 1s.';
+}
+function pageStep(){var pg=$('pager');return pg.clientWidth+12}
+function showPage(n,smooth){var pg=$('pager');try{pg.scrollTo({left:n*pageStep(),behavior:smooth?'smooth':'auto'})}catch(e){pg.scrollLeft=n*pageStep()}markPage(n)}
+function markPage(n){[0,1].forEach(function(k){var t=$('tab'+k);t.classList.toggle('on',k===n);t.setAttribute('aria-pressed',k===n?'true':'false')})}
+function drawChart(){
+  var box=$('chart'),R=histRounds(),n=S.players.length;
+  if(!R){box.innerHTML='';return}
+  var W=Math.max(240,Math.round(box.clientWidth||300)),H=210,direct=n<=4,maxS=RL().target;
+  S.hist.forEach(function(h){h.forEach(function(e){if(e.s>maxS)maxS=e.s})});
+  var top=Math.ceil(maxS/25)*25,L=30,Rt=direct?64:12,Tp=10,Bt=24,pw=W-L-Rt,ph=H-Tp-Bt;
+  function X(r){return L+pw*r/R}
+  function Y(v){return Tp+ph*(1-v/top)}
+  var g='',v,r,i;
+  for(v=0;v<=top;v+=25)g+='<line class="'+(v===RL().target?'g100':'grid')+'" x1="'+L+'" x2="'+(W-Rt)+'" y1="'+Y(v).toFixed(1)+'" y2="'+Y(v).toFixed(1)+'"/><text class="ax" text-anchor="end" x="'+(L-6)+'" y="'+(Y(v)+4).toFixed(1)+'">'+v+'</text>';
+  var step=Math.max(1,Math.ceil(R/6));
+  for(r=0;r<=R;r+=step)g+='<text class="ax" text-anchor="middle" x="'+X(r).toFixed(1)+'" y="'+(H-6)+'">'+r+'</text>';
+  var sel=chartSel<0?-1:chartSel;
+  if(sel>=0)g+='<line class="cross" x1="'+X(sel).toFixed(1)+'" x2="'+X(sel).toFixed(1)+'" y1="'+Tp+'" y2="'+(Tp+ph)+'"/>';
+  for(i=0;i<n;i++){
+    var h=S.hist[i],d='M'+X(0).toFixed(1)+' '+Y(0).toFixed(1),col='var(--s'+(i+1)+')';
+    for(r=1;r<=R;r++)d+='L'+X(r).toFixed(1)+' '+Y(h[r-1].s).toFixed(1);
+    g+='<path class="ln" style="stroke:'+col+'" d="'+d+'"/>';
+  }
+  for(i=0;i<n;i++){
+    var hh=S.hist[i],c='var(--s'+(i+1)+')';
+    for(r=1;r<R;r++)if(hh[r-1].ev==='lock')g+='<circle class="lk" style="fill:'+c+'" cx="'+X(r).toFixed(1)+'" cy="'+Y(hh[r-1].s).toFixed(1)+'" r="3.2"/>';
+    for(r=1;r<=R;r++)if(hh[r-1].ev==='snake'||hh[r-1].ev==='zero')g+='<circle class="ring" style="stroke:'+c+'" cx="'+X(r).toFixed(1)+'" cy="'+Y(hh[r-1].s).toFixed(1)+'" r="4.5"/>';
+    g+='<circle class="dot" style="fill:'+c+'" cx="'+X(R).toFixed(1)+'" cy="'+Y(hh[R-1].s).toFixed(1)+'" r="4.5"/>';
+    if(sel>=0&&sel<R)g+='<circle class="dot" style="fill:'+c+'" cx="'+X(sel).toFixed(1)+'" cy="'+Y(sel===0?0:hh[sel-1].s).toFixed(1)+'" r="4.5"/>';
+  }
+  if(direct){
+    var labs=S.players.map(function(p,i){return {i:i,y:Y(S.hist[i][R-1].s)+4}}).sort(function(a,b){return a.y-b.y});
+    for(i=1;i<labs.length;i++)if(labs[i].y-labs[i-1].y<14)labs[i].y=labs[i-1].y+14;
+    var over=labs.length?labs[labs.length-1].y-(H-Bt+2):0;if(over>0)labs.forEach(function(l){l.y-=over});
+    labs.forEach(function(l){g+='<text class="clab" x="'+(X(R)+9).toFixed(1)+'" y="'+l.y.toFixed(1)+'">'+esc(P(l.i).name.slice(0,7))+'</text>'});
+  }
+  box.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" aria-hidden="true">'+g+'</svg>';
+  box._geo={L:L,pw:pw,R:R};
+}
+function drawReadout(){
+  var R=histRounds(),el=$('readout');if(!R){el.innerHTML='';return}
+  var r=chartSel<0?R:chartSel,head=chartSel<0?'Final scores · tap the graph for any round':r===0?'Start':'After round '+r;
+  el.innerHTML='<div class="rh">'+head+'</div><div class="items">'+S.players.map(function(p,i){
+    var e=r>0?S.hist[i][r-1]:null,val=e?e.s:0,tag='';
+    if(e&&chartSel>=0)tag=e.ev==='lock'?'+'+e.amt+(e.hot?' ×2':''):e.ev==='bust'?'bust':e.ev==='snake'?'snake eyes':e.ev==='zero'?'re-roll bust':'';
+    return '<div class="it"><i class="sw" style="background:var(--s'+(i+1)+')"></i><span class="n">'+esc(p.name)+'</span>'+(tag?'<em>'+tag+'</em>':'')+'<b>'+val+'</b></div>'}).join('')+'</div>';
+}
+function drawFacts(){
+  var R=histRounds(),el=$('facts');if(!R){el.innerHTML='';return}
+  var best=null,busts=S.players.map(function(){return 0}),banks=S.players.map(function(){return 0}),snakes=[],hiRisk=null,hiRolls=null;
+  S.hist.forEach(function(h,i){h.forEach(function(e,k){
+    if(e.ev==='lock'&&(!best||e.amt>best.amt))best={i:i,amt:e.amt,r:k+1};
+    if(e.ev!=='pad'&&(e.risk||0)>0&&(!hiRisk||e.risk>hiRisk.v))hiRisk={i:i,v:e.risk,r:k+1,ev:e.ev};
+    if(e.ev!=='pad'&&(e.rolls||0)>0&&(!hiRolls||e.rolls>hiRolls.v))hiRolls={i:i,v:e.rolls,r:k+1,ev:e.ev,amt:e.amt};
+    if(e.ev==='bust'||e.ev==='snake'||e.ev==='zero')busts[i]++;
+    if(e.ev==='lock')banks[i]++;
+    if(e.ev==='snake')snakes.push({i:i,amt:e.amt,r:k+1});
+  })});
+  var out=[];
+  function most(arr){var m=Math.max.apply(null,arr);return m>0?{v:m,who:arr.map(function(x,i){return x===m?esc(P(i).name):null}).filter(Boolean).join(' and ')}:null}
+  if(best)out.push('<li>Biggest turn: <b>'+esc(P(best.i).name)+'</b> banked <b>'+best.amt+'</b> in round '+best.r+'.</li>');
+  if(hiRisk)out.push('<li>Highest at risk: <b>'+esc(P(hiRisk.i).name)+'</b> had <b>'+hiRisk.v+'</b> on the line in round '+hiRisk.r+' and '+(hiRisk.ev==='lock'?'banked it':hiRisk.ev==='snake'?'lost it to snake eyes':hiRisk.ev==='zero'?'lost it on a re-roll':'lost it to a 1')+'.</li>');
+  if(hiRolls)out.push('<li>Most rolls in one turn: <b>'+esc(P(hiRolls.i).name)+'</b> rolled <b>'+hiRolls.v+'</b> time'+(hiRolls.v===1?'':'s')+' in round '+hiRolls.r+' and '+(hiRolls.ev==='lock'?'banked '+hiRolls.amt:hiRolls.ev==='snake'?'hit snake eyes':'busted')+'.</li>');
+  var mk=most(banks),mb=most(busts);
+  if(mk)out.push('<li>Banked most often: <b>'+mk.who+'</b>, <b>'+mk.v+'</b> time'+(mk.v===1?'':'s')+'.</li>');
+  if(mb)out.push('<li>Lost the most turns to a 1: <b>'+mb.who+'</b>, <b>'+mb.v+'</b> time'+(mb.v===1?'':'s')+'.</li>');
+  else out.push('<li>Nobody lost a turn to a 1.</li>');
+  if(snakes.length){
+    var worst=snakes.reduce(function(a,b){return b.amt>a.amt?b:a});
+    out.push('<li>Snake eyes: <b>'+snakes.length+'</b> this game. '+(snakes.length>1?'Worst: ':'')+'<b>'+esc(P(worst.i).name)+'</b> lost <b>'+worst.amt+'</b> banked in round '+worst.r+'.</li>');
+  }else out.push('<li>Nobody rolled snake eyes.</li>');
+  if(RL().golden){
+    var gs=S.players.map(function(_,i){return golden(i)}),gm=most(gs);
+    if(gm){var gt=S.players.map(function(_,i){return (S.ledger||[]).reduce(function(a,g){return a+((g.g||[])[i]||0)},0)});
+      out.push('<li>Golden points: <b>'+gm.who+'</b> finished <b>'+gm.v+'</b> above '+RL().target+'.'+((S.games||1)>1?' Golden points across all games: '+S.players.map(function(p,i){return esc(p.name)+' '+gt[i]}).join(', ')+'.':'')+'</li>')}
+  }
+  el.innerHTML=out.join('');
+}
+function chartPick(e){
+  var box=$('chart'),geo=box._geo;if(!geo||S.phase!=='over')return;
+  var svg=box.firstChild;if(!svg)return;var rc=svg.getBoundingClientRect();
+  var r=Math.round(clamp((e.clientX-rc.left-geo.L)/geo.pw,0,1)*geo.R);
+  if(r!==chartSel){chartSel=r;drawChart();drawReadout()}
+}
+function render(){
+  renderMain();achToast();
+  if(blocked()&&!(S.phase==='order'&&S.ord&&S.ord.done)){$('rollBtn').disabled=true;$('lockBtn').disabled=true;$('hint').hidden=true}
+  scheduleBot();
+}
+function renderMain(){
+  var ph=S.phase,inGame=(ph==='order'||ph==='play'||ph==='final');
+  $('app').dataset.phase=ph;
+  var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;
+  $('soundBtn').textContent='Sound: '+(S.sound?'on':'off');
+  var nonGame=['menu','setup','online','settings','ach','host','room'].indexOf(ph)>=0;
+  ['menu','setup','online','settings','ach','host','room'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
+  dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
+  var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
+  $('hint').hidden=!(canRoll()&&!(S.online&&inGame&&blocked())&&!S.callout&&(ph==='setup'||ph==='menu'||(inGame&&S.rolls.length===0)));
+  $('rollBtn').disabled=false;
+
+  if(nonGame){
+    $('board').hidden=true;$('banner').hidden=true;
+    renderScreens(ph);
+    if(ph!=='setup')return;
+    $('count').textContent=S.n;$('less').disabled=S.n<=2;$('more').disabled=S.n>=6;
+    for(var i=0;i<6;i++){var inp=$('name'+i),t=S.types[i],kb=$('kind'+i);$('prow'+i).hidden=i>=S.n;if(document.activeElement!==inp)inp.value=S.names[i];
+      inp.placeholder=t==='h'?'Player '+(i+1):botName(i);kb.textContent=t==='h'?'Human':'CPU · '+STYLE[t];kb.className='kind'+(t==='h'?'':' cpu');
+      kb.setAttribute('aria-label','Player '+(i+1)+': '+(t==='h'?'human':STYLE[t]+' computer')+'. Tap to change.')}
+    return;
+  }
+
+  /* scoreboard */
+  var list=S.order.length?S.order:S.players.map(function(_,i){return i}),act=activeIdx(),lead=(ph==='final'||ph==='over')?leaders():[];
+  var b=$('board');b.hidden=ph==='over';b.style.setProperty('--n',S.n);
+  b.innerHTML=list.map(function(i){
+    var p=P(i),cls='tile',val,foot;
+    if(i===act)cls+=' active';
+    if(lead.indexOf(i)>=0)cls+=' lead';
+    if(ph==='order'){var ks=S.ord.keys[i];val=ks.length?ks[ks.length-1]:'–';foot='<span class="tag">'+(S.ord.done?(S.order.indexOf(i)+1)+ordinal(S.order.indexOf(i)+1):'')+'</span>'}
+    else{
+      val=S.burnShow&&S.burnShow.i===i?S.burnShow.val:p.score;
+      if(ph==='final'||ph==='over'){
+        var st=lead.indexOf(i)>=0?'Leader':i===act?'Rolling':(S.queue.indexOf(i)>=0?'Waiting':'Done');
+        if(ph==='final'&&S.queue.indexOf(i)<0&&i!==S.trigger&&lead.indexOf(i)<0)cls+=' done';
+        foot='<span class="tag">'+st+'</span>';
+      }else{
+        var TG=RL().target,bank=Math.min(100,p.score/TG*100),pend=i===act?Math.min(100-bank,S.turn/TG*100):0;
+        foot='<span class="bar"><i style="width:'+bank+'%"></i><i class="pend" style="width:'+pend+'%"></i></span>';
+      }
+    }
+    var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(onDoubles(i)||(RL().power&&p.pwReady));
+    var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="One Power '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
+    var hb=(pending||(i===act&&hotNow))?'<span class="hotb">×2</span>':'';
+    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+'</div>';
+  }).join('');
+
+  var bn=$('banner');bn.hidden=ph!=='final';
+  if(ph==='final'){bn.innerHTML='<b>'+(S.finalMode==='roll'?'FINAL ROLL':'FINAL TURN')+'</b>'+esc(P(S.trigger).name)+' reached '+RL().target+'. Everyone else gets one '+(S.finalMode==='roll'?'roll':'turn')+' to beat '+barScore()+'.'}
+
+  if(ph==='over'){
+    var names=S.winners.map(function(i){return P(i).name});
+    $('winLine').textContent=names.length>1?names.join(' and ')+' tie':names[0]+' wins';
+    var RR=histRounds(),TR=0;(S.hist||[]).forEach(function(h){h.forEach(function(e){TR+=e.rolls||0})});
+    var top=barScore(),rest=S.players.filter(function(_,i){return S.winners.indexOf(i)<0}),line1;
+    if(names.length>1)line1='Tied on '+top+' points.';
+    else{
+      var wi=S.winners[0];line1=RL().golden&&golden(wi)>0?'Finished on '+top+': '+regular(wi)+' points and '+golden(wi)+' Golden Points.':'Won with '+top+' point'+(top===1?'':'s')+'.';
+      if(rest.length){
+        var second=Math.max.apply(null,rest.map(function(q){return q.score})),gap=top-second;
+        var who=rest.filter(function(q){return q.score===second}).map(function(q){return q.name}).join(' and ');
+        line1+=' '+gap+' point'+(gap===1?'':'s')+' more than '+who+'.';
+      }
+    }
+    $('winSub').textContent=line1;
+    $('winSub2').textContent=RR?'The game had '+TR+' total dice roll'+(TR===1?'':'s')+' over '+RR+' round'+(RR===1?'':'s')+' of play.':'';
+    var G=S.games||1;$('tally').textContent='Running scoreboard · '+G+' game'+(G===1?'':'s')+' played';
+    var tot=S.players.map(function(_,i){return (S.ledger||[]).reduce(function(a,g){return a+(g.s[i]||0)},0)});
+    var sorted=S.players.map(function(_,i){return i}).sort(function(a,b){return P(b).score-P(a).score||a-b});
+    var GD=RL().golden,g5=GD?' g5':'';
+    $('tallyCap').textContent=GD?'With Golden Points on, This game and Total count regular points up to '+RL().target+'. Golden is each player\'s running total of Golden Points across every game, kept separately; the small +number is what they added this game. Totals, Golden Points and wins keep adding up until you go back to the main menu.':'Total and Wins keep adding up with every game until you go back to the main menu.';
+    $('standings').innerHTML='<div class="row rhead'+g5+'"><span></span><span>Player</span><span>This game</span>'+(GD?'<span>Golden</span>':'')+'<span>Total</span><span>Wins</span></div>'+sorted.map(function(i,k){var p=P(i);
+      return '<div class="row'+g5+(S.winners.indexOf(i)>=0?' first':'')+'"><span class="rk">'+(k+1)+'</span><span class="nm"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+'</span><span class="sc">'+regular(i)+'</span>'+(GD?'<span class="gd">'+(S.ledger||[]).reduce(function(a,g){return a+((g.g||[])[i]||0)},0)+(golden(i)>0&&(S.games||1)>1?'<small>+'+golden(i)+'</small>':'')+'</span>':'')+'<span class="tt">'+tot[i]+'</span><span class="net'+((p.wins||0)>0?' up':'')+'">'+(p.wins||0)+'</span></div>'}).join('');
+    if(S.online&&ON.meta){var mv=ON.meta.players[ON.you],waitN=ON.meta.players.filter(function(q){return !q.cpu&&!q.away&&!q.again}).length;
+      $('againBtn').textContent=mv&&mv.again?(waitN?'Waiting for '+waitN:'Starting…'):'Play again';$('againBtn').disabled=!!(mv&&mv.again);
+      $('tallyCap').textContent='Total and Wins add up over every game at this table. Each finished game is saved to every player\u2019s profile.'}
+    else{$('againBtn').textContent='Play again';$('againBtn').disabled=false}
+    drawSummary();
+    return;
+  }
+
+  /* turn panel */
+  var who=$('who'),stats=$('stats'),rolls=$('rolls'),rb=$('rollBtn'),lb=$('lockBtn'),note=$('note');
+  rb.disabled=S.busy;lb.disabled=S.busy;
+  if(ph==='order'){
+    var o=S.ord;stats.hidden=true;rolls.hidden=true;lb.hidden=true;
+    setWho(o.done?P(S.order[0]).name+' goes first':P(o.cont[o.i]).name+', roll for turn order');
+    rb.textContent=o.done?'Start the game':'Roll';
+    note.textContent=o.msg||'Highest roll goes first. A tie at the top rolls again.';
+    return;
+  }
+  var p=P(S.cur),bar=barScore(),nx=nextIdx();
+  stats.hidden=false;
+  if(finalRollMode()){
+    rolls.hidden=true;lb.hidden=true;
+    var need=bar-p.score+1;
+    $('l1').textContent='Score';$('v1').textContent=p.score;
+    $('l3').textContent='To beat';$('v3').textContent=bar;
+    if(S.finalDone){
+      setWho(S.finalMsg);$('l2').textContent='Rolled';$('v2').textContent=S.rolls[0].pts;
+      rb.textContent=nx>=0?'Next: '+P(nx).name:'See who won';
+      note.textContent=leaders().indexOf(S.cur)>=0?p.name+' now holds the lead.':'';
+    }else{
+      setWho(p.name+': one final roll');$('l2').textContent='Needs';$('v2').textContent=need+'+';
+      rb.textContent='Take the final roll';
+      var top=S.hotTurn?48:24;note.textContent=need>top?'One roll pays '+top+' at most, so the lead is out of reach.':S.hotTurn?'One roll only, and it pays double. A 1 scores nothing.':'One roll only. A 1 scores nothing.';
+    }
+    return;
+  }
+  rolls.hidden=false;lb.hidden=S.bust;
+  $('l1').textContent='Banked';$('v1').textContent=p.score;
+  $('l2').textContent=S.hotTurn?'At risk · ×2':'At risk';$('v2').textContent=S.turn;
+  $('l3').textContent='If you lock in';$('v3').textContent=p.score+S.turn;
+  rolls.innerHTML=S.rolls.map(function(r){
+    var mult=(r.dbl?2:1)*(r.m||1);
+    if(r.rr)return '<span class="x">'+r.a+' + '+r.b+'<b>↻</b></span>';
+    return '<span class="'+(mult>1?'dbl':'')+(r.x||r.bust?' x':'')+'">'+r.a+' + '+r.b+(mult>1?'<em>×'+mult+'</em>':'')+'<b>'+r.pts+'</b></span>'}).join('');
+  rolls.scrollLeft=rolls.scrollWidth;
+  lb.textContent=S.turn>0?'Lock in '+S.turn:'Lock in';if(S.turn<=0)lb.disabled=true;
+  if(S.mustRoll&&!S.bust){lb.disabled=true;lb.textContent='Roll to unlock'}
+  if(S.pend){
+    lb.hidden=false;lb.disabled=S.busy;lb.textContent='Take the bust';
+    rb.textContent='Re-roll ('+p.rr+' left)';
+    setWho(p.name+' rolled a 1');
+    note.textContent='Your first roll has a 1. Re-roll to try again, but a 1 on the re-roll drops your score'+(p.score>0?' of '+p.score:'')+' to 0. It does not count as snake eyes.';
+    return;
+  }
+  if(S.bust){
+    setWho(p.name+(S.rrFail?' busted on the re-roll':S.snake?' rolled snake eyes':' busted'));
+    rb.textContent=nx>=0?'Pass the dice to '+P(nx).name:'See who won';
+    var sn2=S.snake&&p.st&&p.st.sn>=2?' That is '+(p.st.sn===2?'a second':'another')+' snake eyes, so every roll pays double for the rest of the game.':'';
+    var pwn=S.pwFull?' That fills all 5 One Power dots, so '+p.name+'’s next turn pays double.':'';
+    if(S.rrFail)note.textContent='The re-roll came up with a 1, so the score drops to 0'+(S.lostBank>0?' and the '+S.lostBank+' banked is gone':'')+'. It does not count as snake eyes.';
+    else note.textContent=(S.snake?(S.lostBank>0?'Two 1s. The '+(S.lost||0)+' from this turn and the '+S.lostBank+' banked are both gone.':'Two 1s. The '+(S.lost||0)+' from this turn is gone and the score stays at 0.')+sn2:'A 1 came up and the '+(S.lost||0)+' from this turn is gone. Banked score stays at '+p.score+'.');
+    note.textContent+=pwn;
+  }else{
+    setWho(p.name+(ph==='final'?': final turn':'’s turn'));
+    rb.textContent=S.rolls.length?'Roll again':'Roll';
+    if(ph==='final'){var nd=bar-(p.score+S.turn)+1;note.textContent=nd>0?'You need '+nd+' more to beat '+bar+'.':'You are ahead. Lock in to take the lead.'}
+    else if(p.score+S.turn>=RL().target)note.textContent='That reaches '+RL().target+'. Lock in to trigger the final '+(S.finalMode==='roll'?'roll':'turn')+'.';
+    else note.textContent=S.turn>0?'A 1 on either die wipes the '+S.turn+'.':'A 1 on either die ends the turn with nothing.';
+    if(S.powerTurn&&!S.rolls.length&&ph!=='final')note.textContent='One Power: all 5 dots filled, so every roll this turn pays double.';
+    if(S.mustRoll)note.textContent='Verify Double: you rolled a double, so you must roll again before you can lock in the '+S.turn+'.';
+  }
+}
+function renderScreens(ph){
+  if(ph==='ach')renderAch();
+  if(ph==='online')renderOnline();if(ph==='host')renderHost();if(ph==='room')renderRoom();
+  if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Settings.';
+  if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
+  if(ph==='settings'){
+    var c=S.cfg;
+    $('tSound').setAttribute('aria-checked',S.sound?'true':'false');
+    $('tGolden').setAttribute('aria-checked',c.golden?'true':'false');
+    $('tNoDbl').setAttribute('aria-checked',c.noDbl?'true':'false');
+    $('tReroll').setAttribute('aria-checked',c.reroll?'true':'false');
+    $('tVerify').setAttribute('aria-checked',c.verify?'true':'false');
+    $('tPower').setAttribute('aria-checked',c.power?'true':'false');
+    $('tm15').checked=c.timer===15;$('tm30').checked=(c.timer||30)===30;$('tm60').checked=c.timer===60;
+    $('tg100').checked=c.target===100;$('tg150').checked=c.target===150;$('tg200').checked=c.target===200;
+    $('defaultsBtn').disabled=isDefault(c);
+    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double and One Power off.';
+  }
+}
+function rulesItems(){
+  var c=RL(),T=c.target,x=['The turn order is drawn at random.','On your turn, roll as many times as you like. Every roll adds to your turn total.'];
+  x.push(c.noDbl?'Disable Doubles is on: doubles score face value and every ×2 bonus is off.':'Doubles pay double: 3 + 3 is 6, doubled to 12.');
+  x.push('A 1 on either die wipes the turn total and ends your turn.','Snake eyes (two 1s) burns your whole score down to zero.','Lock in to bank the turn total and pass the dice.');
+  if(!c.noDbl)x.push('Once the leader has more than 75 banked, a player still on zero gets every roll doubled on their next turn.','A player who starts their final turn more than 75 behind the leader also gets every roll doubled.','Roll snake eyes twice in one game and every roll you make pays double for the rest of that game.');
+  if(c.reroll)x.push('Re-roll Pig: each player has 3 re-rolls a game. If the first roll of your turn has a single 1, you may re-roll instead of busting. A 1 on the re-roll drops your score to 0, but it does not count as snake eyes. Snake eyes can never be re-rolled.');
+  if(c.verify)x.push('Verify Double: after rolling a double you cannot lock in. Keep rolling until a roll is not a double.');
+  if(c.power)x.push('One Power: every 1 you roll fills one of the 5 dots under your score. Fill all 5 and your next turn pays double, then the dots reset.');
+  if(c.golden)x.push('Golden Points: every point above '+T+' is a golden point, shown on the score boxes and in the summary.');
+  x.push('Lock in a score of '+T+' or more and every other player gets one last full turn. Highest score wins.');
+  return x;
+}
+function openRules(){
+  $('rulesTitle').textContent='How to play · '+RL().target+' Pig';
+  $('rulesList').innerHTML=rulesItems().map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
+  var g=inGame()||(S.online&&S.phase==='over');$('quitBtn').hidden=!g;$('quitBtn').textContent=S.online?'Leave the table':'End this game';$('closeRules').textContent=g?'Back to the game':'Close';
+  var dl=$('rules');if(dl.showModal)dl.showModal();else dl.setAttribute('open','');
+}
+function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+esc(t)+(S.online&&ai===S.me?' (you)':'')+(cb?'<span class="cpuchip">CPU · '+STYLE[cb]+'</span>':'')+(aw?'<span class="awaychip">Away · computer playing</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip">All rolls ×2</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
+function ordinal(n){return n===1?'st':n===2?'nd':n===3?'rd':'th'}
+
+/* ---------- controls ---------- */
+function readSetup(){
+  for(var i=0;i<6;i++){var v=$('name'+i).value.trim().slice(0,10);S.names[i]=v}
+  savePrefs();
+}
+$('less').addEventListener('click',function(){readSetup();S.n=Math.max(2,S.n-1);savePrefs();render()});
+$('more').addEventListener('click',function(){readSetup();S.n=Math.min(6,S.n+1);savePrefs();render()});
+$('setup').addEventListener('input',function(){readSetup()});
+$('startBtn').addEventListener('click',function(){if(S.busy)return;ac();readSetup();startGame();render()});
+function setKind(i,t){S.types[i]=t}
+[0,1,2,3,4,5].forEach(function(i){$('kind'+i).addEventListener('click',function(){readSetup();var o='hcbg',t=o[(o.indexOf(S.types[i])+1)%4];setKind(i,t);savePrefs();render()})});
+$('presetSolo').addEventListener('click',function(){readSetup();var c=['b','c','g','b','c'];for(var i=0;i<6;i++)S.types[i]=i===0?'h':c[i-1];savePrefs();render()});
+$('presetAll').addEventListener('click',function(){readSetup();for(var i=0;i<6;i++)S.types[i]='h';savePrefs();render()});
+$('rollBtn').addEventListener('click',function(){
+  if(S.online){if(S.busy||blocked())return;ac();onSend(S.pend?'reroll':(S.bust?'pass':'roll'));return}
+  if(S.busy)return;ac();
+  if(isBotTurn()&&!(S.phase==='order'&&S.ord.done))return;
+  if(S.phase==='order'&&S.ord.done){startPlay();render();return}
+  if((S.phase==='play'||S.phase==='final')&&(S.bust||S.finalDone)){nextPlayer();render();return}
+  if(S.pend){doReroll();return}
+  doRoll(null);
+});
+$('lockBtn').addEventListener('click',function(){if(S.online){if(S.busy||blocked())return;onSend(S.pend?'take':'lock');return}if(isBotTurn())return;if(S.pend){takeBust();return}lockIn();render()});
+$('againBtn').addEventListener('click',function(){if(S.online){ac();onVote();return}ac();$('over').scrollTop=0;showPage(0,false);beginOrder();render()});
+var leave=$('leaveDlg');
+function askLeave(){
+  $('leaveTitle').textContent=S.online?'Leave the table?':'Back to the main menu?';
+  $('leaveText').textContent=S.online?'The game ends for everyone at the table. Every finished game is already saved to each player.':'All scores for these players will be lost: this game, the scoreboard totals and the games-won tally.';
+  $('leaveBtn').textContent=S.online?'Leave and end the game':'Leave and lose the scores';
+  if(leave.showModal)leave.showModal();else leave.setAttribute('open','')}
+function goToMenu(){
+  if(S.busy){setTimeout(goToMenu,250);return}
+  $('over').scrollTop=0;showPage(0,false);S.phase='menu';S.rules=null;S.order=[];S.marks=['',''];S.hotTurn=false;S.ledger=[];say(null);render();
+}
+$('newBtn').addEventListener('click',askLeave);
+$('statsBtn').addEventListener('click',function(){var o=$('over'),on=!o.classList.contains('showstats');o.classList.toggle('showstats',on);this.textContent=on?'Back to scores':'View stats';o.scrollTop=0;if(on)drawSummary()});
+$('stayBtn').addEventListener('click',function(){leave.close()});
+$('leaveBtn').addEventListener('click',function(){leave.close();if(S.online){onLeave();return}goToMenu()});
+var dlg=$('rules');
+$('rulesBtn').addEventListener('click',openRules);
+function toMenu(){S.phase='menu';render()}
+$('mPass').addEventListener('click',function(){ac();S.phase='setup';render()});
+$('mOnline').addEventListener('click',function(){S.phase='online';$('onMsg').textContent='';onEnter();render()});
+$('mSettings').addEventListener('click',function(){S.phase='settings';render()});
+$('mAch').addEventListener('click',function(){S.phase='ach';$('ach').scrollTop=0;loadMe();render()});
+$('backAch').addEventListener('click',toMenu);
+$('achWho').addEventListener('click',function(e){var b=e.target.closest('button[data-k]');if(b){achSel=b.getAttribute('data-k');renderAch()}});
+$('mRules').addEventListener('click',openRules);
+$('backSetup').addEventListener('click',function(){readSetup();toMenu()});
+$('backOnline').addEventListener('click',function(){readOnName();toMenu()});
+$('backSettings').addEventListener('click',toMenu);
+function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
+$('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
+$('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
+$('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
+$('tReroll').addEventListener('click',function(){setCfg('reroll',!S.cfg.reroll)});
+$('tVerify').addEventListener('click',function(){setCfg('verify',!S.cfg.verify)});
+$('tPower').addEventListener('click',function(){setCfg('power',!S.cfg.power)});
+['tg100','tg150','tg200'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('target',+$(id).value)})});
+['tm15','tm30','tm60'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('timer',+$(id).value)})});
+$('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,timer:DEF.timer};savePrefs();render()});
+$('closeRules').addEventListener('click',function(){dlg.close()});
+$('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
+$('quitBtn').addEventListener('click',function(){dlg.close();askLeave()});
+var pd=null;
+tray.addEventListener('pointerdown',function(e){pd={x:e.clientX,y:e.clientY,t:performance.now()}});
+tray.addEventListener('pointerup',function(e){
+  if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
+  if(dist>24)dir={dx:dx,dy:dy,x:pd.x-r.left,y:pd.y-r.top,speed:clamp(dist/dt*1.1,0.85,1.9)};
+  pd=null;if(S.online){if(!S.busy&&!blocked()&&canRoll()){ac();onSend('roll',{dir:dir})}return}if(isBotTurn())return;doRoll(dir);
+});
+tray.addEventListener('pointercancel',function(){pd=null});
+tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(S.online){if(!S.busy&&!blocked()&&canRoll())onSend('roll');return}if(!isBotTurn())doRoll(null)}});
+if(window.ResizeObserver)new ResizeObserver(layout).observe(tray);
+window.addEventListener('resize',layout);
+window.addEventListener('resize',function(){if(S.phase==='over')drawChart()});
+$('chart').addEventListener('click',chartPick);
+$('chart').addEventListener('pointermove',function(e){if(e.pointerType==='mouse')chartPick(e)});
+$('tab0').addEventListener('click',function(){showPage(0,true)});
+$('dGame').addEventListener('click',function(){distAll=false;drawDist()});
+$('dAll').addEventListener('click',function(){distAll=true;drawDist()});
+$('tab1').addEventListener('click',function(){showPage(1,true)});
+$('pager').addEventListener('scroll',function(){var pg=$('pager');markPage(Math.round(pg.scrollLeft/pageStep())>=1?1:0)},{passive:true});
+
+
+/* ---------- online play ---------- */
+var ON={ws:null,code:null,pw:'',queue:[],busy:false,retry:0,closing:false,tables:null,offline:false,rec:null,meta:null,deadline:0,poll:0,sendT:0,id:null,hostSeats:4};
+function myId(){
+  if(ON.id)return ON.id;var o=null;try{o=JSON.parse(localStorage.getItem('degenpig-id')||'null')}catch(e){}
+  if(!o||!o.uid){var u=new Uint8Array(16);crypto.getRandomValues(u);o={uid:Array.prototype.map.call(u,function(x){return (x+256).toString(16).slice(1)}).join(''),name:''};try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
+  return ON.id=o;
+}
+function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
+function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
+function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
+function refreshLobby(){api('/api/lobby').then(function(d){ON.tables=d.tables||[];ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
+function loadMe(){api('/api/me?uid='+encodeURIComponent(myId().uid)).then(function(r){ON.rec=r;if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch()}).catch(function(){})}
+function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('One Power');x.push((r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+function renderOnline(){
+  var inp=$('onName');if(document.activeElement!==inp)inp.value=myId().name||'';
+  var L=$('lobbyList');
+  if(ON.offline)L.innerHTML='<div class="empty">Online play runs on the Degen Pig website and can’t reach its server from here. Pass n Play works anywhere.</div>';
+  else if(!ON.tables)L.innerHTML='<div class="empty">Looking for tables…</div>';
+  else if(!ON.tables.length)L.innerHTML='<div class="empty">No open tables right now. Host one and share the code with your friends.</div>';
+  else L.innerHTML=ON.tables.map(function(t){return '<div class="lrow"><div class="lt"><b>'+(t.locked?LOCK:'')+esc(t.name)+'</b><span>'+esc(t.host)+' · '+t.filled+' of '+t.seats+' seats · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-code="'+esc(t.code)+'" data-locked="'+(t.locked?1:0)+'" data-name="'+esc(t.name)+'">Join</button></div>'}).join('');
+  var H=(ON.rec&&ON.rec.history)||[];$('histHead').hidden=!H.length;
+  $('histList').innerHTML=H.slice(0,5).map(function(g){
+    var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.score>me.score}).length,d=new Date(g.at);
+    return '<div class="lrow"><div class="lt"><b>'+esc(g.table)+'</b><span>'+d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+(me.won?'Won with '+me.score:ordinalN(rank)+' of '+g.players.length+' with '+me.score)+' · '+g.players.filter(function(p){return !p.cpu}).length+' players</span></div></div>'}).join('');
+}
+function ordinalN(n){return n+ordinal(n)}
+function renderHost(){
+  $('hSeats').textContent=ON.hostSeats;$('hLess').disabled=ON.hostSeats<=2;$('hMore').disabled=ON.hostSeats>=6;
+  $('hPwRow').hidden=!$('hPriv').checked;
+  $('hRules').textContent='Rules come from your Settings: '+rulesLine(S.cfg)+'.';
+}
+function renderRoom(){
+  var m=ON.meta;if(!m)return;
+  $('rName').textContent=m.name;$('rCode').textContent=m.code;
+  $('rInfo').textContent=(m.public?'Public table':'Private table, password needed')+' · '+rulesLine(m.rules);
+  var h='';for(var i=0;i<m.seats;i++){var p=m.players[i];h+=p?'<div class="seat"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+(i===ON.you?' (you)':'')+'<small>'+(p.host?'Host':'')+(p.away?' · Reconnecting':'')+'</small></div>':'<div class="seat open">Open seat</div>'}
+  $('rSeats').innerHTML=h;
+  var open=m.seats-m.players.length,st=$('rStart');st.hidden=!ON.host;
+  st.textContent=open>0?'Start now, '+open+' computer player'+(open===1?'':'s')+' fill in':'Start';
+  $('rNote').textContent=ON.host?'The game starts by itself when every seat fills. You can also start now.':'Waiting for every seat to fill, or for '+esc(m.hostName)+' to start.';
+}
+function netNote(t,ms){var n=$('netNote');if(!t){n.hidden=true;return}n.textContent=t;n.hidden=false;clearTimeout(netNote.t);if(ms)netNote.t=setTimeout(function(){n.hidden=true},ms)}
+function onJoin(code,pw){
+  code=String(code||'').trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){$('onMsg').className='onmsg';$('onMsg').textContent='Table codes are 6 letters and numbers.';return}
+  if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
+  ON.code=code;ON.pw=pw||'';ON.closing=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
+  try{localStorage.setItem('degenpig-table',JSON.stringify({code:code,pw:ON.pw}))}catch(e){}
+  connect();
+}
+function connect(){
+  if(ON.ws){try{ON.ws.onclose=null;ON.ws.close()}catch(e){}}
+  var ws;try{ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/table/'+ON.code)}catch(e){netNote('Could not reach the table.',3000);return}
+  ON.ws=ws;
+  ws.onopen=function(){ON.retry=0;netNote(null);ws.send(JSON.stringify({t:'hello',uid:myId().uid,name:myId().name||'Player',pw:ON.pw}))};
+  ws.onmessage=function(e){var m;try{m=JSON.parse(e.data)}catch(x){return}onMsg(m)};
+  ws.onclose=function(){if(ON.ws!==ws)return;ON.ws=null;if(ON.closing||!ON.code)return;
+    netNote('Connection lost. Reconnecting…');ON.retry++;setTimeout(function(){if(!ON.closing&&ON.code&&!ON.ws)connect()},Math.min(8000,700*Math.pow(2,ON.retry)))};
+}
+function onSend(t,extra){if(!ON.ws||ON.ws.readyState!==1)return;var o={t:t};if(extra)for(var k in extra)o[k]=extra[k];ON.ws.send(JSON.stringify(o));
+  if(t==='roll'||t==='lock'||t==='reroll'||t==='take'||t==='pass'){S.busy=true;render();clearTimeout(ON.sendT);ON.sendT=setTimeout(function(){if(S.busy&&!S.rolling&&!ON.busy){S.busy=false;render()}},3000)}}
+function forgetTable(){try{localStorage.removeItem('degenpig-table')}catch(e){}}
+function onMsg(m){
+  if(m.t==='timer'){ON.deadline=m.left>0?Date.now()+m.left:0;return}
+  if(m.t==='error'){
+    if(m.fatal){forgetTable();ON.closing=true;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;S.online=false}
+    if(m.code==='password'){askPw(ON.lastCode,ON.lastName,true);return}
+    S.phase='online';$('onMsg').className='onmsg';$('onMsg').textContent=m.msg||'Something went wrong.';onEnter();render();return}
+  if(m.t==='ended'){forgetTable();netNote(null);ON.closing=true;var c=ON.code;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;ON.queue=[];ON.busy=false;
+    S.online=false;S.busy=false;S.rolling=false;$('endText').textContent=m.reason||'This table has closed.';S.phase='online';onEnter();render();var d=$('endDlg');if(d.showModal)d.showModal();else d.setAttribute('open','');return}
+  if(m.t==='state'){ON.queue.push(m);pump()}
+}
+function pump(){
+  if(ON.busy||!ON.queue.length)return;
+  var m=ON.queue.shift();ON.meta=m.meta;ON.you=m.you;ON.host=m.host;
+  if(m.meta.status==='waiting'||!m.s){S.online=true;S.phase='room';render();return pump()}
+  var ev=m.ev||{};
+  if(ev.roll){
+    ON.busy=true;S.online=true;S.me=m.you;S.busy=true;S.rolling=true;say(null);S.marks=['',''];
+    if(S.phase!=='play'&&S.phase!=='final')applyState(m);
+    render();ac();
+    throwDice([ev.roll.a,ev.roll.b],ev.roll.dir||null).then(function(){S.rolling=false;applyState(m);sideFx(ev);after(ev.fx||{})});
+    return;
+  }
+  applyState(m);sideFx(ev);S.busy=false;render();pump();
+}
+function onNext(){if(S.online&&ON.busy){ON.busy=false;setTimeout(pump,0)}}
+function applyState(m){
+  var s=m.s,wasOver=S.phase==='over';
+  for(var k in s)S[k]=s[k];
+  S.online=true;S.me=m.you;S.finalMode='turn';
+  ON.deadline=m.left>0?Date.now()+m.left:0;
+  if(S.phase==='over'&&!wasOver){chartSel=-1;$('over').scrollTop=0;$('over').classList.remove('showstats');$('statsBtn').textContent='View stats';showPage(0,false)}
+  if(S.phase!=='over'&&wasOver){$('over').scrollTop=0}
+}
+function sideFx(ev){
+  if(ev.lock)sfxLock(ev.lock);
+  if(ev.hot)setTimeout(sfxHot,450);
+  if(ev.note)netNote(ev.note,3500);
+  if(ev.unlocks&&ev.unlocks.length){ev.unlocks.forEach(function(u){var a=ACHBY[u.id];if(a)achQ.push({a:a,lv:u.lv,who:myId().name||'You'})});loadMe()}
+}
+function onVote(){
+  var me=ON.meta&&ON.meta.players[ON.you];if(me&&me.again)return;onSend('again');
+}
+function onLeave(){forgetTable();onSend('leave');ON.closing=true;ON.code=null;setTimeout(function(){try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null},300);ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
+function blocked(){if(S.online){var a=activeIdx();return a!==S.me||!!(S.players[a]&&S.players[a].away)}return isBotTurn()}
+function askPw(code,name,wrong){ON.lastCode=code;ON.lastName=name;$('pwText').textContent=(wrong?'That password didn’t work. ':'')+(name?'“'+name+'”':'This table')+' is private. Enter its password to join.';$('pwIn').value='';var d=$('pwDlg');if(d.showModal)d.showModal();else d.setAttribute('open','');setTimeout(function(){$('pwIn').focus()},50)}
+/* the turn clock */
+setInterval(function(){
+  var el=$('clock');if(!el)return;
+  var on=S.online&&(S.phase==='play'||S.phase==='final')&&ON.deadline>0&&!S.rolling&&!S.bust;
+  if(!on){el.hidden=true;return}
+  var left=Math.max(0,Math.ceil((ON.deadline-Date.now())/1000)),mine=!blocked();
+  el.hidden=false;el.textContent=(mine?'Your time: ':'Time: ')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');
+  el.className='clock'+(mine?' mine':'')+(mine&&left<=5?' low':'');
+},250);
+$('hostBtn').addEventListener('click',function(){if(!readOnName()){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}$('hMsg').textContent='';S.phase='host';render()});
+$('backHost').addEventListener('click',function(){S.phase='online';onEnter();render()});
+$('hLess').addEventListener('click',function(){ON.hostSeats=Math.max(2,ON.hostSeats-1);renderHost()});
+$('hMore').addEventListener('click',function(){ON.hostSeats=Math.min(6,ON.hostSeats+1);renderHost()});
+$('hPub').addEventListener('change',renderHost);$('hPriv').addEventListener('change',renderHost);
+$('hCreate').addEventListener('click',function(){
+  var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
+  if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
+  var b=this;b.disabled=true;$('hMsg').textContent='';
+  api('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:S.cfg,hostUid:me.uid,hostName:me.name})})
+    .then(function(d){b.disabled=false;onJoin(d.code,priv?pw:'')})
+    .catch(function(){b.disabled=false;$('hMsg').textContent='Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
+});
+$('joinBtn').addEventListener('click',function(){$('onMsg').textContent='';onJoin($('joinCode').value,ON.pw||'')});
+$('joinCode').addEventListener('keydown',function(e){if(e.key==='Enter')$('joinBtn').click()});
+$('onName').addEventListener('input',readOnName);
+$('lobbyList').addEventListener('click',function(e){var b=e.target.closest('button[data-code]');if(!b)return;$('onMsg').textContent='';
+  if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
+  if(b.getAttribute('data-locked')==='1')askPw(b.getAttribute('data-code'),b.getAttribute('data-name'),false);else onJoin(b.getAttribute('data-code'),'')});
+$('pwGo').addEventListener('click',function(){$('pwDlg').close();onJoin(ON.lastCode,$('pwIn').value)});
+$('pwIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('pwGo').click()});
+$('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!=='online'){S.phase='online';onEnter();render()}});
+$('endOk').addEventListener('click',function(){$('endDlg').close()});
+$('rStart').addEventListener('click',function(){onSend('start')});
+$('rLeave').addEventListener('click',onLeave);
+$('rShare').addEventListener('click',function(){
+  var url=location.origin+'/?t='+ON.code+(ON.pw?'&p='+encodeURIComponent(ON.pw):''),txt='Join my Degen Pig table '+ON.code;
+  if(navigator.share){navigator.share({title:'Degen Pig',text:txt,url:url}).catch(function(){});return}
+  try{navigator.clipboard.writeText(url).then(function(){netNote('Invite link copied',2500)},function(){netNote(url,6000)})}catch(e){netNote(url,6000)}
+});
+
+/* ---------- start ---------- */
+function start(data){
+  loadPrefs();
+  if(data&&data.S&&data.S.phase){try{var snd=S.sound;Object.assign(S,data.S);S.sound=snd;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
+  showFaces();render();layout();
+  /* an invite link opens straight into the table: /?t=CODE&p=password */
+  try{var q=new URLSearchParams(location.search),tc=q.get('t');if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
+    if(myId().name)onJoin(tc,q.get('p')||'');else{$('onMsg').className='onmsg ok';$('onMsg').textContent='Type your name, then tap Join to sit at table '+tc.toUpperCase()+'.';$('joinCode').value=tc.toUpperCase();ON.pw=q.get('p')||''}}
+    /* back at a table you were sitting at (the page was closed or reloaded): take your seat again */
+    else{var sv=JSON.parse(localStorage.getItem('degenpig-table')||'null');if(sv&&sv.code&&myId().name){S.phase='online';onEnter();render();netNote('Rejoining your table…',2500);onJoin(sv.code,sv.pw||'')}}}catch(e){}
+}
+try{if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)window.claude.hot.snapshot(function(){return {S:S}})}catch(e){}
+if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start);
+else start((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
+})();
+</script>
+
+</body>
+</html>

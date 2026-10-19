@@ -1,0 +1,74 @@
+ {id:'rivered',n:'Rivered ’Em',c:'game',k:'one',t:1,d:'Win on your final turn after someone else hit the target'},
+ {id:'doubletrouble',n:'Double Trouble',c:'game',k:'one',t:1,d:'Roll snake eyes twice in one game'},
+ {id:'cleangame',n:'Clean Game',c:'game',k:'one',t:2,d:'Win without busting once'},
+ {id:'wire',n:'Wire to Wire',c:'game',k:'one',t:2,d:'Lead or share the lead after every round, then win'},
+ {id:'snakecharmer',n:'Snake Charmer',c:'game',k:'one',t:3,d:'Win a game in which you rolled snake eyes twice'},
+ {id:'degen',n:'Degen',c:'life',k:'cnt',L:[25,100,500,1000],d:function(x){return 'Play '+fmt(x)+' games'}},
+ {id:'shark',n:'Shark',c:'life',k:'cnt',L:[10,50,200,500],d:function(x){return 'Win '+fmt(x)+' games'}},
+ {id:'piggybank',n:'Piggy Bank',c:'life',k:'cnt',L:[5000,25000,100000,250000],d:function(x){return 'Bank '+fmt(x)+' points in total'}},
+ {id:'diceroller',n:'Dice Roller',c:'life',k:'cnt',L:[1000,5000,25000,100000],d:function(x){return 'Roll the dice '+fmt(x)+' times'}},
+ {id:'seeingdouble',n:'Seeing Double',c:'life',k:'cnt',L:[100,500,1500,5000],d:function(x){return 'Roll '+fmt(x)+' doubles'}},
+ {id:'bigturns',n:'Big Turns',c:'life',k:'cnt',L:[10,50,200,500],d:function(x){return 'Bank 50+ in one turn, '+fmt(x)+' times'}},
+ {id:'comeback',n:'Comeback Kid',c:'life',k:'cnt',L:[5,25,75,200],d:function(x){return 'Win '+fmt(x)+' games after starting your final turn 50+ behind'}},
+ {id:'hotstreak',n:'Hot Streak',c:'life',k:'max',L:[3,4,5,7],d:function(x){return 'Win '+x+' games in a row against 2+ other players'}},
+ {id:'grinder',n:'Grinder',c:'life',k:'max',L:[3,7,30,100],d:function(x){return 'Play on '+x+' days in a row'}},
+ {id:'goldenhoard',n:'Golden Hoard',c:'life',k:'cnt',L:[250,1000,5000,25000],d:function(x){return 'Earn '+fmt(x)+' Golden Points in total, with Golden Points on'}},
+ {id:'secondchance',n:'Second Chance',c:'set',k:'one',t:0,d:'Use a re-roll and lock in that same turn, with Re-roll Pig on'},
+ {id:'powertrip',n:'Power Trip',c:'set',k:'one',t:1,d:'Bank 30+ on a One Power turn, with One Power on'},
+ {id:'verified',n:'Verified',c:'set',k:'one',t:2,d:'Survive three forced rolls in a row, with Verify Double on'},
+ {id:'goldenhog',n:'Golden Hog',c:'set',k:'one',t:2,d:'Finish a game with 50+ Golden Points, with Golden Points on'},
+ {id:'homegame',n:'Home Game',c:'multi',k:'cnt',L:[5,25,100,250],online:1,d:function(x){return 'Host '+x+' online tables that fill and play'}},
+ {id:'nemesis',n:'Nemesis',c:'multi',k:'max',L:[10,25,50,100],d:function(x){return 'Beat the same friend '+x+' times'}},
+ {id:'fulltable',n:'Full Table',c:'multi',k:'cnt',L:[1,10,50,200],online:1,d:function(x){return 'Play '+x+' full 6-player online game'+(x===1?'':'s')}},
+ {id:'tilted',n:'Tilted',c:'shame',k:'max',L:[5,7,10,null],hint:'Hint: a truly awful run of turns',d:function(x){return 'Bust '+x+' turns in a row'}},
+ {id:'snakecollector',n:'Snake Collector',c:'shame',k:'cnt',L:[25,100,250,500],hint:'Hint: snake eyes, again and again',d:function(x){return 'Roll snake eyes '+x+' times'}},
+ {id:'burntbacon',n:'Burnt Bacon',c:'shame',k:'cnt',L:[1000,10000,50000,100000],hint:'Hint: let the 1s eat enough of your points',d:function(x){return 'Lose '+fmt(x)+' points to 1s'}},
+ {id:'roughstart',n:'Rough Start',c:'shame',k:'one',t:0,hint:'Hint: the worst possible way to start a game',d:'Roll snake eyes on your very first roll of a game'}
+];
+function achSet(p,id,val,mode){
+  var r=achRec(p);if(!r)return;var a=ACHBY[id],old=achLevel(a,r),cur=r.v[id];
+  if(mode==='add')r.v[id]=(cur||0)+val;else if(mode==='max'){if(cur==null||val>cur)r.v[id]=val}else if(mode==='min'){if(cur==null||val<cur)r.v[id]=val}else r.v[id]=1;
+  var nw=achLevel(a,r);if(nw>old)achQ.push({a:a,lv:nw,who:r.name});achSave();
+}
+function dayStr(off){var d=new Date();d.setDate(d.getDate()+(off||0));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function achRoll(p,a,b){
+  if(p.bot||!p.g)return;var g=p.g,one=a===1||b===1,snake=a===1&&b===1&&!S.inReroll,pair=a===b&&!one;
+  achSet(p,'diceroller',1,'add');if(pair)achSet(p,'seeingdouble',1,'add');
+  if(snake){achSet(p,'snakecollector',1,'add');if(!g.rolls)achSet(p,'roughstart',1)}
+  g.rolls++;
+  g.dbl=pair?g.dbl+1:0;if(g.dbl>=2)achSet(p,'doubledouble',1);if(g.dbl>=3)achSet(p,'runninghot',1);if(g.dbl>=4)achSet(p,'onfire',1);
+  g.six=(a===6&&b===6)?g.six+1:0;if(g.six>=2)achSet(p,'doubleboxcars',1);
+  if(RL().verify){if(one||!S.mustRoll)g.forced=0;else{g.forced++;if(g.forced>=3)achSet(p,'verified',1)}}   /* a forced roll is one made while a double still has to be followed up */
+}
+function achBust(p,risk,burn,snake){
+  if(p.bot||!p.g)return;var g=p.g,r=achRec(p);g.busts++;
+  if(risk>0)achSet(p,'badbeat',risk,'max');if(risk+burn>0)achSet(p,'burntbacon',risk+burn,'add');
+  if(snake&&burn>g.burnMax)g.burnMax=burn;if(snake&&p.st&&p.st.sn>=2)achSet(p,'doubletrouble',1);
+  if(r){r.bs=(r.bs||0)+1;achSet(p,'tilted',r.bs,'max')}
+}
+function achLock(p,amt,rolls){
+  if(p.bot)return;var r=achRec(p);if(r)r.bs=0;
+  achSet(p,'hogwild',amt,'max');achSet(p,'greedy',rolls,'max');achSet(p,'piggybank',amt,'add');if(amt>=50)achSet(p,'bigturns',1,'add');
+  if(S.rrUsed)achSet(p,'secondchance',1);if(S.powerTurn&&amt>=30)achSet(p,'powertrip',1);
+}
+function achRound(){S.players.forEach(function(p,i){if(!p.g)return;var mx=Math.max.apply(null,S.players.map(function(q,j){return j===i?-1:q.score}));if(p.score<mx)p.g.wireFail=true})}
+function achGame(w){
+  var n=S.players.length,today=dayStr(0),yest=dayStr(-1);
+  S.players.forEach(function(p,i){
+    if(p.bot||!p.g)return;var g=p.g,won=w.indexOf(i)>=0,r=achRec(p);if(!r)return;
+    achSet(p,'degen',1,'add');
+    if(r.day!==today){r.ds=r.day===yest?(r.ds||0)+1:1;r.day=today;achSet(p,'grinder',r.ds,'max')}
+    if(RL().golden){var gp=golden(i);if(gp>0)achSet(p,'goldenhoard',gp,'add');if(gp>=50)achSet(p,'goldenhog',1)}
+    if(n>=3){if(won){r.ws=(r.ws||0)+1;achSet(p,'hotstreak',r.ws,'max')}else{r.ws=0;achSave()}}
+    if(!won)return;
+    achSet(p,'shark',1,'add');
+    if(g.finalDef!=null&&g.finalDef>0){achSet(p,'suckout',g.finalDef,'max');if(g.finalDef>=50)achSet(p,'comeback',1,'add')}
+    if(g.burnMax>0)achSet(p,'phoenix',g.burnMax,'max');
+    achSet(p,'speedpig',g.turns,'min');
+    if(S.trigger>=0&&S.trigger!==i)achSet(p,'rivered',1);
+    if(!g.busts)achSet(p,'cleangame',1);
+    if(!g.wireFail)achSet(p,'wire',1);
+    if(p.st&&p.st.sn>=2)achSet(p,'snakecharmer',1);
+    S.players.forEach(function(q,j){if(j===i||q.bot||w.indexOf(j)>=0)return;var k=achKey(q.name);if(!k||k===achKey(p.name))return;r.opp[k]=(r.opp[k]||0)+1;achSet(p,'nemesis',r.opp[k],'max')});
+  });
+}
