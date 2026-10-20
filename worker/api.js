@@ -7,7 +7,7 @@ export async function handleApi(d, method, path, token, body) {
 
   if (path === '/api/lobby') {
     if (user) await d.lobby.seen(user.id);
-    return [200, { tables: await d.lobby.list() }];
+    return [200, { tables: await d.lobby.list(), counts: await d.lobby.counts() }];
   }
   if (!user) return [401, { error: 'Please sign in.' }];
   const admin = (d.admins || []).includes(String(user.email || '').toLowerCase());

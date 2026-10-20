@@ -349,6 +349,9 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 #online.out .needauth{display:none}
 #online.out #lobbyList .btn{display:none}
 .delacct{align-self:center;margin-top:10px;border:0;color:var(--muted);font-size:13px;text-decoration:underline}
+.lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
+.lcount b{color:var(--ivory)}
+.lcount .dot{flex:none;width:9px;height:9px;border-radius:50%;background:#3FCF8E;box-shadow:0 0 0 3px rgba(63,207,142,.2)}
 .lock{display:inline-block;width:11px;height:12px;margin-right:6px;vertical-align:-1px;color:var(--gold)}
 .empty{padding:14px;border-radius:14px;border:1px dashed var(--line);font-size:14px;color:var(--muted)}
 .codebox{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel);flex-wrap:wrap}
@@ -439,6 +442,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="actions needauth"><button class="btn primary" id="hostBtn" type="button">Host a table</button></div>
     <div class="joinrow needauth"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
     <p class="onmsg" id="onMsg" role="status"></p>
+    <div class="lcount" id="lobbyCount" role="status" hidden></div>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
     <h2 class="sechead" id="histHead" hidden>Your recent tables</h2>
@@ -1710,7 +1714,7 @@ function authed(path,opt){return token().then(function(t){if(!t)throw new Error(
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
 function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
-function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
+function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.counts=d.counts||null;ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
 function loadMe(){
   if(!AUTH){ON.user=null;ON.rec=null;return}
   authed('/api/me').then(function(d){
@@ -1729,6 +1733,8 @@ function renderOnline(){
   if(!out)$('acctWho').innerHTML='Signed in'+(ON.user?' as <b>'+esc(ON.user.email||ON.user.name)+'</b>':'');
   if(ON.authErr){$('onMsg').className='onmsg';$('onMsg').textContent='Sign-in problem: '+ON.authErr;ON.authErr=null}
   var inp=$('onName');if(document.activeElement!==inp)inp.value=myId().name||'';
+  var C=ON.counts,lc=$('lobbyCount');lc.hidden=!C||ON.offline;
+  if(C&&!ON.offline){var n=C.lobby;lc.innerHTML='<i class="dot"></i><span><b>'+(n?n+' player'+(n===1?'':'s'):'Nobody')+'</b> in the lobby'+(AUTH&&n===1?' (just you)':'')+(C.playing?' · '+C.playing+' playing at '+C.tables+' table'+(C.tables===1?'':'s'):'')+'</span>'}
   var L=$('lobbyList');
   if(ON.offline)L.innerHTML='<div class="empty">Online play runs on the Degen Pig website and can’t reach its server from here. Pass n Play works anywhere.</div>';
   else if(!ON.tables)L.innerHTML='<div class="empty">Looking for tables…</div>';

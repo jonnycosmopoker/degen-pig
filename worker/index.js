@@ -86,7 +86,7 @@ export class Table {
 }
 
 /* The lobby list and the stats counters. */
-const LOBBY_METHODS = ['update', 'remove', 'list', 'seen', 'event', 'admin'];
+const LOBBY_METHODS = ['update', 'remove', 'list', 'seen', 'event', 'admin', 'counts'];
 export class Lobby {
   constructor(state) { this.L = new LobbyLogic(state.storage) }
   async fetch(req) {

@@ -31,6 +31,13 @@ export class LobbyLogic {
       .map(t => ({ code: t.code, name: t.name, locked: t.locked, seats: t.seats, filled: t.filled, host: t.host, rules: t.rules, at: t.at }));
   }
   seen(uid) { if (uid) this.presence.set(uid, Date.now()) }
+  /* for the lobby screen: people looking for a game (on Online Play, or seated at a table that hasn't started) and people playing */
+  async counts() {
+    const now = Date.now(), tables = await this.tables(), playing = new Set(), waiting = new Set();
+    tables.forEach(t => (t.uids || []).forEach(u => ((t.status || 'waiting') === 'waiting' ? waiting : playing).add(u)));
+    for (const [u, t] of this.presence) if (now - t <= 20000 && !playing.has(u)) waiting.add(u);
+    return { lobby: waiting.size, playing: playing.size, tables: tables.filter(t => t.status === 'playing').length };
+  }
   async event(e) {
     const k = 'd:' + dayKey(Date.now()), d = (await this.s.get(k)) || { games: 0, seats: 0, tables: 0, signups: 0 };
     const tot = (await this.s.get('tot')) || { games: 0, tables: 0, signups: 0 };
