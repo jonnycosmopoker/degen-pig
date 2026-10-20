@@ -13,12 +13,13 @@ import { handleApi } from '../worker/api.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
 const port = +(process.argv[2] || 8787), speed = +(process.env.DP_SPEED || 1);
-const lobby = new LobbyLogic(new MemStorage()), accounts = new AccountsLogic(new MemStorage()), tables = new Map();
+const lobby = new LobbyLogic(new MemStorage()), accounts = new AccountsLogic(new MemStorage()), tables = new Map(), stores = new Map(), socks = new Set();
 const verify = async t => (typeof t === 'string' && /^dev-[a-z0-9]{1,20}$/.test(t)) ? { id: 'sb:' + t.slice(4), sbid: t.slice(4), email: t.slice(4) + '@example.com', name: t.slice(4)[0].toUpperCase() + t.slice(5) + ' Tester' } : null;
-const newRoom = () => new TableRoom({ lobby, accounts, verify, speed });
+const store = code => { if (!stores.has(code)) stores.set(code, new MemStorage()); return stores.get(code) };
+const newRoom = code => new TableRoom({ lobby, accounts, verify, speed, storage: store(code) });
 const deps = {
   verify, lobby, accounts, admins: String(process.env.ADMIN_EMAILS || 'ace@example.com').toLowerCase().split(','),
-  createTable: async b => { const code = newCode(), room = newRoom(); tables.set(code, room); await room.init(Object.assign({}, b, { code })); return code }
+  createTable: async b => { const code = newCode(), room = newRoom(code); tables.set(code, room); await room.init(Object.assign({}, b, { code })); return code }
 };
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.png': 'image/png', '.json': 'application/json', '.css': 'text/css' };
 
@@ -31,6 +32,13 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify(out));
   }
   if (p === '/admin') { res.writeHead(302, { location: '/admin.html' }); return res.end() }
+  /* test hook: act like an update restarted every table (drop all connections, rebuild each table from its saved state) */
+  if (p === '/dev/restart' && process.env.DP_DEV) {
+    for (const [, r] of tables) r.dispose();
+    for (const s of socks) s.destroy(); socks.clear();
+    for (const [code] of tables) { const r = newRoom(code); const saved = await store(code).get('room'); if (saved) await r.restore(saved); tables.set(code, r) }
+    res.writeHead(200); return res.end('restarted');
+  }
   const f = path.normalize(path.join(root, p === '/' ? 'index.html' : decodeURIComponent(p)));
   if (!f.startsWith(root) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); return res.end('Not found') }
   res.writeHead(200, { 'content-type': TYPES[path.extname(f)] || 'application/octet-stream' });
@@ -41,7 +49,8 @@ const server = http.createServer(async (req, res) => {
 server.on('upgrade', (req, socket) => {
   const m = new URL(req.url, 'http://x').pathname.match(/^\/ws\/table\/([A-Z0-9]{6})$/);
   if (!m) { socket.destroy(); return }
-  const room = tables.get(m[1]) || newRoom();
+  const room = tables.get(m[1]) || newRoom(m[1]);
+  socks.add(socket); socket.on('close', () => socks.delete(socket));
   const accept = crypto.createHash('sha1').update(req.headers['sec-websocket-key'] + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
   socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + accept + '\r\n\r\n');
   let closed = false, buf = Buffer.alloc(0), frags = [];

@@ -9,6 +9,8 @@ const BOT_MS = 950;          /* pause before a computer acts */
 const BUST_PASS_MS = 2600;   /* a bust passes the dice on by itself after this */
 const WAIT_GRACE_MS = 30000; /* a dropped phone keeps its waiting-room seat this long */
 const EMPTY_END_MS = 300000; /* a game with nobody connected closes after this */
+const RESUME_MS = 25000;     /* after a server restart, players get this long to reconnect before a computer covers their seat */
+const BEAT_MS = 60000;       /* tables check in with the lobby this often, so dead ones drop off the list */
 
 function clean(s, n) { return String(s == null ? '' : s).replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n) }
 export async function hashPw(code, pw) {
@@ -22,7 +24,7 @@ export function cleanRules(r) {
 
 export class TableRoom {
   constructor(deps) {
-    this.k = deps.speed || 1; this.verify = deps.verify; this.lobby = deps.lobby; this.accounts = deps.accounts; this.now = deps.now || (() => Date.now());
+    this.k = deps.speed || 1; this.verify = deps.verify; this.lobby = deps.lobby; this.storage = deps.storage || null; this.beat = null; this.accounts = deps.accounts; this.now = deps.now || (() => Date.now());
     this.meta = null; this.seats = []; this.conns = new Map(); this.G = null; this.E = null;
     this.timer = null; this.busyUntil = 0; this.deadline = 0; this.graces = new Map(); this.emptyTimer = null; this.votes = new Set();
   }
@@ -36,13 +38,57 @@ export class TableRoom {
       status: 'waiting', createdAt: this.now()
     };
     this.pushLobby(); this.lobby.event({ type: 'table' }).catch(() => { });
+    this.startBeat(); this.persist();
     return { ok: true };
+  }
+  /* the local test server's stand-in for the old copy of a table disappearing when an update restarts it */
+  dispose() { this.dead = true; [this.timer, this.resumeT, this.emptyTimer].forEach(t => t && clearTimeout(t)); if (this.beat) clearInterval(this.beat); this.graces.forEach(t => clearTimeout(t)) }
+  startBeat() { if (!this.beat) this.beat = setInterval(() => { if (this.meta && this.meta.status !== 'ended') this.pushLobby() }, BEAT_MS) }
+
+  /* ---- save and resume: the whole table is saved after every change, so a server restart (an update) picks up where it left off ---- */
+  persist() {
+    if (!this.storage || !this.meta || this.dead) return;
+    let data;
+    if (this.meta.status === 'ended') data = { meta: this.meta };
+    else data = {
+      meta: this.meta,
+      seats: this.seats.map(s => ({ uid: s.uid, name: s.name, cpu: s.cpu || null, host: !!s.host })),
+      G: this.G ? Object.assign({}, this.G, { players: this.G.players.map(p => { const q = Object.assign({}, p); delete q.acc; return q }) }) : null,
+      votes: [...this.votes], busyLeft: Math.max(0, this.busyUntil - this.now())
+    };
+    this.storage.put('room', data).catch(() => { });
+  }
+  async restore(d) {
+    if (!d || !d.meta) return;
+    this.meta = d.meta;
+    if (this.meta.status === 'ended') return;
+    this.seats = (d.seats || []).map(s => Object.assign({}, s, { away: false, acc: s.cpu ? null : { v: {}, opp: {}, history: [] } }));
+    await Promise.all(this.seats.filter(s => s.uid).map(s => this.loadAcc(s)));
+    this.votes = new Set(d.votes || []); this.busyUntil = this.now() + (d.busyLeft || 0);
+    if (d.G) {
+      this.G = d.G; this.E = Engine(this.G);
+      this.G.players.forEach((p, i) => { const s = this.seats[i]; p.acc = s && !s.cpu ? s.acc : null; p.away = false });
+    }
+    this.startBeat(); this.pushLobby();
+    /* nobody is connected yet: give everyone a moment to come back before a computer covers for them */
+    const humans = this.seats.filter(s => s.uid);
+    if (this.meta.status === 'waiting') {
+      humans.forEach(s => { s.away = true; this.graces.set(s.uid, setTimeout(() => { this.graces.delete(s.uid); if (s.away && this.meta.status === 'waiting') this.dropSeat(s, 'left') }, WAIT_GRACE_MS)) });
+    } else {
+      this.resumeT = setTimeout(() => {
+        this.resumeT = null; let changed = false;
+        this.seats.forEach((s, i) => { if (s.uid && ![...this.conns.values()].some(c => c.uid === s.uid && !c.watch)) { s.away = true; if (this.G && this.G.players[i]) this.G.players[i].away = true; changed = true } });
+        if (changed) { this.broadcast(); this.tick(); this.checkEmpty() }
+      }, RESUME_MS);
+      this.tick();
+    }
   }
 
   /* ---- sockets ---- */
   onOpen(sock) { this.conns.set(sock, { uid: null }) }
   watchers() { let n = 0; for (const c of this.conns.values()) if (c.watch) n++; return n }
   onClose(sock) {
+    if (this.dead) return;
     const c = this.conns.get(sock); this.conns.delete(sock); if (!c || !c.uid || !this.meta) return;
     if (c.watch) { if (this.meta.status === 'playing') this.broadcast(); return }
     if ([...this.conns.values()].some(x => x.uid === c.uid)) return;   /* still connected on another socket */
@@ -220,6 +266,8 @@ export class TableRoom {
     if (!this.meta || this.meta.status === 'ended') return;
     this.meta.status = 'ended'; this.meta.endReason = reason;
     this.saveSession(true);
+    if (this.beat) clearInterval(this.beat); this.beat = null; if (this.resumeT) clearTimeout(this.resumeT);
+    this.persist();
     if (this.timer) clearTimeout(this.timer); this.timer = null;
     this.graces.forEach(t => clearTimeout(t)); this.graces.clear();
     for (const [sock] of this.conns) this.send(sock, { t: 'ended', reason });
@@ -243,6 +291,7 @@ export class TableRoom {
     return o;
   }
   broadcast(ev) {
+    this.persist();
     const meta = this.publicMeta(), s = this.snapshot(), left = this.deadline ? Math.max(0, this.deadline - this.now()) : 0;
     for (const [sock, c] of this.conns) {
       if (!c.uid) continue;

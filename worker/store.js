@@ -13,7 +13,7 @@ export class MemStorage {
 /* days are counted in Pacific time, since that's where the game is run from */
 export function dayKey(t) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t)) }
 
-const STALE_MS = 6 * 3600 * 1000, ONLINE_MS = 60 * 1000;
+const STALE_MS = 3 * 60 * 1000, ONLINE_MS = 60 * 1000;   /* live tables check in every minute; one silent for 3 minutes is gone */
 
 /* The lobby list, plus the live and daily numbers for the owner's stats page. */
 export class LobbyLogic {

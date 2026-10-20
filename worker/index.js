@@ -68,8 +68,11 @@ export default {
 /* One Durable Object per table: holds the live game in memory while phones are connected. */
 export class Table {
   constructor(state, env) {
-    const lobby = rpc(env.LOBBY), accounts = rpc(env.ACCOUNTS);
-    this.room = new TableRoom({ verify: token => verifyToken(env, token), lobby, accounts });
+    const lobby = rpc(env.LOBBY), accounts = rpc(env.ACCOUNTS), st = state.storage;
+    const storage = { get: k => st.get(k), put: (k, v) => st.put(k, v), delete: k => st.delete(k) };
+    this.room = new TableRoom({ verify: token => verifyToken(env, token), lobby, accounts, storage });
+    /* after an update restarts this table, load the saved game before anyone reconnects */
+    state.blockConcurrencyWhile(async () => { const saved = await st.get('room'); if (saved) await this.room.restore(saved) });
   }
   async fetch(req) {
     const url = new URL(req.url);
