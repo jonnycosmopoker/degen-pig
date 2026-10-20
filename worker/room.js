@@ -180,17 +180,30 @@ export class TableRoom {
     if (this.seats.some(s => s.uid && !s.away) || this.emptyTimer) return;
     this.emptyTimer = setTimeout(() => { this.emptyTimer = null; if (!this.seats.some(s => s.uid && !s.away)) this.end('Everyone disconnected.') }, EMPTY_END_MS);
   }
-  async saveGame() {
-    const S = this.G, rec = S.records[S.records.length - 1]; if (!rec) return;
+  /* One history entry per table session: it opens with the first game and is updated after every game,
+     then marked closed when the table ends. Each entry holds the final standings for the whole session. */
+  saveGame() { return this.saveSession(false) }
+  async saveSession(closed) {
+    const S = this.G; if (!S || !S.games) return;
+    const m = this.meta, sid = m.code + ':' + m.createdAt, gd = !!S.rules.golden;
+    const totals = S.players.map((p, i) => ({
+      name: p.name, cpu: !!p.bot,
+      total: S.ledger.reduce((a, g) => a + (g.s[i] || 0), 0),
+      golden: gd ? S.ledger.reduce((a, g) => a + ((g.g || [])[i] || 0), 0) : 0,
+      wins: p.wins || 0
+    }));
+    const entry = { sid, table: m.name, code: m.code, start: m.createdAt, end: this.now(), games: S.games, rules: Object.assign({}, S.rules), closed: !!closed, reason: closed ? (m.endReason || '') : '', players: totals };
     for (let i = 0; i < this.seats.length; i++) {
       const s = this.seats[i]; if (!s.uid || !s.acc) continue;
-      s.acc.history.unshift(Object.assign({ table: this.meta.name, code: this.meta.code, you: i }, rec)); s.acc.history.length = Math.min(s.acc.history.length, 200);
+      const h = (s.acc.history || []).filter(x => x && x.sid && x.sid !== sid);
+      h.unshift(Object.assign({ you: i }, entry)); s.acc.history = h.slice(0, 100);
       try { await this.accounts.put(s.uid, s.acc) } catch (e) { }
     }
   }
   end(reason) {
     if (!this.meta || this.meta.status === 'ended') return;
     this.meta.status = 'ended'; this.meta.endReason = reason;
+    this.saveSession(true);
     if (this.timer) clearTimeout(this.timer); this.timer = null;
     this.graces.forEach(t => clearTimeout(t)); this.graces.clear();
     for (const [sock] of this.conns) this.send(sock, { t: 'ended', reason });

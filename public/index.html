@@ -305,6 +305,22 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .lrow .lt b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lrow .lt span{font-size:13px;color:var(--muted)}
 .lrow .btn{flex:none;min-height:44px;padding:0 16px;font-size:15px}
+.hist{border-radius:14px;background:var(--panel);padding:0 14px}
+.hist summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 0;min-height:44px;justify-content:center}
+.hist summary::-webkit-details-marker{display:none}
+.hist summary b{font-size:16px}
+.hist summary span{font-size:13px;color:var(--muted)}
+.hist summary b::after{content:' ▾';color:var(--muted);font-size:13px}
+.hist[open] summary b::after{content:' ▴'}
+.hist .cap{margin:8px 0 12px}
+.hrw{display:grid;grid-template-columns:20px minmax(0,1fr) 64px 44px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums}
+.hist:has(.hg) .hrw{grid-template-columns:20px minmax(0,1fr) 58px 54px 40px}
+.hrw span:nth-child(n+3){text-align:right}
+.hrw .hn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.hrw .hn em{font-style:normal;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.06em}
+.hrw.me .hn{color:var(--gold)}
+.hrw.hh{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.hrw .hg{color:var(--gold)}
 .lock{display:inline-block;width:11px;height:12px;margin-right:6px;vertical-align:-1px;color:var(--gold)}
 .empty{padding:14px;border-radius:14px;border:1px dashed var(--line);font-size:14px;color:var(--muted)}
 .codebox{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel);flex-wrap:wrap}
@@ -388,7 +404,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <p class="onmsg" id="onMsg" role="status"></p>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
-    <h2 class="sechead" id="histHead" hidden>Your recent games</h2>
+    <h2 class="sechead" id="histHead" hidden>Your recent tables</h2>
     <div class="lobby" id="histList"></div>
   </section>
 
@@ -405,6 +421,29 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <div class="seg"><label><input type="radio" name="vis" id="hPub" value="pub" checked>Public</label><label><input type="radio" name="vis" id="hPriv" value="priv">Private</label></div>
     </fieldset>
     <div class="field" id="hPwRow" hidden><label for="hPw">Password</label><input class="txt" id="hPw" maxlength="20" placeholder="Players need this to join" autocomplete="off"></div>
+    <fieldset>
+      <legend>Final turn starts when someone reaches</legend>
+      <div class="seg seg3">
+        <label><input type="radio" name="htarget" id="ht100" value="100">100 Pig</label>
+        <label><input type="radio" name="htarget" id="ht150" value="150">150 Pig</label>
+        <label><input type="radio" name="htarget" id="ht200" value="200">200 Pig</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Turn timer</legend>
+      <div class="seg seg3">
+        <label><input type="radio" name="htimer" id="hm15" value="15">15 seconds</label>
+        <label><input type="radio" name="htimer" id="hm30" value="30">30 seconds</label>
+        <label><input type="radio" name="htimer" id="hm60" value="60">1 minute</label>
+      </div>
+    </fieldset>
+    <div class="opts" id="hOpts">
+      <div class="opt"><span><b>Golden Points</b><small>Points above the target are counted as golden points.</small></span><button class="tog" data-k="golden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
+      <div class="opt"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
+      <div class="opt"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
+      <div class="opt"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
+      <div class="opt"><span><b>One Power</b><small>Every 1 fills a dot. Fill all 5 and your next turn pays double.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="One Power"></button></div>
+    </div>
     <p class="cap" id="hRules"></p>
     <div class="actions"><button class="btn primary" id="hCreate" type="button">Open the table</button></div>
     <p class="onmsg" id="hMsg" role="status"></p>
@@ -1584,16 +1623,24 @@ function renderOnline(){
   else if(!ON.tables)L.innerHTML='<div class="empty">Looking for tables…</div>';
   else if(!ON.tables.length)L.innerHTML='<div class="empty">No open tables right now. Host one and share the code with your friends.</div>';
   else L.innerHTML=ON.tables.map(function(t){return '<div class="lrow"><div class="lt"><b>'+(t.locked?LOCK:'')+esc(t.name)+'</b><span>'+esc(t.host)+' · '+t.filled+' of '+t.seats+' seats · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-code="'+esc(t.code)+'" data-locked="'+(t.locked?1:0)+'" data-name="'+esc(t.name)+'">Join</button></div>'}).join('');
-  var H=(ON.rec&&ON.rec.history)||[];$('histHead').hidden=!H.length;
-  $('histList').innerHTML=H.slice(0,5).map(function(g){
-    var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.score>me.score}).length,d=new Date(g.at);
-    return '<div class="lrow"><div class="lt"><b>'+esc(g.table)+'</b><span>'+d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+(me.won?'Won with '+me.score:ordinalN(rank)+' of '+g.players.length+' with '+me.score)+' · '+g.players.filter(function(p){return !p.cpu}).length+' players</span></div></div>'}).join('');
+  /* one entry per table session: from opening the table to closing it, with everyone's final totals */
+  var H=((ON.rec&&ON.rec.history)||[]).filter(function(x){return x&&x.sid&&x.players});$('histHead').hidden=!H.length;
+  $('histList').innerHTML=H.slice(0,10).map(function(g){
+    var order=g.players.map(function(_,i){return i}).sort(function(a,b){return g.players[b].total-g.players[a].total||g.players[b].wins-g.players[a].wins||a-b});
+    var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.total>me.total}).length,d=new Date(g.start),gd=g.rules&&g.rules.golden;
+    var sum=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+g.games+' game'+(g.games===1?'':'s')+' · '+ordinalN(rank)+' of '+g.players.length+' with '+fmt(me.total)+' points, '+me.wins+' win'+(me.wins===1?'':'s')+(g.closed?'':' · still open');
+    var rows=order.map(function(i,k){var q=g.players[i];return '<div class="hrw'+(i===g.you?' me':'')+'"><span>'+(k+1)+'</span><span class="hn">'+esc(q.name)+(q.cpu?' <em>CPU</em>':'')+'</span><span>'+fmt(q.total)+'</span>'+(gd?'<span class="hg">'+fmt(q.golden)+'</span>':'')+'<span>'+q.wins+'</span></div>'}).join('');
+    return '<details class="hist"><summary><b>'+esc(g.table)+'</b><span>'+sum+'</span></summary><div class="hrw hh"><span></span><span class="hn">Player</span><span>Points</span>'+(gd?'<span class="hg">Golden</span>':'')+'<span>Wins</span></div>'+rows+'<p class="cap">'+esc(rulesLine(g.rules||{}))+(g.reason?' · '+esc(g.reason):'')+'</p></details>'}).join('');
 }
 function ordinalN(n){return n+ordinal(n)}
 function renderHost(){
   $('hSeats').textContent=ON.hostSeats;$('hLess').disabled=ON.hostSeats<=2;$('hMore').disabled=ON.hostSeats>=6;
   $('hPwRow').hidden=!$('hPriv').checked;
-  $('hRules').textContent='Rules come from your Settings: '+rulesLine(S.cfg)+'.';
+  var c=ON.hcfg||(ON.hcfg=Object.assign({timer:30},S.cfg));
+  $('ht100').checked=c.target===100;$('ht150').checked=c.target===150;$('ht200').checked=c.target===200;
+  $('hm15').checked=c.timer===15;$('hm30').checked=c.timer===30;$('hm60').checked=c.timer===60;
+  Array.prototype.forEach.call(document.querySelectorAll('#hOpts .tog'),function(b){b.setAttribute('aria-checked',c[b.getAttribute('data-k')]?'true':'false')});
+  $('hRules').textContent='These start from your Settings. Changes here only apply to this table.';
 }
 function renderRoom(){
   var m=ON.meta;if(!m)return;
@@ -1609,7 +1656,7 @@ function netNote(t,ms){var n=$('netNote');if(!t){n.hidden=true;return}n.textCont
 function onJoin(code,pw){
   code=String(code||'').trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){$('onMsg').className='onmsg';$('onMsg').textContent='Table codes are 6 letters and numbers.';return}
   if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
-  ON.code=code;ON.pw=pw||'';ON.closing=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
+  ON.code=code;ON.pw=pw||'';ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
   try{localStorage.setItem('degenpig-table',JSON.stringify({code:code,pw:ON.pw}))}catch(e){}
   connect();
 }
@@ -1631,6 +1678,7 @@ function onMsg(m){
     if(m.fatal){forgetTable();ON.closing=true;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;S.online=false}
     if(m.code==='password'){askPw(ON.lastCode,ON.lastName,true);return}
     S.phase='online';$('onMsg').className='onmsg';$('onMsg').textContent=m.msg||'Something went wrong.';onEnter();render();return}
+  if(m.t==='ended'&&ON.leaving){ON.leaving=false;return}
   if(m.t==='ended'){forgetTable();netNote(null);ON.closing=true;var c=ON.code;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;ON.queue=[];ON.busy=false;
     S.online=false;S.busy=false;S.rolling=false;$('endText').textContent=m.reason||'This table has closed.';S.phase='online';onEnter();render();var d=$('endDlg');if(d.showModal)d.showModal();else d.setAttribute('open','');return}
   if(m.t==='state'){ON.queue.push(m);pump()}
@@ -1667,7 +1715,7 @@ function sideFx(ev){
 function onVote(){
   var me=ON.meta&&ON.meta.players[ON.you];if(me&&me.again)return;onSend('again');
 }
-function onLeave(){forgetTable();onSend('leave');ON.closing=true;ON.code=null;setTimeout(function(){try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null},300);ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
+function onLeave(){forgetTable();ON.leaving=true;onSend('leave');ON.closing=true;ON.code=null;setTimeout(function(){try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null},300);ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
 function blocked(){if(S.online){var a=activeIdx();return a!==S.me||!!(S.players[a]&&S.players[a].away)}return isBotTurn()}
 function askPw(code,name,wrong){ON.lastCode=code;ON.lastName=name;$('pwText').textContent=(wrong?'That password didn’t work. ':'')+(name?'“'+name+'”':'This table')+' is private. Enter its password to join.';$('pwIn').value='';var d=$('pwDlg');if(d.showModal)d.showModal();else d.setAttribute('open','');setTimeout(function(){$('pwIn').focus()},50)}
 /* the turn clock */
@@ -1679,16 +1727,19 @@ setInterval(function(){
   el.hidden=false;el.textContent=(mine?'Your time: ':'Time: ')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');
   el.className='clock'+(mine?' mine':'')+(mine&&left<=5?' low':'');
 },250);
-$('hostBtn').addEventListener('click',function(){if(!readOnName()){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}$('hMsg').textContent='';S.phase='host';render()});
+$('hostBtn').addEventListener('click',function(){if(!readOnName()){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}$('hMsg').textContent='';ON.hcfg={};for(var k in S.cfg)ON.hcfg[k]=S.cfg[k];if(!ON.hcfg.timer)ON.hcfg.timer=30;S.phase='host';render()});
 $('backHost').addEventListener('click',function(){S.phase='online';onEnter();render()});
 $('hLess').addEventListener('click',function(){ON.hostSeats=Math.max(2,ON.hostSeats-1);renderHost()});
 $('hMore').addEventListener('click',function(){ON.hostSeats=Math.min(6,ON.hostSeats+1);renderHost()});
-$('hPub').addEventListener('change',renderHost);$('hPriv').addEventListener('change',renderHost);
+$('hPub').addEventListener('change',renderHost);
+$('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');if(!b)return;var k=b.getAttribute('data-k');ON.hcfg[k]=!ON.hcfg[k];renderHost()});
+['ht100','ht150','ht200'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.target=+$(id).value;renderHost()})});
+['hm15','hm30','hm60'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.timer=+$(id).value;renderHost()})});$('hPriv').addEventListener('change',renderHost);
 $('hCreate').addEventListener('click',function(){
   var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
   if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
-  api('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:S.cfg,hostUid:me.uid,hostName:me.name})})
+  api('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:ON.hcfg,hostUid:me.uid,hostName:me.name})})
     .then(function(d){b.disabled=false;onJoin(d.code,priv?pw:'')})
     .catch(function(){b.disabled=false;$('hMsg').textContent='Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
 });
