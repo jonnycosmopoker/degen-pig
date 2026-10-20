@@ -22,7 +22,7 @@ export function cleanRules(r) {
 
 export class TableRoom {
   constructor(deps) {
-    this.k = deps.speed || 1; this.lobby = deps.lobby; this.accounts = deps.accounts; this.now = deps.now || (() => Date.now());
+    this.k = deps.speed || 1; this.verify = deps.verify; this.lobby = deps.lobby; this.accounts = deps.accounts; this.now = deps.now || (() => Date.now());
     this.meta = null; this.seats = []; this.conns = new Map(); this.G = null; this.E = null;
     this.timer = null; this.busyUntil = 0; this.deadline = 0; this.graces = new Map(); this.emptyTimer = null; this.votes = new Set();
   }
@@ -74,8 +74,10 @@ export class TableRoom {
 
   /* ---- joining ---- */
   async hello(sock, c, m) {
-    const uid = clean(m.uid, 64), name = clean(m.name, 12) || 'Player';
-    if (!uid) return this.send(sock, { t: 'error', fatal: true, msg: 'Missing player id.' });
+    /* who is this? the sign-in token is checked with Supabase; the id comes from there, never from the phone */
+    const user = await this.verify(m.token).catch(() => null);
+    if (!user || !user.id) return this.send(sock, { t: 'error', fatal: true, code: 'auth', msg: 'Please sign in again to join tables.' });
+    const uid = user.id, name = clean(m.name, 12) || clean(user.name, 12).split(' ')[0] || 'Player';
     let seat = this.seats.find(s => s.uid === uid);
     if (!seat) {
       if (this.meta.status !== 'waiting') return this.send(sock, { t: 'error', fatal: true, msg: 'This game has already started.' });

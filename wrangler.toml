@@ -2,6 +2,11 @@ name = "degen-pig"
 main = "worker/index.js"
 compatibility_date = "2025-09-01"
 
+# Supabase sign-in. Both values are public by design; the secret key, if added, goes in as a Cloudflare secret (SUPABASE_SECRET).
+[vars]
+SUPABASE_URL = "https://fdaysgypgzyexilqfyrx.supabase.co"
+SUPABASE_KEY = "sb_publishable_GAe1m_PFF3WV_Cp2vv5h-A_ca3ANUms"
+
 # The game page, pictures and badges. Requests that match no file go to the worker.
 [assets]
 directory = "./public"

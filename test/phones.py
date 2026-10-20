@@ -7,6 +7,7 @@ with sync_playwright() as p:
     b=p.chromium.launch()
     def phone(tag):
         ctx=b.new_context(viewport={'width':390,'height':844},has_touch=True,reduced_motion='reduce')
+        ctx.add_init_script("if(!sessionStorage.getItem('x')){sessionStorage.setItem('x','1');localStorage.setItem('degenpig-auth',JSON.stringify({at:'dev-%s',rt:'',exp:9e9}))}"%tag.lower())
         pg=ctx.new_page(); pg.on('pageerror',lambda e: errs.append(tag+': '+str(e))); pg.on('console',lambda m: errs.append(tag+' console: '+m.text) if m.type=='error' else None)
         return ctx,pg
     cA,A=phone('Ace'); cB,B=phone('Bex'); cC,C=phone('Cy')

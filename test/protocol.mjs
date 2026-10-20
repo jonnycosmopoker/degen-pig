@@ -3,12 +3,12 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const log=(...a)=>console.log(...a);
 function client(name,uid,code,pw,opts={}){
   const c={name,uid,last:null,errors:[],ended:null,notes:[],unlocks:[],timers:0};
-  c.open=()=>new Promise(res=>{c.ws=new WebSocket(W+'/ws/table/'+code);c.ws.onopen=()=>{c.ws.send(JSON.stringify({t:'hello',uid,name,pw}));res()};
+  c.open=()=>new Promise(res=>{c.ws=new WebSocket(W+'/ws/table/'+code);c.ws.onopen=()=>{c.ws.send(JSON.stringify({t:'hello',token:'dev-'+uid.toLowerCase(),name,pw}));res()};
     c.ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.t==='state'){c.last=m;if(m.ev&&m.ev.note)c.notes.push(m.ev.note);if(m.ev&&m.ev.unlocks)c.unlocks.push(...m.ev.unlocks)}else if(m.t==='error')c.errors.push(m.msg);else if(m.t==='ended')c.ended=m.reason;else if(m.t==='timer')c.timers++}});
   c.send=o=>c.ws.send(JSON.stringify(o));
   return c;
 }
-async function create(o){const r=await fetch(B+'/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(o)});return (await r.json()).code}
+async function create(o){const r=await fetch(B+'/api/tables',{method:'POST',headers:{'content-type':'application/json',authorization:'Bearer dev-ua'},body:JSON.stringify(o)});return (await r.json()).code}
 async function play(cs,{idle=null,until='over'}={}){
   // each human: when it's their turn, roll until 15+ then lock
   for(let k=0;k<4000;k++){
@@ -46,7 +46,7 @@ async function play(cs,{idle=null,until='over'}={}){
   await sleep(2000);
   const B3=client('Bex','uB',code,''); await B3.open(); await sleep(300); log('reconnected away:',A.last.s.players.map(p=>p.away), A.notes.slice(-1)[0]);
   ok=await play([A,B3]); log('game2 over:',ok,'games',A.last.s.games);
-  const me=await (await fetch(B+'/api/me?uid=uA')).json(); log('Ace history:',me.history.length,'v:',JSON.stringify(me.v).slice(0,120));
+  const me=(await (await fetch(B+'/api/me',{headers:{authorization:'Bearer dev-ua'}})).json()).rec; log('Ace history:',me.history.length,'games in session:',me.history[0].games,'v:',JSON.stringify(me.v).slice(0,80));
   log('Ace unlocks seen:',A.unlocks.length);
   B3.send({t:'leave'}); await sleep(300); log('ended:',A.ended);
   process.exit(0);

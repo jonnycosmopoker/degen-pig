@@ -9,8 +9,14 @@ A push-your-luck dice game for 2–6 players. You can play pass-and-play on one 
 - `worker/` is the Cloudflare Worker and its Durable Objects:
   - `Table` is one live table. It holds the seats, the game, the turn timer, the computer stand-ins and the play-again votes.
   - `Lobby` is the list of tables waiting for players.
-  - `Accounts` holds player records (achievements and game history) until Google sign-in replaces it.
+  - `Accounts` holds each signed-in player's record: achievements, rivals and table history.
 - `dev/server.mjs` is a local stand-in for Cloudflare that needs no installs: `node dev/server.mjs`, then open http://localhost:8787.
+
+## Sign-in
+
+Online play needs a Google sign-in through Supabase. The page sends players to Supabase's Google sign-in, which returns them with an access token. The worker checks every token with Supabase (`/auth/v1/user`), so a player's id always comes from Supabase and never from the phone. `SUPABASE_URL` and `SUPABASE_KEY` (the publishable key) are set in `wrangler.toml`. To make "Delete my account" also remove the sign-in itself, add the Supabase secret key as a Cloudflare secret named `SUPABASE_SECRET`.
+
+In the local dev server, the token `dev-<name>` stands in for a signed-in user.
 
 ## Online rules
 

@@ -321,6 +321,14 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .hrw.me .hn{color:var(--gold)}
 .hrw.hh{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .hrw .hg{color:var(--gold)}
+.signcard{display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:var(--panel)}
+.signcard p{margin:0;font-size:15px;color:var(--ivory);line-height:1.4}
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px;flex:none;min-height:54px;background:#fff;color:#1F1F1F;border:0;font-size:17px}
+.acct{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;color:var(--muted)}
+.acct b{color:var(--ivory)}
+#online.out .needauth{display:none}
+#online.out #lobbyList .btn{display:none}
+.delacct{align-self:center;margin-top:10px;border:0;color:var(--muted);font-size:13px;text-decoration:underline}
 .lock{display:inline-block;width:11px;height:12px;margin-right:6px;vertical-align:-1px;color:var(--gold)}
 .empty{padding:14px;border-radius:14px;border:1px dashed var(--line);font-size:14px;color:var(--muted)}
 .codebox{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--panel);flex-wrap:wrap}
@@ -398,14 +406,20 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="online" hidden>
     <button type="button" class="link back" id="backOnline">‹ Main menu</button>
     <h1 class="screen-h">Online Play</h1>
-    <div class="field"><label for="onName">Your name</label><input class="txt" id="onName" maxlength="10" placeholder="Name at the table" autocomplete="off"></div>
-    <div class="actions"><button class="btn primary" id="hostBtn" type="button">Host a table</button></div>
-    <div class="joinrow"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
+    <div class="signcard" id="signCard">
+      <p>Sign in to play online. Your achievements and table history are saved to your account, on any phone.</p>
+      <button class="btn gbtn" id="gSignIn" type="button"><svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button>
+    </div>
+    <div class="acct" id="acctLine" hidden><span id="acctWho"></span><button type="button" class="link" id="signOutBtn">Sign out</button></div>
+    <div class="field needauth"><label for="onName">Your name</label><input class="txt" id="onName" maxlength="10" placeholder="Name at the table" autocomplete="off"></div>
+    <div class="actions needauth"><button class="btn primary" id="hostBtn" type="button">Host a table</button></div>
+    <div class="joinrow needauth"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
     <p class="onmsg" id="onMsg" role="status"></p>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
     <h2 class="sechead" id="histHead" hidden>Your recent tables</h2>
     <div class="lobby" id="histList"></div>
+    <button type="button" class="link delacct needauth" id="delAcctBtn">Delete my account</button>
   </section>
 
   <section class="dock scroll" id="host" hidden>
@@ -616,6 +630,15 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <h2 id="endTitle">Table closed</h2>
     <p class="dlgp" id="endText"></p>
     <div class="actions"><button class="btn primary" id="endOk" type="button">Back to Online Play</button></div>
+  </dialog>
+
+  <dialog id="delDlg" aria-labelledby="delTitle">
+    <h2 id="delTitle">Delete your account?</h2>
+    <p class="dlgp">This permanently deletes your online achievements and table history, and signs you out. It can't be undone.</p>
+    <div class="actions">
+      <button class="btn primary" id="delStay" type="button">Keep my account</button>
+      <button class="btn danger" id="delGo" type="button">Delete my account</button>
+    </div>
   </dialog>
 
   <div class="netnote" id="netNote" role="status" aria-live="polite" hidden></div>
@@ -1609,14 +1632,47 @@ function myId(){
   if(!o||!o.uid){var u=new Uint8Array(16);crypto.getRandomValues(u);o={uid:Array.prototype.map.call(u,function(x){return (x+256).toString(16).slice(1)}).join(''),name:''};try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
   return ON.id=o;
 }
+/* ---------- sign-in (Supabase with Google) ---------- */
+var SB={url:'https://fdaysgypgzyexilqfyrx.supabase.co',key:'sb_publishable_GAe1m_PFF3WV_Cp2vv5h-A_ca3ANUms'},AUTH=null;
+function authLoad(){try{AUTH=JSON.parse(localStorage.getItem('degenpig-auth')||'null')}catch(e){AUTH=null}}
+function authSave(){try{if(AUTH)localStorage.setItem('degenpig-auth',JSON.stringify(AUTH));else localStorage.removeItem('degenpig-auth')}catch(e){}}
+/* Google sends the player back here with the sign-in tokens after the # */
+function authFromHash(){
+  var h=location.hash||'';if(h.indexOf('access_token=')<0&&h.indexOf('error')<0)return false;
+  var q=new URLSearchParams(h.slice(1));history.replaceState(null,'',location.pathname+location.search);
+  if(q.get('access_token')){AUTH={at:q.get('access_token'),rt:q.get('refresh_token')||'',exp:Date.now()/1000+(+q.get('expires_in')||3600)};authSave();return true}
+  ON.authErr=q.get('error_description')||'Sign-in did not finish.';return true;
+}
+function token(){
+  if(!AUTH)return Promise.resolve(null);
+  if(AUTH.exp-60>Date.now()/1000||!AUTH.rt)return Promise.resolve(AUTH.at);
+  return fetch(SB.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.key,'content-type':'application/json'},body:JSON.stringify({refresh_token:AUTH.rt})})
+    .then(function(r){return r.ok?r.json():null}).then(function(d){if(!d||!d.access_token){AUTH=null;authSave();return null}AUTH={at:d.access_token,rt:d.refresh_token||AUTH.rt,exp:Date.now()/1000+(d.expires_in||3600)};authSave();return AUTH.at})
+    .catch(function(){return AUTH&&AUTH.at});
+}
+function signIn(){location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+'/?online=1')}
+function signOut(){var t=AUTH&&AUTH.at;if(t)fetch(SB.url+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+t}}).catch(function(){});AUTH=null;authSave();ON.user=null;ON.rec=null;render()}
+function authed(path,opt){return token().then(function(t){if(!t)throw new Error('signin');opt=opt||{};var h={};for(var k in (opt.headers||{}))h[k]=opt.headers[k];h.Authorization='Bearer '+t;opt.headers=h;return api(path,opt)})}
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
 function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
 function refreshLobby(){api('/api/lobby').then(function(d){ON.tables=d.tables||[];ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
-function loadMe(){api('/api/me?uid='+encodeURIComponent(myId().uid)).then(function(r){ON.rec=r;if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch()}).catch(function(){})}
+function loadMe(){
+  if(!AUTH){ON.user=null;ON.rec=null;return}
+  authed('/api/me').then(function(d){
+    ON.user=d.user;ON.rec=d.rec;
+    var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
+    /* the first sign-in on a phone that already played online moves that phone's record onto the account */
+    try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
+    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();
+  }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
+}
 function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('One Power');x.push((r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function renderOnline(){
+  var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;
+  if(!out)$('acctWho').innerHTML='Signed in'+(ON.user?' as <b>'+esc(ON.user.email||ON.user.name)+'</b>':'');
+  if(ON.authErr){$('onMsg').className='onmsg';$('onMsg').textContent='Sign-in problem: '+ON.authErr;ON.authErr=null}
   var inp=$('onName');if(document.activeElement!==inp)inp.value=myId().name||'';
   var L=$('lobbyList');
   if(ON.offline)L.innerHTML='<div class="empty">Online play runs on the Degen Pig website and can’t reach its server from here. Pass n Play works anywhere.</div>';
@@ -1655,6 +1711,7 @@ function renderRoom(){
 function netNote(t,ms){var n=$('netNote');if(!t){n.hidden=true;return}n.textContent=t;n.hidden=false;clearTimeout(netNote.t);if(ms)netNote.t=setTimeout(function(){n.hidden=true},ms)}
 function onJoin(code,pw){
   code=String(code||'').trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){$('onMsg').className='onmsg';$('onMsg').textContent='Table codes are 6 letters and numbers.';return}
+  if(!AUTH){try{localStorage.setItem('degenpig-pending',JSON.stringify({code:code,pw:pw||''}))}catch(e){}S.phase='online';$('onMsg').className='onmsg ok';$('onMsg').textContent='Sign in with Google to join table '+code+'.';render();return}
   if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
   ON.code=code;ON.pw=pw||'';ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
   try{localStorage.setItem('degenpig-table',JSON.stringify({code:code,pw:ON.pw}))}catch(e){}
@@ -1664,7 +1721,7 @@ function connect(){
   if(ON.ws){try{ON.ws.onclose=null;ON.ws.close()}catch(e){}}
   var ws;try{ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/table/'+ON.code)}catch(e){netNote('Could not reach the table.',3000);return}
   ON.ws=ws;
-  ws.onopen=function(){ON.retry=0;netNote(null);ws.send(JSON.stringify({t:'hello',uid:myId().uid,name:myId().name||'Player',pw:ON.pw}))};
+  ws.onopen=function(){ON.retry=0;netNote(null);token().then(function(t){if(ws.readyState===1)ws.send(JSON.stringify({t:'hello',token:t,name:myId().name||'',pw:ON.pw}))})};
   ws.onmessage=function(e){var m;try{m=JSON.parse(e.data)}catch(x){return}onMsg(m)};
   ws.onclose=function(){if(ON.ws!==ws)return;ON.ws=null;if(ON.closing||!ON.code)return;
     netNote('Connection lost. Reconnecting…');ON.retry++;setTimeout(function(){if(!ON.closing&&ON.code&&!ON.ws)connect()},Math.min(8000,700*Math.pow(2,ON.retry)))};
@@ -1677,6 +1734,7 @@ function onMsg(m){
   if(m.t==='error'){
     if(m.fatal){forgetTable();ON.closing=true;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;S.online=false}
     if(m.code==='password'){askPw(ON.lastCode,ON.lastName,true);return}
+    if(m.code==='auth'){AUTH=null;authSave();ON.user=null}
     S.phase='online';$('onMsg').className='onmsg';$('onMsg').textContent=m.msg||'Something went wrong.';onEnter();render();return}
   if(m.t==='ended'&&ON.leaving){ON.leaving=false;return}
   if(m.t==='ended'){forgetTable();netNote(null);ON.closing=true;var c=ON.code;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;ON.queue=[];ON.busy=false;
@@ -1739,9 +1797,9 @@ $('hCreate').addEventListener('click',function(){
   var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
   if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
-  api('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:ON.hcfg,hostUid:me.uid,hostName:me.name})})
+  authed('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:ON.hcfg,hostUid:me.uid,hostName:me.name})})
     .then(function(d){b.disabled=false;onJoin(d.code,priv?pw:'')})
-    .catch(function(){b.disabled=false;$('hMsg').textContent='Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
+    .catch(function(e){b.disabled=false;$('hMsg').textContent=String(e.message).indexOf('401')>=0||e.message==='signin'?'Please sign in again.':'Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
 });
 $('joinBtn').addEventListener('click',function(){$('onMsg').textContent='';onJoin($('joinCode').value,ON.pw||'')});
 $('joinCode').addEventListener('keydown',function(e){if(e.key==='Enter')$('joinBtn').click()});
@@ -1754,6 +1812,11 @@ $('pwIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('pwGo').cl
 $('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!=='online'){S.phase='online';onEnter();render()}});
 $('endOk').addEventListener('click',function(){$('endDlg').close()});
 $('rStart').addEventListener('click',function(){onSend('start')});
+$('gSignIn').addEventListener('click',signIn);
+$('signOutBtn').addEventListener('click',signOut);
+$('delAcctBtn').addEventListener('click',function(){var d=$('delDlg');if(d.showModal)d.showModal();else d.setAttribute('open','')});
+$('delStay').addEventListener('click',function(){$('delDlg').close()});
+$('delGo').addEventListener('click',function(){$('delDlg').close();authed('/api/delete',{method:'POST'}).then(function(){try{localStorage.removeItem('degenpig-table')}catch(e){}signOut();$('onMsg').className='onmsg ok';$('onMsg').textContent='Your account has been deleted.'}).catch(function(){$('onMsg').className='onmsg';$('onMsg').textContent='Could not delete the account. Try again in a moment.'})});
 $('rLeave').addEventListener('click',onLeave);
 $('rShare').addEventListener('click',function(){
   var url=location.origin+'/?t='+ON.code+(ON.pw?'&p='+encodeURIComponent(ON.pw):''),txt='Join my Degen Pig table '+ON.code;
@@ -1766,11 +1829,14 @@ function start(data){
   loadPrefs();
   if(data&&data.S&&data.S.phase){try{var snd=S.sound;Object.assign(S,data.S);S.sound=snd;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
   showFaces();render();layout();
+  authLoad();var back=authFromHash();
   /* an invite link opens straight into the table: /?t=CODE&p=password */
-  try{var q=new URLSearchParams(location.search),tc=q.get('t');if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
-    if(myId().name)onJoin(tc,q.get('p')||'');else{$('onMsg').className='onmsg ok';$('onMsg').textContent='Type your name, then tap Join to sit at table '+tc.toUpperCase()+'.';$('joinCode').value=tc.toUpperCase();ON.pw=q.get('p')||''}}
+  try{var q=new URLSearchParams(location.search),tc=q.get('t');
+    if(!tc&&AUTH){var pend=JSON.parse(localStorage.getItem('degenpig-pending')||'null');if(pend&&pend.code){localStorage.removeItem('degenpig-pending');tc=pend.code;q.set('p',pend.pw||'')}}
+    if(!tc&&(back||q.get('online'))){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render()}if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
+    if(myId().name||!AUTH)onJoin(tc,q.get('p')||'');else{$('onMsg').className='onmsg ok';$('onMsg').textContent='Type your name, then tap Join to sit at table '+tc.toUpperCase()+'.';$('joinCode').value=tc.toUpperCase();ON.pw=q.get('p')||''}}
     /* back at a table you were sitting at (the page was closed or reloaded): take your seat again */
-    else{var sv=JSON.parse(localStorage.getItem('degenpig-table')||'null');if(sv&&sv.code&&myId().name){S.phase='online';onEnter();render();netNote('Rejoining your table…',2500);onJoin(sv.code,sv.pw||'')}}}catch(e){}
+    else{var sv=JSON.parse(localStorage.getItem('degenpig-table')||'null');if(sv&&sv.code&&AUTH){S.phase='online';onEnter();render();netNote('Rejoining your table…',2500);onJoin(sv.code,sv.pw||'')}}}catch(e){}
 }
 try{if(window.claude&&window.claude.hot&&window.claude.hot.snapshot)window.claude.hot.snapshot(function(){return {S:S}})}catch(e){}
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(start);
