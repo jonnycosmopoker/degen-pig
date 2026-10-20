@@ -96,7 +96,9 @@ input{-webkit-user-select:text;user-select:text}
 
 .dock{flex:none;display:flex;flex-direction:column;gap:10px}
 .dock.scroll{flex:1 1 0;min-height:0;overflow-y:auto;gap:14px;padding-bottom:4px}
-.who{font-size:18px;font-weight:800;text-align:center;text-wrap:balance}
+.who{display:flex;align-items:center;justify-content:center;gap:0;font-size:18px;font-weight:800;white-space:nowrap;min-width:0}
+.who .wn{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.who>span:not(.wn),.who>i{flex:none}
 .stats{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:end;gap:6px;text-align:center}
 .stat{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
 .lab{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
@@ -115,7 +117,7 @@ input{-webkit-user-select:text;user-select:text}
 .btn.ghost{background:transparent;border-color:var(--ivory);color:var(--ivory)}
 .btn:disabled{opacity:.4;cursor:default}
 .btn:active:not(:disabled){transform:translateY(1px)}
-.note{font-size:13px;color:var(--muted);text-align:center;min-height:18px;text-wrap:balance}
+.note{font-size:13px;color:var(--muted);text-align:center;min-height:35px;text-wrap:balance}
 
 .field{display:flex;flex-direction:column;gap:8px}
 .field>label,.field>.flab,legend{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0}
@@ -353,9 +355,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .watchbar span{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .watchbar b{color:var(--gold)}
 .watchbar .link{min-height:40px;flex:none}
-.topline{display:flex;justify-content:center;align-items:center;gap:8px}
-.topline:has(> :not([hidden])){min-height:24px}
-.watchn{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted)}
+.watchn{position:absolute;left:14px;bottom:14px;z-index:4;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(12,26,22,.88);font-size:12px;font-weight:700;color:var(--muted);pointer-events:none}
 .lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
 .lcount b{color:var(--ivory)}
 .lcount .dot{flex:none;width:9px;height:9px;border-radius:50%;background:#3FCF8E;box-shadow:0 0 0 3px rgba(63,207,142,.2)}
@@ -369,9 +369,10 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .seat{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-weight:700}
 .seat.open{background:transparent;border:1px dashed var(--line);color:var(--muted);font-weight:600}
 .seat small{margin-left:auto;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.clock{align-self:center;padding:2px 12px;border-radius:999px;border:1px solid var(--line);font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--muted)}
-.clock.mine{border-color:var(--gold);color:var(--gold)}
-.clock.low{border-color:var(--red-text);color:var(--red-text)}
+.clock{position:absolute;right:14px;bottom:14px;z-index:4;padding:4px 11px;border-radius:999px;background:rgba(12,26,22,.88);border:1px solid var(--line);font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ivory);pointer-events:none}
+.tray.clocked .hint{bottom:50px}
+.clock.mine{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 2px rgba(242,194,48,.25)}
+.clock.low{border-color:var(--red-text);color:var(--red-text);box-shadow:0 0 0 2px rgba(255,122,112,.25)}
 .netnote{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:21;max-width:min(92vw,380px);padding:10px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:14px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.5);text-align:center}
 .awaychip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--red-text);color:var(--red-text);font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
 /* between games: scores first, graphs and dice stats one tap away */
@@ -420,6 +421,8 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="die" id="die1"></div>
     <div class="callout" id="callout" aria-live="polite" hidden></div>
     <div class="hint" id="hint">Tap or flick the table to roll</div>
+    <div class="clock" id="clock" role="timer" hidden></div>
+    <div class="watchn" id="watchN" hidden></div>
   </div>
 
   <section class="dock scroll" id="menu">
@@ -528,15 +531,6 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
         <label><input type="radio" name="target" id="tg200" value="200">200 Pig</label>
       </div>
     </fieldset>
-    <fieldset>
-      <legend>Turn timer for online games</legend>
-      <div class="seg seg4">
-        <label><input type="radio" name="timer" id="tm0" value="0">No timer</label>
-        <label><input type="radio" name="timer" id="tm15" value="15">15 seconds</label>
-        <label><input type="radio" name="timer" id="tm30" value="30">30 seconds</label>
-        <label><input type="radio" name="timer" id="tm60" value="60">1 minute</label>
-      </div>
-    </fieldset>
     <div class="opts">
       <div class="opt"><span><b>Golden Points</b><small>Every point a player has above the target counts as a golden point, shown on the score boxes and in the summary.</small></span><button class="tog" id="tGolden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>Turns off every ×2: doubles score face value, and no catch-up or snake-eyes bonuses.</small></span><button class="tog" id="tNoDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
@@ -577,7 +571,6 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 
   <section class="dock" id="play" hidden>
     <div class="watchbar" id="watchBar" hidden><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><b>Watching</b> <span id="watchName"></span></span><button class="link" id="stopWatch" type="button">Stop watching</button></div>
-    <div class="topline"><div class="clock" id="clock" hidden></div><div class="watchn" id="watchN" hidden></div></div>
     <div class="who" id="who"></div>
     <div class="statwrap">
     <div class="burn" id="burn" hidden><canvas id="fire"></canvas><span class="lab" id="burnLab">Snake eyes</span><span class="val" id="burnVal">0</span><canvas id="fire2"></canvas></div>
@@ -1394,6 +1387,8 @@ function chartPick(e){
 }
 function render(){
   renderMain();achToast();
+  /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
+  var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
   /* spectators see the game but none of the controls */
   var W=S.online&&S.me<0,ip=S.phase==='play'||S.phase==='final';
   $('watchBar').hidden=!(W&&ip);$('rollBtn').hidden=W&&ip;if(W&&ip)$('lockBtn').hidden=true;
@@ -1562,7 +1557,6 @@ function renderScreens(ph){
     $('tReroll').setAttribute('aria-checked',c.reroll?'true':'false');
     $('tVerify').setAttribute('aria-checked',c.verify?'true':'false');
     $('tPower').setAttribute('aria-checked',c.power?'true':'false');
-    $('tm0').checked=c.timer===0;$('tm15').checked=c.timer===15;$('tm30').checked=c.timer==null||c.timer===30;$('tm60').checked=c.timer===60;
     $('tg80').checked=c.target===80;$('tg100').checked=c.target===100;$('tg150').checked=c.target===150;$('tg200').checked=c.target===200;
     $('defaultsBtn').disabled=isDefault(c);
     $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double and Five Ones Double off.';
@@ -1586,7 +1580,7 @@ function openRules(){
   var g=inGame()||(S.online&&S.phase==='over');$('quitBtn').hidden=!g;$('quitBtn').textContent=S.online?'Leave the table':'End this game';$('closeRules').textContent=g?'Back to the game':'Close';
   var dl=$('rules');if(dl.showModal)dl.showModal();else dl.setAttribute('open','');
 }
-function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+esc(t)+(S.online&&ai===S.me?' (you)':'')+(cb?'<span class="cpuchip">CPU · '+STYLE[cb]+'</span>':'')+(aw?'<span class="awaychip">Away · computer playing</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip">All rolls ×2</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
+function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+'<span class="wn">'+esc(t)+(S.online&&ai===S.me?' (you)':'')+'</span>'+(cb?'<span class="cpuchip" title="'+STYLE[cb]+' computer player">CPU</span>':'')+(aw?'<span class="awaychip">Away · CPU playing</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip">×2 turn</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
 function ordinal(n){return n===1?'st':n===2?'nd':n===3?'rd':'th'}
 
 /* ---------- controls ---------- */
@@ -1648,7 +1642,6 @@ $('tReroll').addEventListener('click',function(){setCfg('reroll',!S.cfg.reroll)}
 $('tVerify').addEventListener('click',function(){setCfg('verify',!S.cfg.verify)});
 $('tPower').addEventListener('click',function(){setCfg('power',!S.cfg.power)});
 ['tg80','tg100','tg150','tg200'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('target',+$(id).value)})});
-['tm0','tm15','tm30','tm60'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('timer',+$(id).value)})});
 $('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,timer:DEF.timer};savePrefs();render()});
 $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
@@ -1664,6 +1657,7 @@ tray.addEventListener('pointercancel',function(){pd=null});
 tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(S.online){if(!S.busy&&!blocked()&&canRoll())onSend('roll');return}if(!isBotTurn())doRoll(null)}});
 if(window.ResizeObserver)new ResizeObserver(layout).observe(tray);
 window.addEventListener('resize',layout);
+window.addEventListener('resize',function(){var pl=$('play');pl._minH=0;pl.style.minHeight='';render()});
 window.addEventListener('resize',function(){if(S.phase==='over')drawChart()});
 $('chart').addEventListener('click',chartPick);
 $('chart').addEventListener('pointermove',function(e){if(e.pointerType==='mouse')chartPick(e)});
@@ -1768,14 +1762,18 @@ function renderOnline(){
     return '<details class="hist"><summary><b>'+esc(g.table)+'</b><span>'+sum+'</span></summary><div class="hrw hh"><span></span><span class="hn">Player</span><span>Points</span>'+(gd?'<span class="hg">Golden</span>':'')+'<span>Wins</span></div>'+rows+'<p class="cap">'+esc(rulesLine(g.rules||{}))+(g.reason?' · '+esc(g.reason):'')+'</p></details>'}).join('');
 }
 function ordinalN(n){return n+ordinal(n)}
+/* online tables start from their own defaults (Golden Points and Five Ones Double on, no timer); a host's last choices are remembered */
+var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,timer:0};
+function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
+  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k])c[k]=sv[k];return c}
 function renderHost(){
   $('hSeats').textContent=ON.hostSeats;$('hLess').disabled=ON.hostSeats<=2;$('hMore').disabled=ON.hostSeats>=6;
   $('hPwRow').hidden=!$('hPriv').checked;
-  var c=ON.hcfg||(ON.hcfg=Object.assign({timer:30},S.cfg));if(c.timer==null)c.timer=30;
+  var c=ON.hcfg||(ON.hcfg=hostDefaults());
   $('ht80').checked=c.target===80;$('ht100').checked=c.target===100;$('ht150').checked=c.target===150;$('ht200').checked=c.target===200;
   $('hm0').checked=c.timer===0;$('hm15').checked=c.timer===15;$('hm30').checked=c.timer===30;$('hm60').checked=c.timer===60;
   Array.prototype.forEach.call(document.querySelectorAll('#hOpts .tog'),function(b){b.setAttribute('aria-checked',c[b.getAttribute('data-k')]?'true':'false')});
-  $('hRules').textContent='These start from your Settings. Changes here only apply to this table.';
+  $('hRules').textContent='Online tables start with Golden Points and Five Ones Double on and no timer. Your choices here are remembered for next time.';
 }
 function renderRoom(){
   var m=ON.meta;if(!m)return;
@@ -1866,12 +1864,13 @@ function askPw(code,name,wrong){ON.lastCode=code;ON.lastName=name;$('pwText').te
 setInterval(function(){
   var el=$('clock');if(!el)return;
   var on=S.online&&(S.phase==='play'||S.phase==='final')&&ON.deadline>0&&!S.rolling&&!S.bust;
+  $('tray').classList.toggle('clocked',on);
   if(!on){el.hidden=true;return}
   var left=Math.max(0,Math.ceil((ON.deadline-Date.now())/1000)),mine=!blocked();
-  el.hidden=false;el.textContent=(mine?'Your time: ':'Time: ')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');
+  el.hidden=false;el.textContent=(mine?'You · ':'')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');el.setAttribute('aria-label',(mine?'Your time left: ':'Time left: ')+left+' seconds');
   el.className='clock'+(mine?' mine':'')+(mine&&left<=5?' low':'');
 },250);
-$('hostBtn').addEventListener('click',function(){if(!readOnName()){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}$('hMsg').textContent='';ON.hcfg={};for(var k in S.cfg)ON.hcfg[k]=S.cfg[k];if(ON.hcfg.timer==null)ON.hcfg.timer=30;S.phase='host';render()});
+$('hostBtn').addEventListener('click',function(){if(!readOnName()){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}$('hMsg').textContent='';ON.hcfg=hostDefaults();S.phase='host';render()});
 $('backHost').addEventListener('click',function(){S.phase='online';onEnter();render()});
 $('hLess').addEventListener('click',function(){ON.hostSeats=Math.max(2,ON.hostSeats-1);renderHost()});
 $('hMore').addEventListener('click',function(){ON.hostSeats=Math.min(6,ON.hostSeats+1);renderHost()});
@@ -1883,6 +1882,7 @@ $('hCreate').addEventListener('click',function(){
   var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
   if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
+  try{localStorage.setItem('degenpig-hostcfg',JSON.stringify(ON.hcfg))}catch(e){}
   authed('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:ON.hcfg,hostUid:me.uid,hostName:me.name})})
     .then(function(d){b.disabled=false;onJoin(d.code,priv?pw:'')})
     .catch(function(e){b.disabled=false;$('hMsg').textContent=String(e.message).indexOf('401')>=0||e.message==='signin'?'Please sign in again.':'Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
