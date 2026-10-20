@@ -349,6 +349,13 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 #online.out .needauth{display:none}
 #online.out #lobbyList .btn{display:none}
 .delacct{align-self:center;margin-top:10px;border:0;color:var(--muted);font-size:13px;text-decoration:underline}
+.watchbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 6px 6px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:14px;color:var(--muted)}
+.watchbar span{display:flex;align-items:center;gap:8px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.watchbar b{color:var(--gold)}
+.watchbar .link{min-height:40px;flex:none}
+.topline{display:flex;justify-content:center;align-items:center;gap:8px}
+.topline:has(> :not([hidden])){min-height:24px}
+.watchn{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--muted)}
 .lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
 .lcount b{color:var(--ivory)}
 .lcount .dot{flex:none;width:9px;height:9px;border-radius:50%;background:#3FCF8E;box-shadow:0 0 0 3px rgba(63,207,142,.2)}
@@ -445,6 +452,8 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="lcount" id="lobbyCount" role="status" hidden></div>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
+    <h2 class="sechead" id="liveHead" hidden>Games in progress</h2>
+    <div class="lobby" id="liveList"></div>
     <h2 class="sechead" id="histHead" hidden>Your recent tables</h2>
     <div class="lobby" id="histList"></div>
     <a class="link delacct needauth" id="ownerLink" href="/admin.html" hidden>Owner stats</a>
@@ -567,7 +576,8 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <section class="dock" id="play" hidden>
-    <div class="clock" id="clock" hidden></div>
+    <div class="watchbar" id="watchBar" hidden><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><b>Watching</b> <span id="watchName"></span></span><button class="link" id="stopWatch" type="button">Stop watching</button></div>
+    <div class="topline"><div class="clock" id="clock" hidden></div><div class="watchn" id="watchN" hidden></div></div>
     <div class="who" id="who"></div>
     <div class="statwrap">
     <div class="burn" id="burn" hidden><canvas id="fire"></canvas><span class="lab" id="burnLab">Snake eyes</span><span class="val" id="burnVal">0</span><canvas id="fire2"></canvas></div>
@@ -1384,6 +1394,12 @@ function chartPick(e){
 }
 function render(){
   renderMain();achToast();
+  /* spectators see the game but none of the controls */
+  var W=S.online&&S.me<0,ip=S.phase==='play'||S.phase==='final';
+  $('watchBar').hidden=!(W&&ip);$('rollBtn').hidden=W&&ip;if(W&&ip)$('lockBtn').hidden=true;
+  if(W)$('watchName').textContent=ON.meta?ON.meta.name:'';
+  var wn=S.online&&ON.meta&&ON.meta.watchers||0;$('watchN').hidden=!(wn&&ip);if(wn)$('watchN').innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'+wn+' watching';
+  if(S.phase==='over'){$('againBtn').hidden=W;$('newBtn').textContent=W?'Stop watching':'Main menu'}
   if(blocked()&&!(S.phase==='order'&&S.ord&&S.ord.done)){$('rollBtn').disabled=true;$('lockBtn').disabled=true;$('hint').hidden=true}
   scheduleBot();
 }
@@ -1607,7 +1623,7 @@ function goToMenu(){
   if(S.busy){setTimeout(goToMenu,250);return}
   $('over').scrollTop=0;showPage(0,false);S.phase='menu';S.rules=null;S.order=[];S.marks=['',''];S.hotTurn=false;S.ledger=[];say(null);render();
 }
-$('newBtn').addEventListener('click',askLeave);
+$('newBtn').addEventListener('click',function(){if(S.online&&S.me<0){stopWatching();return}askLeave()});
 $('statsBtn').addEventListener('click',function(){var o=$('over'),on=!o.classList.contains('showstats');o.classList.toggle('showstats',on);this.textContent=on?'Back to scores':'View stats';o.scrollTop=0;if(on)drawSummary()});
 $('stayBtn').addEventListener('click',function(){leave.close()});
 $('leaveBtn').addEventListener('click',function(){leave.close();if(S.online){onLeave();return}goToMenu()});
@@ -1636,7 +1652,7 @@ $('tPower').addEventListener('click',function(){setCfg('power',!S.cfg.power)});
 $('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,timer:DEF.timer};savePrefs();render()});
 $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
-$('quitBtn').addEventListener('click',function(){dlg.close();askLeave()});
+$('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0){stopWatching();return}askLeave()});
 var pd=null;
 tray.addEventListener('pointerdown',function(e){pd={x:e.clientX,y:e.clientY,t:performance.now()}});
 tray.addEventListener('pointerup',function(e){
@@ -1714,7 +1730,7 @@ function authed(path,opt){return token().then(function(t){if(!t)throw new Error(
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
 function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
-function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.counts=d.counts||null;ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
+function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.live=d.live||[];ON.counts=d.counts||null;ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
 function loadMe(){
   if(!AUTH){ON.user=null;ON.rec=null;return}
   authed('/api/me').then(function(d){
@@ -1741,6 +1757,8 @@ function renderOnline(){
   else if(!ON.tables.length)L.innerHTML='<div class="empty">No open tables right now. Host one and share the code with your friends.</div>';
   else L.innerHTML=ON.tables.map(function(t){return '<div class="lrow"><div class="lt"><b>'+(t.locked?LOCK:'')+esc(t.name)+'</b><span>'+esc(t.host)+' · '+t.filled+' of '+t.seats+' seats · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-code="'+esc(t.code)+'" data-locked="'+(t.locked?1:0)+'" data-name="'+esc(t.name)+'">Join</button></div>'}).join('');
   /* one entry per table session: from opening the table to closing it, with everyone's final totals */
+  var V=ON.offline?[]:(ON.live||[]);$('liveHead').hidden=!V.length;
+  $('liveList').innerHTML=V.map(function(t){return '<div class="lrow"><div class="lt"><b>'+esc(t.name)+'</b><span>'+esc(t.players.join(', '))+' · '+(t.games?'game '+(t.games+1):'first game')+' · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-watch="'+esc(t.code)+'">Watch</button></div>'}).join('');
   var H=((ON.rec&&ON.rec.history)||[]).filter(function(x){return x&&x.sid&&x.players});$('histHead').hidden=!H.length;
   $('histList').innerHTML=H.slice(0,10).map(function(g){
     var order=g.players.map(function(_,i){return i}).sort(function(a,b){return g.players[b].total-g.players[a].total||g.players[b].wins-g.players[a].wins||a-b});
@@ -1774,7 +1792,7 @@ function onJoin(code,pw){
   code=String(code||'').trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){$('onMsg').className='onmsg';$('onMsg').textContent='Table codes are 6 letters and numbers.';return}
   if(!AUTH){try{localStorage.setItem('degenpig-pending',JSON.stringify({code:code,pw:pw||''}))}catch(e){}S.phase='online';$('onMsg').className='onmsg ok';$('onMsg').textContent='Sign in to join table '+code+'.';render();return}
   if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
-  ON.code=code;ON.pw=pw||'';ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
+  ON.watch=false;ON.code=code;ON.pw=pw||'';ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
   try{localStorage.setItem('degenpig-table',JSON.stringify({code:code,pw:ON.pw}))}catch(e){}
   connect();
 }
@@ -1782,11 +1800,18 @@ function connect(){
   if(ON.ws){try{ON.ws.onclose=null;ON.ws.close()}catch(e){}}
   var ws;try{ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/table/'+ON.code)}catch(e){netNote('Could not reach the table.',3000);return}
   ON.ws=ws;
-  ws.onopen=function(){ON.retry=0;netNote(null);token().then(function(t){if(ws.readyState===1)ws.send(JSON.stringify({t:'hello',token:t,name:myId().name||'',pw:ON.pw}))})};
+  ws.onopen=function(){ON.retry=0;netNote(null);token().then(function(t){if(ws.readyState===1)ws.send(JSON.stringify({t:'hello',watch:!!ON.watch,token:t,name:myId().name||'',pw:ON.pw}))})};
   ws.onmessage=function(e){var m;try{m=JSON.parse(e.data)}catch(x){return}onMsg(m)};
   ws.onclose=function(){if(ON.ws!==ws)return;ON.ws=null;if(ON.closing||!ON.code)return;
     netNote('Connection lost. Reconnecting…');ON.retry++;setTimeout(function(){if(!ON.closing&&ON.code&&!ON.ws)connect()},Math.min(8000,700*Math.pow(2,ON.retry)))};
 }
+/* watch a public game in progress */
+function onWatch(code){
+  if(!AUTH){$('onMsg').className='onmsg';$('onMsg').textContent='Sign in to watch games.';return}
+  ON.code=code;ON.pw='';ON.watch=true;ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
+  netNote('Joining as a spectator…',2000);connect();
+}
+function stopWatching(){ON.closing=true;ON.code=null;ON.watch=false;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
 function onSend(t,extra){if(!ON.ws||ON.ws.readyState!==1)return;var o={t:t};if(extra)for(var k in extra)o[k]=extra[k];ON.ws.send(JSON.stringify(o));
   if(t==='roll'||t==='lock'||t==='reroll'||t==='take'||t==='pass'){S.busy=true;render();clearTimeout(ON.sendT);ON.sendT=setTimeout(function(){if(S.busy&&!S.rolling&&!ON.busy){S.busy=false;render()}},3000)}}
 function forgetTable(){try{localStorage.removeItem('degenpig-table')}catch(e){}}
@@ -1873,6 +1898,8 @@ $('pwIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('pwGo').cl
 $('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!=='online'){S.phase='online';onEnter();render()}});
 $('endOk').addEventListener('click',function(){$('endDlg').close()});
 $('rStart').addEventListener('click',function(){onSend('start')});
+$('liveList').addEventListener('click',function(e){var b=e.target.closest('button[data-watch]');if(b){$('onMsg').textContent='';onWatch(b.getAttribute('data-watch'))}});
+$('stopWatch').addEventListener('click',stopWatching);
 $('gSignIn').addEventListener('click',signIn);
 $('emSend').addEventListener('click',sendCode);
 $('emIn').addEventListener('keydown',function(e){if(e.key==='Enter')sendCode()});

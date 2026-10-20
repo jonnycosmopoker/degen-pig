@@ -41,8 +41,10 @@ export class TableRoom {
 
   /* ---- sockets ---- */
   onOpen(sock) { this.conns.set(sock, { uid: null }) }
+  watchers() { let n = 0; for (const c of this.conns.values()) if (c.watch) n++; return n }
   onClose(sock) {
     const c = this.conns.get(sock); this.conns.delete(sock); if (!c || !c.uid || !this.meta) return;
+    if (c.watch) { if (this.meta.status === 'playing') this.broadcast(); return }
     if ([...this.conns.values()].some(x => x.uid === c.uid)) return;   /* still connected on another socket */
     const seat = this.seats.find(s => s.uid === c.uid); if (!seat) return;
     if (this.meta.status === 'waiting') {
@@ -61,7 +63,7 @@ export class TableRoom {
     if (!this.meta) { this.send(sock, { t: 'error', fatal: true, msg: 'That table is no longer open.' }); return }
     if (this.meta.status === 'ended') { this.send(sock, { t: 'ended', reason: this.meta.endReason || 'This table has closed.' }); return }
     if (m.t === 'hello') return this.hello(sock, c, m);
-    if (!c.uid) return;
+    if (!c.uid || c.watch) return;
     const seatIdx = this.seats.findIndex(s => s.uid === c.uid); if (seatIdx < 0) return;
     switch (m.t) {
       case 'start': return this.hostStart(c.uid);
@@ -79,6 +81,13 @@ export class TableRoom {
     if (!user || !user.id) return this.send(sock, { t: 'error', fatal: true, code: 'auth', msg: 'Please sign in again to join tables.' });
     const uid = user.id, name = clean(m.name, 12) || clean(user.name, 12).split(' ')[0] || 'Player';
     let seat = this.seats.find(s => s.uid === uid);
+    /* spectators: watch a public game in progress; they see everything but can't act */
+    if (m.watch && !seat) {
+      if (this.meta.pw) return this.send(sock, { t: 'error', fatal: true, msg: 'Private games can\u2019t be watched.' });
+      if (this.meta.status !== 'playing' || !this.G) return this.send(sock, { t: 'error', fatal: true, msg: 'That game hasn\u2019t started yet. Join it from Open tables instead.' });
+      if (this.watchers() >= 50) return this.send(sock, { t: 'error', fatal: true, msg: 'Too many people are already watching this game.' });
+      c.uid = uid; c.watch = true; this.broadcast(); return;
+    }
     if (!seat) {
       if (this.meta.status !== 'waiting') return this.send(sock, { t: 'error', fatal: true, msg: 'This game has already started.' });
       if (this.meta.pw && uid !== this.meta.hostUid && (await hashPw(this.meta.code, String(m.pw || ''))) !== this.meta.pw) return this.send(sock, { t: 'error', fatal: true, code: 'password', msg: 'Wrong password for this table.' });
@@ -222,7 +231,7 @@ export class TableRoom {
   publicMeta() {
     const m = this.meta;
     return {
-      code: m.code, name: m.name, public: m.public, locked: !!m.pw, seats: m.seats, rules: m.rules, status: m.status, hostName: m.hostName,
+      code: m.code, name: m.name, public: m.public, locked: !!m.pw, seats: m.seats, rules: m.rules, status: m.status, hostName: m.hostName, watchers: this.watchers(),
       players: this.seats.map(s => ({ name: s.name, cpu: s.cpu || null, away: !!s.away, host: !!s.host, again: !!(s.uid && this.votes.has(s.uid)) }))
     };
   }
@@ -237,6 +246,7 @@ export class TableRoom {
     const meta = this.publicMeta(), s = this.snapshot(), left = this.deadline ? Math.max(0, this.deadline - this.now()) : 0;
     for (const [sock, c] of this.conns) {
       if (!c.uid) continue;
+      if (c.watch) { this.send(sock, { t: 'state', meta, s, ev: ev ? Object.assign({}, ev, { unlocks: [] }) : null, you: -1, left, host: false, watch: true }); continue }
       const you = this.seats.findIndex(x => x.uid === c.uid); if (you < 0) continue;
       let e = ev;
       if (ev && ev.unlocks) e = Object.assign({}, ev, { unlocks: ev.unlocks.filter(u => u.seat === you) });
@@ -251,10 +261,11 @@ export class TableRoom {
   pushLobby() {
     const m = this.meta; if (!m) return;
     if (m.status === 'ended') { this.lobby.remove(m.code).catch(() => { }); return }
-    const uids = [...new Set([...this.conns.values()].map(c => c.uid).filter(Boolean))];
+    const uids = [...new Set([...this.conns.values()].filter(c => !c.watch).map(c => c.uid).filter(Boolean))];
     this.lobby.update({
       code: m.code, name: m.name, locked: !!m.pw, seats: m.seats, filled: this.seats.length, host: m.hostName, rules: m.rules, at: m.createdAt,
-      status: m.status, humans: this.seats.filter(s => s.uid).length, uids, games: this.G ? this.G.games || 0 : 0
+      status: m.status, humans: this.seats.filter(s => s.uid).length, uids, games: this.G ? this.G.games || 0 : 0,
+      names: this.seats.map(s => s.name + (s.cpu ? ' (CPU)' : ''))
     }).catch(() => { });
   }
 }
