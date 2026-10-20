@@ -421,6 +421,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="lobby" id="lobbyList"></div>
     <h2 class="sechead" id="histHead" hidden>Your recent tables</h2>
     <div class="lobby" id="histList"></div>
+    <a class="link delacct needauth" id="ownerLink" href="/admin.html" hidden>Owner stats</a>
     <button type="button" class="link delacct needauth" id="delAcctBtn">Delete my account</button>
   </section>
 
@@ -1662,11 +1663,11 @@ function authed(path,opt){return token().then(function(t){if(!t)throw new Error(
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
 function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
-function refreshLobby(){api('/api/lobby').then(function(d){ON.tables=d.tables||[];ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
+function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
 function loadMe(){
   if(!AUTH){ON.user=null;ON.rec=null;return}
   authed('/api/me').then(function(d){
-    ON.user=d.user;ON.rec=d.rec;
+    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
@@ -1677,6 +1678,7 @@ function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function renderOnline(){
   var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;
+  $('ownerLink').hidden=!(ON.admin&&!out);
   if(!out)$('acctWho').innerHTML='Signed in'+(ON.user?' as <b>'+esc(ON.user.email||ON.user.name)+'</b>':'');
   if(ON.authErr){$('onMsg').className='onmsg';$('onMsg').textContent='Sign-in problem: '+ON.authErr;ON.authErr=null}
   var inp=$('onName');if(document.activeElement!==inp)inp.value=myId().name||'';

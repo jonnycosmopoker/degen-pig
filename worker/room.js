@@ -35,7 +35,7 @@ export class TableRoom {
       seats: Math.max(2, Math.min(6, o.seats | 0 || 4)), rules: cleanRules(o.rules), hostUid: clean(o.hostUid, 64), hostName: clean(o.hostName, 12) || 'Host',
       status: 'waiting', createdAt: this.now()
     };
-    this.pushLobby();
+    this.pushLobby(); this.lobby.event({ type: 'table' }).catch(() => { });
     return { ok: true };
   }
 
@@ -49,7 +49,7 @@ export class TableRoom {
       seat.away = true; this.broadcast();
       this.graces.set(c.uid, setTimeout(() => { this.graces.delete(c.uid); if (seat.away && this.meta.status === 'waiting') this.dropSeat(seat, 'left') }, WAIT_GRACE_MS));
     } else if (this.meta.status === 'playing') {
-      seat.away = true; if (this.G) this.G.players[this.seats.indexOf(seat)].away = true;
+      seat.away = true; if (this.G) this.G.players[this.seats.indexOf(seat)].away = true; this.pushLobby();
       this.broadcast({ note: seat.name + ' disconnected. A computer is playing for them until they come back.' }); this.tick();
       this.checkEmpty();
     }
@@ -185,7 +185,11 @@ export class TableRoom {
   }
   /* One history entry per table session: it opens with the first game and is updated after every game,
      then marked closed when the table ends. Each entry holds the final standings for the whole session. */
-  saveGame() { return this.saveSession(false) }
+  saveGame() {
+    this.lobby.event({ type: 'game', humans: this.seats.filter(s => s.uid).length }).catch(() => { });
+    this.pushLobby();
+    return this.saveSession(false);
+  }
   async saveSession(closed) {
     const S = this.G; if (!S || !S.games) return;
     const m = this.meta, sid = m.code + ':' + m.createdAt, gd = !!S.rules.golden;
@@ -243,22 +247,15 @@ export class TableRoom {
     const left = this.deadline ? Math.max(0, this.deadline - this.now()) : 0;
     for (const [sock, c] of this.conns) if (c.uid) this.send(sock, { t: 'timer', left, turnId: this.G ? this.G.turnId : 0 });
   }
+  /* tell the lobby about this table: waiting tables are listed for players; playing ones only show on the owner's stats page */
   pushLobby() {
     const m = this.meta; if (!m) return;
-    if (m.status !== 'waiting') { this.lobby.remove(m.code).catch(() => { }); return }
-    this.lobby.update({ code: m.code, name: m.name, locked: !!m.pw, seats: m.seats, filled: this.seats.length, host: m.hostName, rules: m.rules, at: m.createdAt }).catch(() => { });
-  }
-}
-
-/* The lobby: the list of tables waiting for players. */
-export class LobbyStore {
-  constructor() { this.tables = new Map() }
-  update(t) { this.tables.set(t.code, Object.assign({}, t, { seen: Date.now() })) }
-  remove(code) { this.tables.delete(code) }
-  list() {
-    const now = Date.now();
-    for (const [k, t] of this.tables) if (now - t.seen > 6 * 3600 * 1000) this.tables.delete(k);
-    return [...this.tables.values()].sort((a, b) => b.at - a.at).slice(0, 100);
+    if (m.status === 'ended') { this.lobby.remove(m.code).catch(() => { }); return }
+    const uids = [...new Set([...this.conns.values()].map(c => c.uid).filter(Boolean))];
+    this.lobby.update({
+      code: m.code, name: m.name, locked: !!m.pw, seats: m.seats, filled: this.seats.length, host: m.hostName, rules: m.rules, at: m.createdAt,
+      status: m.status, humans: this.seats.filter(s => s.uid).length, uids, games: this.G ? this.G.games || 0 : 0
+    }).catch(() => { });
   }
 }
 

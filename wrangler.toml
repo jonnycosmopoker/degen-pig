@@ -6,6 +6,8 @@ compatibility_date = "2025-09-01"
 [vars]
 SUPABASE_URL = "https://fdaysgypgzyexilqfyrx.supabase.co"
 SUPABASE_KEY = "sb_publishable_GAe1m_PFF3WV_Cp2vv5h-A_ca3ANUms"
+# Google accounts allowed to open the stats page at /admin (comma-separated)
+ADMIN_EMAILS = "jonnycosmopoker@gmail.com"
 
 # The game page, pictures and badges. Requests that match no file go to the worker.
 [assets]

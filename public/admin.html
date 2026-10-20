@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0C1A16">
+<title>Degen Pig Stats</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@400;600;700;800&display=swap">
+<style>
+/* The owner's stats page: live numbers first, then totals, two daily charts, running tables and top players.
+   One dark theme, matching the game. */
+:root{
+  color-scheme:dark;
+  --felt:#0C1A16; --panel:#13271F; --line:#22402F; --ivory:#F6F1E4; --muted:#9DB5A8; --gold:#F2C230; --ink:#14201C; --blue:#5B9FEC; --red-text:#FF7A70;
+  --display:'Bowlby One','Arial Black',Impact,sans-serif; --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--felt);color:var(--ivory);font-family:var(--body);font-size:16px;line-height:1.4}
+[hidden]{display:none!important}
+main{max-width:980px;margin:0 auto;padding:20px 16px 40px;display:flex;flex-direction:column;gap:22px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header img{width:40px;height:40px}
+h1{margin:0;font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.05em;color:var(--gold)}
+.sub{margin:0;font-size:14px;color:var(--muted)}
+header .sp{flex:1}
+button,a.btn{font:inherit;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ivory);font-weight:700;font-size:14px;text-decoration:none}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+h2{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tile{padding:14px 16px;border-radius:16px;background:var(--panel);display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile b{font-family:var(--display);font-weight:400;font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:var(--muted)}
+.tile.live b{color:var(--gold)}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile b{font-size:28px}}
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.charts{grid-template-columns:1fr}}
+.card{padding:14px 14px 10px;border-radius:16px;background:var(--panel);min-width:0}
+.card h3{margin:0 0 2px;font-size:15px;font-weight:800}
+.card p{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:170px;overflow:visible}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .ax{fill:var(--muted);font-size:11px;font-family:var(--body);font-variant-numeric:tabular-nums}
+.chart .hit{fill:transparent;cursor:crosshair}
+.tip{position:absolute;pointer-events:none;padding:6px 10px;border-radius:10px;background:var(--felt);border:1px solid var(--line);font-size:13px;white-space:nowrap;transform:translate(-50%,-100%);box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.tip b{font-variant-numeric:tabular-nums}
+.tbl{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto;border-radius:16px;background:var(--panel)}
+.tbl th,.tbl td{padding:10px 12px;text-align:right;white-space:nowrap}
+.tbl th{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl tr+tr td{border-top:1px solid var(--line)}
+.tbl td.nm{font-weight:700;max-width:240px;overflow:hidden;text-overflow:ellipsis}
+.tbl td.nm small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border:1px solid currentColor}
+.pill.play{color:var(--gold)}.pill.wait{color:var(--muted)}
+.empty{padding:16px;border-radius:16px;border:1px dashed var(--line);color:var(--muted);font-size:14px}
+.gate{padding:20px;border-radius:16px;background:var(--panel);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.gate p{margin:0}
+.err{color:var(--red-text);font-weight:700}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="/favicon.svg" alt="">
+    <div><h1>Owner stats</h1><p class="sub" id="upd">Degen Pig</p></div>
+    <span class="sp"></span>
+    <button class="btn" id="refresh" type="button" hidden>Refresh</button>
+    <a class="btn" href="/">Back to the game</a>
+  </header>
+
+  <section class="gate" id="gate" hidden>
+    <p id="gateText">Sign in with the owner's Google account to see the stats.</p>
+    <button class="btn primary" id="signin" type="button">Sign in with Google</button>
+  </section>
+
+  <div id="body" hidden>
+    <section>
+      <h2>Right now</h2>
+      <div class="tiles">
+        <div class="tile live"><b id="nOnline">0</b><span>people online</span></div>
+        <div class="tile live"><b id="nIn">0</b><span>at a table</span></div>
+        <div class="tile"><b id="nPlaying">0</b><span>tables playing</span></div>
+        <div class="tile"><b id="nWaiting">0</b><span>tables waiting for players</span></div>
+      </div>
+    </section>
+
+    <section style="margin-top:22px">
+      <h2>All time and recent</h2>
+      <div class="tiles">
+        <div class="tile"><b id="tPlayers">0</b><span>players signed up</span></div>
+        <div class="tile"><b id="tGames">0</b><span>games played</span></div>
+        <div class="tile"><b id="tWeek">0</b><span>games in the last 7 days</span></div>
+        <div class="tile"><b id="tToday">0</b><span>games today</span></div>
+        <div class="tile"><b id="tSignToday">0</b><span>new sign-ups today</span></div>
+        <div class="tile"><b id="tSignWeek">0</b><span>new sign-ups in 7 days</span></div>
+        <div class="tile"><b id="tTables">0</b><span>tables opened, all time</span></div>
+        <div class="tile"><b id="tTablesWeek">0</b><span>tables opened in 7 days</span></div>
+      </div>
+    </section>
+
+    <section style="margin-top:22px">
+      <h2>Last 30 days</h2>
+      <div class="charts">
+        <div class="card"><h3>Games played per day</h3><p>Finished online games, Pacific time.</p><div class="chart" id="cGames"></div></div>
+        <div class="card"><h3>New sign-ups per day</h3><p>First visit to Online Play after signing in with Google.</p><div class="chart" id="cSign"></div></div>
+      </div>
+    </section>
+
+    <section style="margin-top:22px">
+      <h2>Tables open now</h2>
+      <div id="tablesWrap"></div>
+    </section>
+
+    <section style="margin-top:22px">
+      <h2>Most active players</h2>
+      <div id="topWrap"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+'use strict';
+var $=function(id){return document.getElementById(id)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fmt(n){return String(n||0).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+var SB={url:'https://fdaysgypgzyexilqfyrx.supabase.co',key:'sb_publishable_GAe1m_PFF3WV_Cp2vv5h-A_ca3ANUms'},AUTH=null;
+
+/* sign-in: shares the game's saved sign-in on this device */
+try{AUTH=JSON.parse(localStorage.getItem('degenpig-auth')||'null')}catch(e){}
+function save(){try{if(AUTH)localStorage.setItem('degenpig-auth',JSON.stringify(AUTH));else localStorage.removeItem('degenpig-auth')}catch(e){}}
+(function fromHash(){var h=location.hash||'';if(h.indexOf('access_token=')<0)return;var q=new URLSearchParams(h.slice(1));history.replaceState(null,'',location.pathname);AUTH={at:q.get('access_token'),rt:q.get('refresh_token')||'',exp:Date.now()/1000+(+q.get('expires_in')||3600)};save()})();
+function token(){
+  if(!AUTH)return Promise.resolve(null);
+  if(AUTH.exp-60>Date.now()/1000||!AUTH.rt)return Promise.resolve(AUTH.at);
+  return fetch(SB.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.key,'content-type':'application/json'},body:JSON.stringify({refresh_token:AUTH.rt})})
+    .then(function(r){return r.ok?r.json():null}).then(function(d){if(!d||!d.access_token){AUTH=null;save();return null}AUTH={at:d.access_token,rt:d.refresh_token||AUTH.rt,exp:Date.now()/1000+(d.expires_in||3600)};save();return AUTH.at})
+    .catch(function(){return AUTH&&AUTH.at});
+}
+$('signin').addEventListener('click',function(){location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+'/admin.html')});
+
+function gate(text){$('gate').hidden=false;$('body').hidden=true;$('refresh').hidden=true;$('gateText').innerHTML=text}
+function load(){
+  token().then(function(t){
+    if(!t){gate('Sign in with the owner’s Google account to see the stats.');return}
+    return fetch('/api/admin',{headers:{Authorization:'Bearer '+t}}).then(function(r){
+      if(r.status===401){AUTH=null;save();gate('Your sign-in expired. Sign in again to see the stats.');return}
+      if(r.status===403){$('signin').hidden=true;gate('<span class="err">This page is only for the owner’s account.</span> You’re signed in with a different Google account.');return}
+      return r.json().then(draw);
+    });
+  }).catch(function(){$('upd').textContent='Could not load the stats. Retrying…'});
+}
+
+function draw(d){
+  $('gate').hidden=true;$('body').hidden=false;$('refresh').hidden=false;
+  $('upd').textContent='Updated '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'})+' · refreshes every 15 seconds';
+  $('nOnline').textContent=fmt(d.now.online);$('nIn').textContent=fmt(d.now.inTables);$('nPlaying').textContent=fmt(d.now.playing);$('nWaiting').textContent=fmt(d.now.waiting);
+  var days=d.days||[],last7=days.slice(-7),today=days[days.length-1]||{};
+  var sum=function(a,k){return a.reduce(function(x,y){return x+(y[k]||0)},0)};
+  $('tPlayers').textContent=fmt(d.players);$('tGames').textContent=fmt(d.totals.games);$('tWeek').textContent=fmt(sum(last7,'games'));$('tToday').textContent=fmt(today.games);
+  $('tSignToday').textContent=fmt(today.signups);$('tSignWeek').textContent=fmt(sum(last7,'signups'));$('tTables').textContent=fmt(d.totals.tables);$('tTablesWeek').textContent=fmt(sum(last7,'tables'));
+  bars($('cGames'),days,'games','#F2C230','game');
+  bars($('cSign'),days,'signups','#5B9FEC','sign-up');
+  var T=d.tables||[];
+  $('tablesWrap').innerHTML=T.length?'<div class="tw"><table class="tbl"><thead><tr><th>Table</th><th>Status</th><th>Players</th><th>Connected</th><th>Games</th><th>Opened</th></tr></thead><tbody>'+T.map(function(t){
+    return '<tr><td class="nm">'+(t.locked?'🔒 ':'')+esc(t.name)+'<small>'+esc(t.code)+' · host '+esc(t.host)+'</small></td><td><span class="pill '+(t.status==='playing'?'play':'wait')+'">'+(t.status==='playing'?'Playing':'Waiting')+'</span></td><td>'+t.humans+' of '+t.seats+'</td><td>'+t.connected+'</td><td>'+t.games+'</td><td>'+ago(t.at)+'</td></tr>'}).join('')+'</tbody></table></div>':'<div class="empty">No tables open right now.</div>';
+  var P=d.top||[];
+  $('topWrap').innerHTML=P.length?'<div class="tw"><table class="tbl"><thead><tr><th>Player</th><th>Games</th><th>Wins</th><th>Points banked</th><th>Tables</th><th>Last seen</th><th>Joined</th></tr></thead><tbody>'+P.map(function(p){
+    return '<tr><td class="nm">'+esc(p.name||'(no name yet)')+'<small>'+esc(p.email)+'</small></td><td>'+fmt(p.games)+'</td><td>'+fmt(p.wins)+'</td><td>'+fmt(p.points)+'</td><td>'+fmt(p.tables)+'</td><td>'+(p.last?ago(p.last):'–')+'</td><td>'+(p.created?new Date(p.created).toLocaleDateString([], {month:'short',day:'numeric'}):'–')+'</td></tr>'}).join('')+'</tbody></table></div>':'<div class="empty">No players have signed up yet.</div>';
+}
+function ago(t){var s=Math.max(0,(Date.now()-t)/1000);if(s<90)return 'just now';if(s<3600)return Math.round(s/60)+' min ago';if(s<86400)return Math.round(s/3600)+' h ago';return Math.round(s/86400)+' d ago'}
+
+/* one series per chart, so no legend: the card title names it. Bars start at zero, round on the data end, hover shows the day. */
+function bars(el,days,key,color,unit){
+  var W=el.clientWidth||320,H=170,L=26,B=20,T=6,n=days.length,max=1;
+  days.forEach(function(x){if(x[key]>max)max=x[key]});
+  var step=niceStep(max),top=Math.ceil(max/step)*step,pw=(W-L)/n,bw=Math.max(2,Math.min(18,pw-2));
+  var y=function(v){return T+(H-B-T)*(1-v/top)};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(unit)+'s per day for the last 30 days">';
+  for(var g=0;g<=top;g+=step){s+='<line class="grid" x1="'+L+'" x2="'+W+'" y1="'+y(g)+'" y2="'+y(g)+'"/><text class="ax" x="'+(L-6)+'" y="'+(y(g)+4)+'" text-anchor="end">'+g+'</text>'}
+  days.forEach(function(x,i){
+    var v=x[key]||0,cx=L+pw*i+pw/2,h=(H-B-T)*(v/top);
+    if(v>0){var r=Math.min(4,bw/2,h),x0=cx-bw/2,y0=H-B-h;s+='<path d="M'+x0+' '+(H-B)+'V'+(y0+r)+'Q'+x0+' '+y0+' '+(x0+r)+' '+y0+'H'+(x0+bw-r)+'Q'+(x0+bw)+' '+y0+' '+(x0+bw)+' '+(y0+r)+'V'+(H-B)+'Z" fill="'+color+'"/>'}
+    if(i%7===(n-1)%7)s+='<text class="ax" x="'+cx+'" y="'+(H-4)+'" text-anchor="middle">'+label(x.d)+'</text>';
+    s+='<rect class="hit" x="'+(L+pw*i)+'" y="0" width="'+pw+'" height="'+(H-B)+'" data-i="'+i+'"/>';
+  });
+  el.innerHTML=s+'</svg><div class="tip" hidden></div>';
+  var tip=el.querySelector('.tip');
+  el.querySelector('svg').addEventListener('pointermove',function(e){var t=e.target.closest('.hit');if(!t){tip.hidden=true;return}var i=+t.getAttribute('data-i'),x=days[i],v=x[key]||0,bx=(L+pw*i+pw/2)/W*el.clientWidth;
+    tip.innerHTML=label(x.d)+': <b>'+v+'</b> '+unit+(v===1?'':'s');tip.style.left=Math.max(60,Math.min(el.clientWidth-60,bx))+'px';tip.style.top=(y(v)/H*170-6)+'px';tip.hidden=false});
+  el.querySelector('svg').addEventListener('pointerleave',function(){tip.hidden=true});
+}
+function niceStep(m){if(m<=5)return 1;if(m<=10)return 2;if(m<=25)return 5;if(m<=50)return 10;var p=Math.pow(10,Math.floor(Math.log10(m)));return m/p<=2?p/2:m/p<=5?p:2*p}
+function label(d){var p=d.split('-');return new Date(+p[0],+p[1]-1,+p[2]).toLocaleDateString([], {month:'short',day:'numeric'})}
+
+$('refresh').addEventListener('click',load);
+load();setInterval(function(){if(!document.hidden)load()},15000);
+})();
+</script>
+</body>
+</html>
