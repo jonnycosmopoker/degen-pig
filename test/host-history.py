@@ -26,7 +26,8 @@ with sync_playwright() as p:
         A.wait_for_timeout(100)
     print('games played:',games, '| scoreboard:',A.inner_text('#standings').replace('\n',' '))
     A.click('#newBtn'); A.click('#leaveBtn'); A.wait_for_timeout(1200)
-    print('history head:',A.inner_text('#histHead'))
+    print('history button:',A.inner_text('#ghBtn').replace('\n',' | '))
+    A.click('#ghBtn'); A.wait_for_timeout(800)
     A.click('#histList summary'); A.wait_for_timeout(200)
     for k in range(3):
         A.wait_for_timeout(4500); print('still open after',(k+1)*4.5,'s:',A.evaluate("document.querySelector('#histList details').open"))
@@ -34,5 +35,7 @@ with sync_playwright() as p:
     A.click('#histList summary'); A.wait_for_timeout(200)
     print('history:',A.inner_text('#histList').replace('\n',' | '))
     A.screenshot(path=sys.argv[1]+'/h2-history.png',full_page=True)
+    A.click('#backGh'); A.wait_for_timeout(500); print('back on online:',A.get_attribute('#app','data-phase'))
+    A.screenshot(path=sys.argv[1]+'/h3-online.png',full_page=True)
     b.close()
 print('errors',errs)

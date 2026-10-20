@@ -311,7 +311,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .defrow .btn{flex:none;min-height:48px;padding:8px 16px;font-size:15px}
 .defrow span{font-size:13px;color:var(--muted)}
 /* online play: lobby, host form, waiting room */
-#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray{display:none}
+#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray,#app[data-phase="gh"] .tray{display:none}
 .joinrow{display:flex;gap:8px}
 .joinrow .txt{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.12em}
 .joinrow .btn{flex:none;min-height:48px;padding:0 18px;font-size:16px}
@@ -477,13 +477,12 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="joinrow needauth"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
     <p class="onmsg" id="onMsg" role="status"></p>
     <button class="mrow" id="lbBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V10h6v11M3 21v-6h6M15 21v-8h6v8M2 21h20"/><path d="M12 3l1 2 2 .3-1.5 1.4.4 2.1L12 7.8l-1.9 1 .4-2.1L9 5.3l2-.3z"/></svg></span><span class="mtx"><b>Leaderboard</b><small>Top players this week, month, all time</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    <button class="mrow needauth" id="ghBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></span><span class="mtx"><b>Game History</b><small id="ghSub">Your past tables and final scores</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     <div class="lcount" id="lobbyCount" role="status" hidden></div>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
     <h2 class="sechead" id="liveHead" hidden>Games in progress</h2>
     <div class="lobby" id="liveList"></div>
-    <h2 class="sechead" id="histHead" hidden>Your recent tables</h2>
-    <div class="lobby" id="histList"></div>
     <a class="link delacct needauth" id="ownerLink" href="/admin.html" hidden>Owner stats</a>
     <button type="button" class="link delacct needauth" id="delAcctBtn">Delete my account</button>
   </section>
@@ -529,6 +528,13 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <p class="cap" id="hRules"></p>
     <button class="mrow gold" id="hCreate" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h8l6 6v12z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg></span><span class="mtx"><b>Open the Table</b><small>Players can join once it’s open</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     <p class="onmsg" id="hMsg" role="status"></p>
+  </section>
+
+  <section class="dock scroll" id="gh" hidden>
+    <button type="button" class="link back" id="backGh">‹ Online Play</button>
+    <h1 class="screen-h">Game History</h1>
+    <p class="cap">Every table you've played, newest first. Tap one to see everyone's final totals.</p>
+    <div class="lobby" id="histList"></div>
   </section>
 
   <section class="dock scroll" id="lb" hidden>
@@ -1448,8 +1454,8 @@ function renderMain(){
   $('app').dataset.phase=ph;
   var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;
   $('soundBtn').textContent='Sound: '+(S.sound?'on':'off');
-  var nonGame=['menu','setup','online','settings','ach','host','room','lb'].indexOf(ph)>=0;
-  ['menu','setup','online','settings','ach','host','room','lb'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
+  var nonGame=['menu','setup','online','settings','ach','host','room','lb','gh'].indexOf(ph)>=0;
+  ['menu','setup','online','settings','ach','host','room','lb','gh'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
   dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
   var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
   $('hint').hidden=!(canRoll()&&!(S.online&&inGame&&blocked())&&!S.callout&&(ph==='setup'||ph==='menu'||(inGame&&S.rolls.length===0)));
@@ -1591,7 +1597,7 @@ function renderMain(){
 }
 function renderScreens(ph){
   if(ph==='ach')renderAch();
-  if(ph==='online')renderOnline();if(ph==='lb')renderLb();if(ph==='host')renderHost();if(ph==='room')renderRoom();
+  if(ph==='online')renderOnline();if(ph==='lb')renderLb();if(ph==='gh')renderHist();if(ph==='host')renderHost();if(ph==='room')renderRoom();
   if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Settings.';
   if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
   if(ph==='settings'){
@@ -1777,7 +1783,7 @@ function loadMe(){
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
-    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();
+    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
 function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
@@ -1798,10 +1804,14 @@ function renderOnline(){
   /* one entry per table session: from opening the table to closing it, with everyone's final totals */
   var V=ON.offline?[]:(ON.live||[]);$('liveHead').hidden=!V.length;
   $('liveList').innerHTML=V.map(function(t){return '<div class="lrow"><div class="lt"><b>'+esc(t.name)+'</b><span>'+esc(t.players.join(', '))+' · '+(t.games?'game '+(t.games+1):'first game')+' · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-watch="'+esc(t.code)+'">Watch</button></div>'}).join('');
-  var H=((ON.rec&&ON.rec.history)||[]).filter(function(x){return x&&x.sid&&x.players});$('histHead').hidden=!H.length;
-  /* the lobby refreshes every few seconds: keep opened tables open, and leave the list alone when nothing changed */
+  var NH=histEntries().length;$('ghSub').textContent=NH?NH+' table'+(NH===1?'':'s')+' played · final scores':'Your past tables and final scores';
+}
+function histEntries(){return ((ON.rec&&ON.rec.history)||[]).filter(function(x){return x&&x.sid&&x.players})}
+function renderHist(){
+  var H=histEntries();
+  /* keep opened tables open when the record reloads, and leave the list alone when nothing changed */
   ON.histOpen=ON.histOpen||{};
-  var hh=H.slice(0,10).map(function(g){
+  var hh=!ON.rec?'<div class="empty">Loading your games…</div>':!H.length?'<div class="empty">No games yet. Host or join a table and your results will show up here.</div>':H.map(function(g){
     var order=g.players.map(function(_,i){return i}).sort(function(a,b){return g.players[b].total-g.players[a].total||g.players[b].wins-g.players[a].wins||a-b});
     var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.total>me.total}).length,d=new Date(g.start),gd=g.rules&&g.rules.golden;
     var sum=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+g.games+' game'+(g.games===1?'':'s')+' · '+ordinalN(rank)+' of '+g.players.length+' with '+fmt(me.total)+' points, '+me.wins+' win'+(me.wins===1?'':'s')+(g.closed?'':' · still open');
@@ -1968,6 +1978,8 @@ $('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!
 $('endOk').addEventListener('click',function(){$('endDlg').close()});
 $('rStart').addEventListener('click',function(){onSend('start')});
 $('lbBtn').addEventListener('click',function(){S.phase='lb';$('lb').scrollTop=0;loadLb(ON.lbP);render()});
+$('ghBtn').addEventListener('click',function(){S.phase='gh';$('gh').scrollTop=0;loadMe();render()});
+$('backGh').addEventListener('click',function(){S.phase='online';onEnter();render()});
 $('backLb').addEventListener('click',function(){S.phase='online';onEnter();render()});
 Array.prototype.forEach.call(document.querySelectorAll('#lb .tab'),function(b){b.addEventListener('click',function(){ON.lbP=b.getAttribute('data-p');if(!ON.lb[ON.lbP])loadLb(ON.lbP);else{renderLb();loadLb(ON.lbP)}})});
 $('liveList').addEventListener('click',function(e){var b=e.target.closest('button[data-watch]');if(b){$('onMsg').textContent='';onWatch(b.getAttribute('data-watch'))}});
