@@ -2,7 +2,7 @@ import sys, time
 from playwright.sync_api import sync_playwright
 BASE='http://localhost:8793'; errs=[]
 with sync_playwright() as p:
-    b=p.chromium.launch(); ctx=b.new_context(viewport={'width':390,'height':844},reduced_motion='reduce'); A=ctx.new_page()
+    b=p.chromium.launch(); ctx=b.new_context(viewport={'width':390,'height':844},reduced_motion='reduce'); ctx.add_init_script("localStorage.setItem('degenpig-auth',JSON.stringify({at:'dev-ace',rt:'',exp:9e9}))"); A=ctx.new_page()
     A.on('pageerror',lambda e: errs.append(str(e)))
     A.goto(BASE); A.click('#mOnline'); A.fill('#onName','Ace'); A.click('#hostBtn')
     A.click('#ht150'); A.click('#hm15'); A.click('#hOpts .tog[data-k="power"]'); A.click('#hOpts .tog[data-k="golden"]')
@@ -27,6 +27,10 @@ with sync_playwright() as p:
     print('games played:',games, '| scoreboard:',A.inner_text('#standings').replace('\n',' '))
     A.click('#newBtn'); A.click('#leaveBtn'); A.wait_for_timeout(1200)
     print('history head:',A.inner_text('#histHead'))
+    A.click('#histList summary'); A.wait_for_timeout(200)
+    for k in range(3):
+        A.wait_for_timeout(4500); print('still open after',(k+1)*4.5,'s:',A.evaluate("document.querySelector('#histList details').open"))
+    A.click('#histList summary'); A.wait_for_timeout(4500); print('closed after second tap:',not A.evaluate("document.querySelector('#histList details').open"))
     A.click('#histList summary'); A.wait_for_timeout(200)
     print('history:',A.inner_text('#histList').replace('\n',' | '))
     A.screenshot(path=sys.argv[1]+'/h2-history.png',full_page=True)

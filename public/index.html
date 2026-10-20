@@ -1792,13 +1792,17 @@ function renderOnline(){
   var V=ON.offline?[]:(ON.live||[]);$('liveHead').hidden=!V.length;
   $('liveList').innerHTML=V.map(function(t){return '<div class="lrow"><div class="lt"><b>'+esc(t.name)+'</b><span>'+esc(t.players.join(', '))+' · '+(t.games?'game '+(t.games+1):'first game')+' · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-watch="'+esc(t.code)+'">Watch</button></div>'}).join('');
   var H=((ON.rec&&ON.rec.history)||[]).filter(function(x){return x&&x.sid&&x.players});$('histHead').hidden=!H.length;
-  $('histList').innerHTML=H.slice(0,10).map(function(g){
+  /* the lobby refreshes every few seconds: keep opened tables open, and leave the list alone when nothing changed */
+  ON.histOpen=ON.histOpen||{};
+  var hh=H.slice(0,10).map(function(g){
     var order=g.players.map(function(_,i){return i}).sort(function(a,b){return g.players[b].total-g.players[a].total||g.players[b].wins-g.players[a].wins||a-b});
     var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.total>me.total}).length,d=new Date(g.start),gd=g.rules&&g.rules.golden;
     var sum=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+g.games+' game'+(g.games===1?'':'s')+' · '+ordinalN(rank)+' of '+g.players.length+' with '+fmt(me.total)+' points, '+me.wins+' win'+(me.wins===1?'':'s')+(g.closed?'':' · still open');
     var rows=order.map(function(i,k){var q=g.players[i];return '<div class="hrw'+(i===g.you?' me':'')+'"><span>'+(k+1)+'</span><span class="hn">'+esc(q.name)+(q.cpu?' <em>CPU</em>':'')+'</span><span>'+fmt(q.total)+'</span>'+(gd?'<span class="hg">'+fmt(q.golden)+'</span>':'')+'<span>'+q.wins+'</span></div>'}).join('');
-    return '<details class="hist"><summary><b>'+esc(g.table)+'</b><span>'+sum+'</span></summary><div class="hrw hh"><span></span><span class="hn">Player</span><span>Points</span>'+(gd?'<span class="hg">Golden</span>':'')+'<span>Wins</span></div>'+rows+'<p class="cap">'+esc(rulesLine(g.rules||{}))+(g.reason?' · '+esc(g.reason):'')+'</p></details>'}).join('');
+    return '<details class="hist" data-sid="'+esc(g.sid)+'"'+(ON.histOpen[g.sid]?' open':'')+'><summary><b>'+esc(g.table)+'</b><span>'+sum+'</span></summary><div class="hrw hh"><span></span><span class="hn">Player</span><span>Points</span>'+(gd?'<span class="hg">Golden</span>':'')+'<span>Wins</span></div>'+rows+'<p class="cap">'+esc(rulesLine(g.rules||{}))+(g.reason?' · '+esc(g.reason):'')+'</p></details>'}).join('');
+  var hl=$('histList');if(hl._html!==hh){hl.innerHTML=hh;hl._html=hh}
 }
+document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);
 function ordinalN(n){return n+ordinal(n)}
 /* online tables start from their own defaults (Golden Points and Five Ones Double on, no timer); a host's last choices are remembered */
 var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,timer:0};
