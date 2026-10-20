@@ -1864,7 +1864,7 @@ function askPw(code,name,wrong){ON.lastCode=code;ON.lastName=name;$('pwText').te
 setInterval(function(){
   var el=$('clock');if(!el)return;
   var on=S.online&&(S.phase==='play'||S.phase==='final')&&ON.deadline>0&&!S.rolling&&!S.bust;
-  $('tray').classList.toggle('clocked',on);
+  $('tray').classList.toggle('clocked',!!on);
   if(!on){el.hidden=true;return}
   var left=Math.max(0,Math.ceil((ON.deadline-Date.now())/1000)),mine=!blocked();
   el.hidden=false;el.textContent=(mine?'You · ':'')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');el.setAttribute('aria-label',(mine?'Your time left: ':'Time left: ')+left+' seconds');
