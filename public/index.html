@@ -763,13 +763,21 @@ var ACH=[
  {id:'homegame',n:'Home Game',c:'multi',k:'cnt',L:[5,25,100,250],online:1,d:function(x){return 'Host '+x+' online tables that fill and play'}},
  {id:'nemesis',n:'Nemesis',c:'multi',k:'max',L:[10,25,50,100],d:function(x){return 'Beat the same friend '+x+' times'}},
  {id:'fulltable',n:'Full Table',c:'multi',k:'cnt',L:[1,10,50,200],online:1,d:function(x){return 'Play '+x+' full 6-player online game'+(x===1?'':'s')}},
+ {id:'marathon',n:'Marathon',c:'multi',k:'max',L:[3,5,10,20],online:1,d:function(x){return 'Play '+x+' games in a row at one online table'}},
+ {id:'social',n:'Social Butterfly',c:'multi',k:'max',L:[5,15,50,100],online:1,d:function(x){return 'Play online with '+x+' different people'}},
+ {id:'clockwork',n:'Clockwork',c:'multi',k:'max',L:[2,4,12,52],online:1,d:function(x){return 'Play online '+x+' weeks in a row'}},
+ {id:'headsup',n:'Heads Up',c:'multi',k:'cnt',L:[1,10,50,200],online:1,d:function(x){return 'Win '+x+' one-on-one online game'+(x===1?'':'s')+' against a real player'}},
+ {id:'railbird',n:'Railbird',c:'multi',k:'cnt',L:[1,5,25,100],online:1,d:function(x){return 'Watch '+x+' online game'+(x===1?'':'s')+' through to the end'}},
+ {id:'crowd',n:'Crowd Pleaser',c:'multi',k:'one',t:2,online:1,d:'Win an online game while 3 or more people are watching'},
+ {id:'nightowl',n:'Night Owl',c:'multi',k:'one',t:1,online:1,d:'Finish an online game between midnight and 5 a.m.'},
+ {id:'toppig',n:'Top Pig',c:'multi',k:'one',t:3,online:1,d:'Lead the weekly wins leaderboard with at least 5 wins'},
  {id:'tilted',n:'Tilted',c:'shame',k:'max',L:[5,7,10,null],hint:'Hint: a truly awful run of turns',d:function(x){return 'Bust '+x+' turns in a row'}},
  {id:'snakecollector',n:'Snake Collector',c:'shame',k:'cnt',L:[25,100,250,500],hint:'Hint: snake eyes, again and again',d:function(x){return 'Roll snake eyes '+x+' times'}},
  {id:'burntbacon',n:'Burnt Bacon',c:'shame',k:'cnt',L:[1000,10000,50000,100000],hint:'Hint: let the 1s eat enough of your points',d:function(x){return 'Lose '+fmt(x)+' points to 1s'}},
  {id:'roughstart',n:'Rough Start',c:'shame',k:'one',t:0,hint:'Hint: the worst possible way to start a game',d:'Roll snake eyes on your very first roll of a game'}
 ];
 var ACHBY={};ACH.forEach(function(a){ACHBY[a.id]=a});
-var ACHCAT=[['turn','Single turn'],['game','Single game'],['life','Lifetime'],['set','Setting-specific'],['multi','Multiplayer'],['shame','Hidden hall of shame']];
+var ACHCAT=[['turn','Single turn'],['game','Single game'],['life','Lifetime'],['set','Setting-specific'],['multi','Online play'],['shame','Hidden hall of shame']];
 var AD=null,achQ=[],achSel=null,toastBusy=false;
 function achLoad(){if(AD)return AD;try{AD=JSON.parse(localStorage.getItem('degenpig-ach')||'null')}catch(e){AD=null}if(!AD||typeof AD!=='object'||!AD.p||typeof AD.p!=='object')AD={p:{}};return AD}
 function achSave(){try{localStorage.setItem('degenpig-ach',JSON.stringify(AD))}catch(e){}}
@@ -866,7 +874,7 @@ function renderAch(){
         if(nx<0){cls+=' done';txt='All levels unlocked. '+esc(a.d(a.L[a.k==='min'?3:(a.L[3]!=null?3:2)]))+'.'}
         else if(locked&&a.c==='shame'){name='???';txt=esc(a.hint)}
         else txt='<b>'+(locked?'To unlock':'Next')+' ('+TIER[nx]+'):</b> '+esc(a.d(a.L[nx]));
-        if(a.online)txt+=' <b>Online play only.</b>';
+        if(a.online&&a.c!=='multi')txt+=' <b>Online play only.</b>';
         if(nx>=0&&!(locked&&a.c==='shame')){
           if(a.k==='cnt'||(a.k==='max'&&a.id!=='suckout'&&a.id!=='phoenix')){var cv=v||0,pc=Math.min(100,Math.round(cv/a.L[nx]*100));extra='<div class="apb"><i style="width:'+pc+'%"></i></div><span class="apv">'+(a.k==='cnt'?fmt(cv)+' / '+fmt(a.L[nx]):'Best so far: '+fmt(cv))+'</span>'}
           else if(v!=null)extra='<span class="apv">'+(a.k==='min'?'Fastest win so far: '+v+' turns':'Best so far: '+v)+'</span>';
@@ -1863,6 +1871,7 @@ function onSend(t,extra){if(!ON.ws||ON.ws.readyState!==1)return;var o={t:t};if(e
   if(t==='roll'||t==='lock'||t==='reroll'||t==='take'||t==='pass'){S.busy=true;render();clearTimeout(ON.sendT);ON.sendT=setTimeout(function(){if(S.busy&&!S.rolling&&!ON.busy){S.busy=false;render()}},3000)}}
 function forgetTable(){try{localStorage.removeItem('degenpig-table')}catch(e){}}
 function onMsg(m){
+  if(m.t==='unlock'){(m.unlocks||[]).forEach(function(u){var a=ACHBY[u.id];if(a)achQ.push({a:a,lv:u.lv,who:myId().name||'You'})});loadMe();achToast();return}
   if(m.t==='timer'){ON.deadline=m.left>0?Date.now()+m.left:0;return}
   if(m.t==='error'){
     if(m.fatal){forgetTable();ON.closing=true;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;S.online=false}

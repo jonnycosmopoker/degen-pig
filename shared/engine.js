@@ -15,7 +15,9 @@ const ACH = [
   ['diceroller','cnt',[1000,5000,25000,100000]],['seeingdouble','cnt',[100,500,1500,5000]],['bigturns','cnt',[10,50,200,500]],
   ['comeback','cnt',[5,25,75,200]],['hotstreak','max',[3,4,5,7]],['grinder','max',[3,7,30,100]],['goldenhoard','cnt',[250,1000,5000,25000]],
   ['secondchance','one',0],['powertrip','one',1],['verified','one',2],['goldenhog','one',2],
-  ['homegame','cnt',[5,25,100,250]],['nemesis','max',[10,25,50,100]],['fulltable','cnt',[1,10,50,200]],
+  ['homegame','cnt',[5,25,100,250]],
+  ['marathon','max',[3,5,10,20]],['social','max',[5,15,50,100]],['clockwork','max',[2,4,12,52]],['headsup','cnt',[1,10,50,200]],['railbird','cnt',[1,5,25,100]],
+  ['crowd','one',2],['nightowl','one',1],['toppig','one',3],['nemesis','max',[10,25,50,100]],['fulltable','cnt',[1,10,50,200]],
   ['tilted','max',[5,7,10,null]],['snakecollector','cnt',[25,100,250,500]],['burntbacon','cnt',[1000,10000,50000,100000]],['roughstart','one',0]
 ];
 const ACHBY = {};
@@ -30,6 +32,9 @@ export function achLevel(id, rec) {
 
 export function rint(n) { const u = new Uint32Array(1); crypto.getRandomValues(u); return u[0] % n }
 export function d6() { return 1 + rint(6) }
+/* Pacific time helpers for the online achievements */
+function ptHour(now) { return +new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(new Date(now)) }
+export function ptWeek(now) { const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(now)); const d = new Date(day + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10) }
 function dayStr(off, now) { const d = new Date(now); d.setUTCDate(d.getUTCDate() + (off || 0)); return d.toISOString().slice(0, 10) }
 
 export const STYLE_NAMES = { c: 'Cal', b: 'Bea', g: 'Gus' };
@@ -84,7 +89,16 @@ export function Engine(S) {
     S.players.forEach((p, i) => {
       if (!p.acc || !p.g) return; const g = p.g, won = w.indexOf(i) >= 0, r = p.acc;
       achSet(p, 'degen', 1, 'add');
-      if (S.online) { achSet(p, 'homegame', p.host ? 1 : 0, 'add'); if (n === 6 && S.players.filter(q => !q.bot).length === 6) achSet(p, 'fulltable', 1, 'add') }
+      if (S.online) {
+        achSet(p, 'homegame', p.host ? 1 : 0, 'add'); if (n === 6 && S.players.filter(q => !q.bot).length === 6) achSet(p, 'fulltable', 1, 'add');
+        achSet(p, 'marathon', S.games, 'max');                                     /* games in one sitting at this table */
+        r.met = r.met || {}; S.players.forEach(q => { if (q !== p && !q.bot && q.uid) r.met[q.uid] = 1 }); achSet(p, 'social', Object.keys(r.met).length, 'max');
+        const wk = ptWeek(now), lastWk = ptWeek(now - 7 * 86400000);              /* weeks in a row with an online game */
+        if (r.wk !== wk) { r.wks = r.wk === lastWk ? (r.wks || 0) + 1 : 1; r.wk = wk; achSet(p, 'clockwork', r.wks, 'max') }
+        if (ptHour(now) < 5) achSet(p, 'nightowl', 1);
+        if (won && n === 2 && S.players.every(q => !q.bot)) achSet(p, 'headsup', 1, 'add');
+        if (won && (S.watchers || 0) >= 3) achSet(p, 'crowd', 1);
+      }
       if (r.day !== today) { r.ds = r.day === yest ? (r.ds || 0) + 1 : 1; r.day = today; achSet(p, 'grinder', r.ds, 'max') }
       if (RL().golden) { const gp = golden(i); if (gp > 0) achSet(p, 'goldenhoard', gp, 'add'); if (gp >= 50) achSet(p, 'goldenhog', 1) }
       if (n >= 3) { if (won) { r.ws = (r.ws || 0) + 1; achSet(p, 'hotstreak', r.ws, 'max') } else r.ws = 0 }

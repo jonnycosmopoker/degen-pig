@@ -194,7 +194,7 @@ export class TableRoom {
     this.after(ev);
   }
   after(ev) {
-    const S = this.G; ev = ev || {};
+    const S = this.G; ev = ev || {}; S.watchers = this.watchers();
     if (ev.roll) this.busyUntil = this.now() + (ROLL_MS * this.k) + (ev.fx && ev.fx.burn > 0 ? (BURN_MS * this.k) : 0);
     else if (ev.fx && ev.fx.burn > 0) this.busyUntil = this.now() + (BURN_MS * this.k);
     if (S.fx && S.fx.hot) ev.hot = true; if (S.fx && S.fx.lock) ev.lock = S.fx.lock;
@@ -244,10 +244,34 @@ export class TableRoom {
     this.lobby.event({ type: 'game', humans: this.seats.filter(s => s.uid).length }).catch(() => { });
     /* leaderboards: wins, points banked and points lost at risk, for each signed-in player */
     const rec = this.G.records[this.G.records.length - 1];
-    if (rec) { const rows = rec.players.filter(p => p.uid).map(p => ({ uid: p.uid, name: p.name, won: !!p.won, points: p.banked || 0, lost: p.lost || 0 })); if (rows.length) this.accounts.lbAdd(rows).catch(() => { }) }
+    if (rec) {
+      const rows = rec.players.filter(p => p.uid).map(p => ({ uid: p.uid, name: p.name, won: !!p.won, points: p.banked || 0, lost: p.lost || 0 }));
+      /* Top Pig: whoever now leads this week's wins board (with at least 5 wins) earns it */
+      if (rows.length) this.accounts.lbAdd(rows).then(top => {
+        const i = this.seats.findIndex(s => s.uid && s.uid === top && s.acc); if (i < 0) return;
+        const acc = this.seats[i].acc; if (acc.v.toppig) return; acc.v.toppig = 1;
+        this.accounts.put(top, acc).catch(() => { }); this.sendUnlocks(this.seats[i].uid, [{ seat: i, id: 'toppig', lv: 1 }]);
+      }).catch(() => { });
+    }
+    this.railbirds();
     this.pushLobby();
     return this.saveSession(false);
   }
+  /* spectators who watched a game to the end earn toward Railbird */
+  async railbirds() {
+    const seen = new Set();
+    for (const [sock, c] of this.conns) {
+      if (!c.watch || !c.uid || seen.has(c.uid)) continue; seen.add(c.uid);
+      try {
+        const r = (await this.accounts.get(c.uid)) || { v: {}, opp: {}, history: [] }; r.v = r.v || {};
+        const L = [1, 5, 25, 100], before = L.filter(x => (r.v.railbird || 0) >= x).length;
+        r.v.railbird = (r.v.railbird || 0) + 1; await this.accounts.put(c.uid, r);
+        const after = L.filter(x => r.v.railbird >= x).length;
+        if (after > before) this.send(sock, { t: 'unlock', unlocks: [{ id: 'railbird', lv: after }] });
+      } catch (e) { }
+    }
+  }
+  sendUnlocks(uid, unlocks) { for (const [sock, c] of this.conns) if (c.uid === uid && !c.watch) this.send(sock, { t: 'unlock', unlocks }) }
   async saveSession(closed) {
     const S = this.G; if (!S || !S.games) return;
     const m = this.meta, sid = m.code + ':' + m.createdAt, gd = !!S.rules.golden;

@@ -102,7 +102,10 @@ export class AccountsLogic {
       rows.forEach(r => { const e = b[r.uid] || (b[r.uid] = { name: r.name, games: 0, wins: 0, points: 0, lost: 0 }); e.name = r.name; e.games++; if (r.won) e.wins++; e.points += r.points; e.lost += r.lost });
       await this.s.put(k, b);
     }
-    return true;
+    /* who leads this week's wins board now (5 wins or more), for the Top Pig achievement */
+    const wb = (await this.s.get('lb:w:' + weekKey(now))) || {};
+    let top = null, best = 4; for (const u in wb) if (wb[u].wins > best) { best = wb[u].wins; top = u }
+    return top;
   }
   async board(period, uid) {
     const now = Date.now(), key = period === 'week' ? 'lb:w:' + weekKey(now) : period === 'month' ? 'lb:m:' + monthKey(now) : 'lb:all';
