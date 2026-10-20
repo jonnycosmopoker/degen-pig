@@ -16,8 +16,8 @@ export async function hashPw(code, pw) {
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 export function cleanRules(r) {
-  r = r || {}; const t = [100, 150, 200].includes(r.target) ? r.target : 100;
-  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, timer: [15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
+  r = r || {}; const t = [80, 100, 150, 200].includes(r.target) ? r.target : 100;
+  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
 }
 
 export class TableRoom {
@@ -154,7 +154,8 @@ export class TableRoom {
     const wait = Math.max(0, this.busyUntil - this.now()), i = S.cur;
     if (this.E.ctrl(i)) { this.timer = setTimeout(() => this.botStep(), wait + (S.bust ? 1500 * this.k : (BOT_MS * this.k))); return }
     if (S.bust) { this.timer = setTimeout(() => { this.timer = null; S.fx = null; if (this.E.pass()) this.after({ fx: S.fx }) }, wait + (BUST_PASS_MS * this.k)); return }
-    const ms = (S.rules.timer || 30) * 1000 * this.k; this.deadline = this.now() + wait + ms;
+    if (S.rules.timer === 0) { this.broadcastDeadline(); return }   /* No timer: wait as long as it takes */
+    const ms = S.rules.timer * 1000 * this.k; this.deadline = this.now() + wait + ms;
     this.timer = setTimeout(() => { this.timer = null; S.fx = null; S.unlocks = []; const who = S.players[S.cur].name; if (this.E.timeout()) this.after({ fx: S.fx, note: who + ' ran out of time.' }) }, wait + ms);
     this.broadcastDeadline();
   }
