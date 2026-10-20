@@ -11,6 +11,9 @@ export class MemStorage {
 }
 
 /* days are counted in Pacific time, since that's where the game is run from */
+/* leaderboard periods, Pacific time: weeks start on Monday */
+export function weekKey(t) { const d = new Date(dayKey(t) + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10) }
+export function monthKey(t) { return dayKey(t).slice(0, 7) }
 export function dayKey(t) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(t)) }
 
 const STALE_MS = 3 * 60 * 1000, ONLINE_MS = 60 * 1000;   /* live tables check in every minute; one silent for 3 minutes is gone */
@@ -90,6 +93,29 @@ export class AccountsLogic {
     rec.email = email || rec.email || ''; rec.gname = gname || rec.gname || ''; rec.last = Date.now();
     await this.s.put('u:' + uid, rec);
     return { rec, created };
+  }
+  /* add one finished game's results to this week's, this month's and the all-time boards */
+  async lbAdd(rows) {
+    const now = Date.now();
+    for (const k of ['lb:w:' + weekKey(now), 'lb:m:' + monthKey(now), 'lb:all']) {
+      const b = (await this.s.get(k)) || {};
+      rows.forEach(r => { const e = b[r.uid] || (b[r.uid] = { name: r.name, games: 0, wins: 0, points: 0, lost: 0 }); e.name = r.name; e.games++; if (r.won) e.wins++; e.points += r.points; e.lost += r.lost });
+      await this.s.put(k, b);
+    }
+    return true;
+  }
+  async board(period, uid) {
+    const now = Date.now(), key = period === 'week' ? 'lb:w:' + weekKey(now) : period === 'month' ? 'lb:m:' + monthKey(now) : 'lb:all';
+    const b = (await this.s.get(key)) || {}, all = Object.keys(b).map(u => Object.assign({ me: u === uid }, b[u]));
+    const top = (stat, tie) => {
+      const sorted = all.filter(e => e[stat] > 0).sort((x, y) => y[stat] - x[stat] || y[tie] - x[tie] || x.name.localeCompare(y.name));
+      const out = sorted.slice(0, 10).map((e, i) => ({ rank: i + 1, name: e.name, value: e[stat], games: e.games, me: e.me }));
+      const mi = sorted.findIndex(e => e.me);
+      if (mi >= 10) out.push({ rank: mi + 1, name: sorted[mi].name, value: sorted[mi][stat], games: sorted[mi].games, me: true });
+      return out;
+    };
+    return { period, since: period === 'week' ? weekKey(now) : period === 'month' ? monthKey(now) : null, players: all.length,
+      wins: top('wins', 'points'), points: top('points', 'wins'), lost: top('lost', 'games') };
   }
   async top() {
     const all = await this.s.list({ prefix: 'u:sb:' }), out = [];

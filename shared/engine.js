@@ -143,7 +143,7 @@ export function Engine(S) {
   }
   function lockIn(force) {
     if (S.bust || S.pend || (S.mustRoll && !force) || S.turn <= 0 || (S.phase !== 'play' && S.phase !== 'final')) return false;
-    const p = P(S.cur), amt = S.turn; p.score += amt; rec(S.cur, 'lock', amt, amt, S.rolls.length); achLock(p, amt, S.rolls.length);
+    const p = P(S.cur), amt = S.turn; p.score += amt; if (p.g) p.g.banked = (p.g.banked || 0) + amt; rec(S.cur, 'lock', amt, amt, S.rolls.length); achLock(p, amt, S.rolls.length);
     S.fx = { lock: amt };
     if (S.phase === 'play' && p.score >= RL().target) {
       S.trigger = S.cur; S.phase = 'final'; S.queue = [];
@@ -194,7 +194,7 @@ export function Engine(S) {
     achGame(w);
     S.records.push({
       at: Date.now(), game: S.games, rules: Object.assign({}, RL()),
-      players: S.players.map((p, i) => ({ uid: p.uid || null, name: p.name, cpu: !!p.bot, score: p.score, regular: regular(i), golden: golden(i), won: w.indexOf(i) >= 0, rolls: p.st.f.reduce((x, y) => x + y, 0) / 2, doubles: p.st.d, lost: p.st.lost }))
+      players: S.players.map((p, i) => ({ uid: p.uid || null, name: p.name, cpu: !!p.bot, score: p.score, banked: (p.g && p.g.banked) || 0, regular: regular(i), golden: golden(i), won: w.indexOf(i) >= 0, rolls: p.st.f.reduce((x, y) => x + y, 0) / 2, doubles: p.st.d, lost: p.st.lost }))
     });
     S.phase = 'over'; S.winners = w; S.hotTurn = false; S.marks = ['', '']; say(null);
   }

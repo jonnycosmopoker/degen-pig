@@ -242,6 +242,9 @@ export class TableRoom {
      then marked closed when the table ends. Each entry holds the final standings for the whole session. */
   saveGame() {
     this.lobby.event({ type: 'game', humans: this.seats.filter(s => s.uid).length }).catch(() => { });
+    /* leaderboards: wins, points banked and points lost at risk, for each signed-in player */
+    const rec = this.G.records[this.G.records.length - 1];
+    if (rec) { const rows = rec.players.filter(p => p.uid).map(p => ({ uid: p.uid, name: p.name, won: !!p.won, points: p.banked || 0, lost: p.lost || 0 })); if (rows.length) this.accounts.lbAdd(rows).catch(() => { }) }
     this.pushLobby();
     return this.saveSession(false);
   }

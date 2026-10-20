@@ -304,7 +304,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .defrow .btn{flex:none;min-height:48px;padding:8px 16px;font-size:15px}
 .defrow span{font-size:13px;color:var(--muted)}
 /* online play: lobby, host form, waiting room */
-#app[data-phase="host"] .tray,#app[data-phase="room"] .tray{display:none}
+#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray{display:none}
 .joinrow{display:flex;gap:8px}
 .joinrow .txt{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.12em}
 .joinrow .btn{flex:none;min-height:48px;padding:0 18px;font-size:16px}
@@ -356,6 +356,23 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .watchbar b{color:var(--gold)}
 .watchbar .link{min-height:40px;flex:none}
 .watchn{position:absolute;left:14px;bottom:14px;z-index:4;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:rgba(12,26,22,.88);font-size:12px;font-weight:700;color:var(--muted);pointer-events:none}
+.lbbtn{display:flex;align-items:center;justify-content:center;gap:8px;flex:none;min-height:50px;font-size:16px}
+.lbbtn svg{color:var(--gold)}
+.lbcards{display:flex;flex-direction:column;gap:12px}
+.lbcard{padding:14px;border-radius:16px;background:var(--panel)}
+.lbcard h2{margin:0 0 2px;font-size:16px;font-weight:800}
+.lbcard p{margin:0 0 8px;font-size:12px;color:var(--muted)}
+.lbrow{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:7px 4px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.lbrow .rk{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:800;color:var(--muted)}
+.lbrow .rk.r1{background:radial-gradient(circle at 35% 30%,#FFF6C2,#F6CF45 40%,#B97C12);color:#3B2305}
+.lbrow .rk.r2{background:radial-gradient(circle at 35% 30%,#FFFFFF,#C9D2D8 45%,#7E8C96);color:#20282D}
+.lbrow .rk.r3{background:radial-gradient(circle at 35% 30%,#FBE0C4,#C7834B 45%,#6E3C1C);color:#2A1408}
+.lbrow .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbrow .nm small{font-weight:600;font-size:12px;color:var(--muted);margin-left:6px}
+.lbrow .v{font-family:var(--display);font-size:18px}
+.lbrow.me{background:rgba(242,194,48,.1);border-radius:10px;border-top-color:transparent}
+.lbrow.me .nm{color:var(--gold)}
+.lbrow.gap{border-top:1px dashed var(--line)}
 .lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
 .lcount b{color:var(--ivory)}
 .lcount .dot{flex:none;width:9px;height:9px;border-radius:50%;background:#3FCF8E;box-shadow:0 0 0 3px rgba(63,207,142,.2)}
@@ -452,6 +469,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="actions needauth"><button class="btn primary" id="hostBtn" type="button">Host a table</button></div>
     <div class="joinrow needauth"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
     <p class="onmsg" id="onMsg" role="status"></p>
+    <button class="btn ghost lbbtn" id="lbBtn" type="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg>Leaderboard</button>
     <div class="lcount" id="lobbyCount" role="status" hidden></div>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
@@ -504,6 +522,18 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <p class="cap" id="hRules"></p>
     <div class="actions"><button class="btn primary" id="hCreate" type="button">Open the table</button></div>
     <p class="onmsg" id="hMsg" role="status"></p>
+  </section>
+
+  <section class="dock scroll" id="lb" hidden>
+    <button type="button" class="link back" id="backLb">‹ Online Play</button>
+    <h1 class="screen-h">Leaderboard</h1>
+    <div class="tabs" role="group" aria-label="Time period">
+      <button type="button" class="tab on" data-p="week" aria-pressed="true">This week</button>
+      <button type="button" class="tab" data-p="month" aria-pressed="false">This month</button>
+      <button type="button" class="tab" data-p="all" aria-pressed="false">All time</button>
+    </div>
+    <p class="cap" id="lbSince"></p>
+    <div class="lbcards" id="lbBody"></div>
   </section>
 
   <section class="dock scroll" id="room" hidden>
@@ -1403,8 +1433,8 @@ function renderMain(){
   $('app').dataset.phase=ph;
   var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;
   $('soundBtn').textContent='Sound: '+(S.sound?'on':'off');
-  var nonGame=['menu','setup','online','settings','ach','host','room'].indexOf(ph)>=0;
-  ['menu','setup','online','settings','ach','host','room'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
+  var nonGame=['menu','setup','online','settings','ach','host','room','lb'].indexOf(ph)>=0;
+  ['menu','setup','online','settings','ach','host','room','lb'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
   dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
   var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
   $('hint').hidden=!(canRoll()&&!(S.online&&inGame&&blocked())&&!S.callout&&(ph==='setup'||ph==='menu'||(inGame&&S.rolls.length===0)));
@@ -1546,7 +1576,7 @@ function renderMain(){
 }
 function renderScreens(ph){
   if(ph==='ach')renderAch();
-  if(ph==='online')renderOnline();if(ph==='host')renderHost();if(ph==='room')renderRoom();
+  if(ph==='online')renderOnline();if(ph==='lb')renderLb();if(ph==='host')renderHost();if(ph==='room')renderRoom();
   if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Settings.';
   if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
   if(ph==='settings'){
@@ -1810,6 +1840,25 @@ function onWatch(code){
   netNote('Joining as a spectator…',2000);connect();
 }
 function stopWatching(){ON.closing=true;ON.code=null;ON.watch=false;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
+/* leaderboards: wins, points banked and points lost at risk, this week / this month / all time */
+ON.lbP='week';ON.lb={};
+function loadLb(p){token().then(function(t){return api('/api/leaderboard',{method:'POST',headers:t?{'content-type':'application/json',Authorization:'Bearer '+t}:{'content-type':'application/json'},body:JSON.stringify({period:p})})})
+  .then(function(d){ON.lb[p]=d;if(S.phase==='lb')renderLb()}).catch(function(){ON.lb[p]={err:true};if(S.phase==='lb')renderLb()})}
+function renderLb(){
+  var p=ON.lbP,d=ON.lb[p];
+  Array.prototype.forEach.call(document.querySelectorAll('#lb .tab'),function(b){var on=b.getAttribute('data-p')===p;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
+  if(!d){$('lbBody').innerHTML='<div class="empty">Loading…</div>';$('lbSince').textContent='';return}
+  if(d.err){$('lbBody').innerHTML='<div class="empty">Couldn\u2019t load the leaderboard. Check your connection.</div>';return}
+  var since=d.since?(p==='week'?'Since Monday, '+new Date(d.since+'T12:00:00').toLocaleDateString([], {month:'short',day:'numeric'}):'Since '+new Date(d.since+'-01T12:00:00').toLocaleDateString([], {month:'long',day:'numeric'})):'Every online game ever played';
+  $('lbSince').textContent=since+'. Online games only; computer players aren\u2019t ranked.';
+  function card(title,sub,rows,unit){
+    var h='<div class="lbcard"><h2>'+title+'</h2><p>'+sub+'</p>';
+    if(!rows.length)return h+'<div class="empty">No games yet'+(p==='week'?' this week':p==='month'?' this month':'')+'.</div></div>';
+    rows.forEach(function(e,i){var gap=i>0&&e.rank>rows[i-1].rank+1;h+='<div class="lbrow'+(e.me?' me':'')+(gap?' gap':'')+'"><span class="rk'+(e.rank<=3?' r'+e.rank:'')+'">'+e.rank+'</span><span class="nm">'+esc(e.name)+(e.me?' (you)':'')+'<small>'+e.games+' game'+(e.games===1?'':'s')+'</small></span><span class="v">'+fmt(e.value)+'</span></div>'});
+    return h+'</div>';
+  }
+  $('lbBody').innerHTML=card('Most wins','Games won',d.wins)+card('Most points banked','Points locked in across every game',d.points)+card('Most points lost at risk','Turn totals wiped out by a 1',d.lost);
+}
 function onSend(t,extra){if(!ON.ws||ON.ws.readyState!==1)return;var o={t:t};if(extra)for(var k in extra)o[k]=extra[k];ON.ws.send(JSON.stringify(o));
   if(t==='roll'||t==='lock'||t==='reroll'||t==='take'||t==='pass'){S.busy=true;render();clearTimeout(ON.sendT);ON.sendT=setTimeout(function(){if(S.busy&&!S.rolling&&!ON.busy){S.busy=false;render()}},3000)}}
 function forgetTable(){try{localStorage.removeItem('degenpig-table')}catch(e){}}
@@ -1898,6 +1947,9 @@ $('pwIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('pwGo').cl
 $('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!=='online'){S.phase='online';onEnter();render()}});
 $('endOk').addEventListener('click',function(){$('endDlg').close()});
 $('rStart').addEventListener('click',function(){onSend('start')});
+$('lbBtn').addEventListener('click',function(){S.phase='lb';$('lb').scrollTop=0;loadLb(ON.lbP);render()});
+$('backLb').addEventListener('click',function(){S.phase='online';onEnter();render()});
+Array.prototype.forEach.call(document.querySelectorAll('#lb .tab'),function(b){b.addEventListener('click',function(){ON.lbP=b.getAttribute('data-p');if(!ON.lb[ON.lbP])loadLb(ON.lbP);else{renderLb();loadLb(ON.lbP)}})});
 $('liveList').addEventListener('click',function(e){var b=e.target.closest('button[data-watch]');if(b){$('onMsg').textContent='';onWatch(b.getAttribute('data-watch'))}});
 $('stopWatch').addEventListener('click',stopWatching);
 $('gSignIn').addEventListener('click',signIn);

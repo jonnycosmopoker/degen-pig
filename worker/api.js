@@ -9,6 +9,10 @@ export async function handleApi(d, method, path, token, body) {
     if (user) await d.lobby.seen(user.id);
     return [200, { tables: await d.lobby.list(), live: await d.lobby.live(), counts: await d.lobby.counts() }];
   }
+  if (path === '/api/leaderboard') {
+    const period = ['week', 'month', 'all'].includes(body && body.period) ? body.period : 'week';
+    return [200, await d.accounts.board(period, user ? user.id : null)];
+  }
   if (!user) return [401, { error: 'Please sign in.' }];
   const admin = (d.admins || []).includes(String(user.email || '').toLowerCase());
 
