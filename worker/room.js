@@ -12,6 +12,9 @@ const EMPTY_END_MS = 300000; /* a game with nobody connected closes after this *
 const RESUME_MS = 25000;     /* after a server restart, players get this long to reconnect before a computer covers their seat */
 const BEAT_MS = 60000;       /* tables check in with the lobby this often, so dead ones drop off the list */
 
+const CHAT_KEEP = 60, CHAT_LEN = 200;
+/* player ids stay on the server: each phone just learns which messages are its own */
+const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.text, at: m.at, me: m.uid === uid });
 function clean(s, n) { return String(s == null ? '' : s).replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n) }
 export async function hashPw(code, pw) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('degenpig:' + code + ':' + pw));
@@ -27,6 +30,7 @@ export class TableRoom {
     this.k = deps.speed || 1; this.verify = deps.verify; this.lobby = deps.lobby; this.storage = deps.storage || null; this.beat = null; this.accounts = deps.accounts; this.now = deps.now || (() => Date.now());
     this.meta = null; this.seats = []; this.conns = new Map(); this.G = null; this.E = null;
     this.timer = null; this.busyUntil = 0; this.deadline = 0; this.graces = new Map(); this.emptyTimer = null; this.votes = new Set();
+    this.chat = []; this.chatSeq = 0;
   }
 
   /* ---- setup (called once when the table is created) ---- */
@@ -54,7 +58,7 @@ export class TableRoom {
       meta: this.meta,
       seats: this.seats.map(s => ({ uid: s.uid, name: s.name, cpu: s.cpu || null, host: !!s.host })),
       G: this.G ? Object.assign({}, this.G, { players: this.G.players.map(p => { const q = Object.assign({}, p); delete q.acc; return q }) }) : null,
-      votes: [...this.votes], busyLeft: Math.max(0, this.busyUntil - this.now())
+      votes: [...this.votes], busyLeft: Math.max(0, this.busyUntil - this.now()), chat: this.chat
     };
     this.storage.put('room', data).catch(() => { });
   }
@@ -65,6 +69,7 @@ export class TableRoom {
     this.seats = (d.seats || []).map(s => Object.assign({}, s, { away: false, acc: s.cpu ? null : { v: {}, opp: {}, history: [] } }));
     await Promise.all(this.seats.filter(s => s.uid).map(s => this.loadAcc(s)));
     this.votes = new Set(d.votes || []); this.busyUntil = this.now() + (d.busyLeft || 0);
+    this.chat = Array.isArray(d.chat) ? d.chat.slice(-CHAT_KEEP) : []; this.chatSeq = this.chat.length ? this.chat[this.chat.length - 1].id : 0;
     if (d.G) {
       this.G = d.G; this.E = Engine(this.G);
       this.G.players.forEach((p, i) => { const s = this.seats[i]; p.acc = s && !s.cpu ? s.acc : null; p.away = false });
@@ -109,6 +114,7 @@ export class TableRoom {
     if (!this.meta) { this.send(sock, { t: 'error', fatal: true, msg: 'That table is no longer open.' }); return }
     if (this.meta.status === 'ended') { this.send(sock, { t: 'ended', reason: this.meta.endReason || 'This table has closed.' }); return }
     if (m.t === 'hello') return this.hello(sock, c, m);
+    if (m.t === 'chat') return this.chatMsg(c, m);
     if (!c.uid || c.watch) return;
     const seatIdx = this.seats.findIndex(s => s.uid === c.uid); if (seatIdx < 0) return;
     switch (m.t) {
@@ -119,6 +125,21 @@ export class TableRoom {
     }
   }
   send(sock, obj) { try { sock.send(JSON.stringify(obj)) } catch (e) { } }
+
+  /* ---- table chat: players and watchers; the last few dozen messages are kept with the table ---- */
+  chatMsg(c, m) {
+    if (!c.uid) return;
+    const text = String(m.text == null ? '' : m.text).replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, CHAT_LEN); if (!text) return;
+    const now = this.now(); c.chatT = (c.chatT || []).filter(t => now - t < 10000);
+    if (c.chatT.length >= 6) return;          /* at most 6 messages in 10 seconds */
+    c.chatT.push(now);
+    const seat = c.watch ? -1 : this.seats.findIndex(s => s.uid === c.uid);
+    const name = seat >= 0 ? this.seats[seat].name : (c.name || 'Watcher');
+    const msg = { id: ++this.chatSeq, uid: c.uid, name, seat, text, at: now };
+    this.chat.push(msg); if (this.chat.length > CHAT_KEEP) this.chat.splice(0, this.chat.length - CHAT_KEEP);
+    for (const [sock, x] of this.conns) if (x.uid) this.send(sock, { t: 'chat', m: chatOut(msg, x.uid) });
+    this.persist();
+  }
 
   /* ---- joining ---- */
   async hello(sock, c, m) {
@@ -132,7 +153,7 @@ export class TableRoom {
       if (this.meta.pw) return this.send(sock, { t: 'error', fatal: true, msg: 'Private games can\u2019t be watched.' });
       if (this.meta.status !== 'playing' || !this.G) return this.send(sock, { t: 'error', fatal: true, msg: 'That game hasn\u2019t started yet. Join it from Open tables instead.' });
       if (this.watchers() >= 50) return this.send(sock, { t: 'error', fatal: true, msg: 'Too many people are already watching this game.' });
-      c.uid = uid; c.watch = true; this.broadcast(); return;
+      c.uid = uid; c.watch = true; c.name = name; this.send(sock, { t: 'chatlog', list: this.chat.map(x => chatOut(x, uid)) }); this.broadcast(); return;
     }
     if (!seat) {
       if (this.meta.status !== 'waiting') return this.send(sock, { t: 'error', fatal: true, msg: 'This game has already started.' });
@@ -143,7 +164,7 @@ export class TableRoom {
       if (seat.host) this.seats.unshift(seat); else this.seats.push(seat);
       seat.acc = { v: {}, opp: {}, history: [] }; this.loadAcc(seat);
     }
-    c.uid = uid; seat.away = false;
+    c.uid = uid; seat.away = false; this.send(sock, { t: 'chatlog', list: this.chat.map(x => chatOut(x, uid)) });
     const g = this.graces.get(uid); if (g) { clearTimeout(g); this.graces.delete(uid) }
     if (this.emptyTimer) { clearTimeout(this.emptyTimer); this.emptyTimer = null }
     if (this.G) { const i = this.seats.indexOf(seat); if (this.G.players[i]) this.G.players[i].away = false }
