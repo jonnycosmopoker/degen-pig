@@ -345,6 +345,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .ordiv{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
 .ordiv::before,.ordiv::after{content:'';flex:1;height:1px;background:var(--line)}
 .emrow{display:flex;gap:8px}
+.inapp{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:rgba(242,194,48,.12);border:1px solid rgba(242,194,48,.45);font-size:14px;line-height:1.4;color:var(--ivory)}
 .emrow .txt{flex:1;min-width:0}
 .emrow .btn{flex:none;min-height:48px;padding:0 14px;font-size:15px}
 .signcard p.emnote{font-size:13px;color:var(--muted)}
@@ -465,6 +466,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <h1 class="screen-h">Online Play</h1>
     <div class="signcard" id="signCard">
       <p>Sign in to play online. Your achievements and table history are saved to your account, on any phone.</p>
+      <p class="inapp" id="inAppNote" hidden>You're in another app's built-in browser, where Google sign-in is often blocked. Open <b>degenpig.com</b> in Safari or Chrome (tap ••• then "Open in browser"), or sign in with an email code below.</p>
       <button class="btn gbtn" id="gSignIn" type="button"><svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button>
       <div class="ordiv"><span>or</span></div>
       <div id="emStep1" class="emrow"><input class="txt" id="emIn" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" aria-label="Email address"><button class="btn ghost" id="emSend" type="button">Email me a code</button></div>
@@ -1985,6 +1987,8 @@ Array.prototype.forEach.call(document.querySelectorAll('#lb .tab'),function(b){b
 $('liveList').addEventListener('click',function(e){var b=e.target.closest('button[data-watch]');if(b){$('onMsg').textContent='';onWatch(b.getAttribute('data-watch'))}});
 $('stopWatch').addEventListener('click',stopWatching);
 $('gSignIn').addEventListener('click',signIn);
+/* Telegram, Instagram, Facebook and similar apps open links in their own browser, which Google refuses to sign in from */
+(function(){var u=navigator.userAgent||'';if(window.TelegramWebviewProxy||window.TelegramWebview||/Telegram|FBAN|FBAV|FB_IAB|Instagram|Line\/|Snapchat|TikTok|musical_ly|BytedanceWebview|Twitter|LinkedInApp|GSA\//.test(u))$('inAppNote').hidden=false})();
 $('emSend').addEventListener('click',sendCode);
 $('emIn').addEventListener('keydown',function(e){if(e.key==='Enter')sendCode()});
 $('codeGo').addEventListener('click',checkCode);
