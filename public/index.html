@@ -53,17 +53,18 @@ input{-webkit-user-select:text;user-select:text}
 @keyframes nudge{50%{box-shadow:0 0 0 6px rgba(242,194,48,.35)}}
 .badge{position:absolute;top:-6px;right:-6px;min-width:22px;height:22px;padding:0 6px;border-radius:11px;background:#E5372E;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px var(--bg,#0C1A16)}
 #app{position:relative}
-.chatpane{position:absolute;left:0;right:0;bottom:0;z-index:30;display:flex;flex-direction:column;gap:10px;padding:12px 16px 14px;background:rgba(6,14,11,.86);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-top:1px solid rgba(242,194,48,.25)}
+.chatpane{position:absolute;left:0;right:0;bottom:0;z-index:30;display:flex;flex-direction:column;gap:10px;padding:12px 16px 14px;background:rgba(6,14,11,.55);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);border-top:1px solid rgba(242,194,48,.25)}
 .chatpane[hidden]{display:none}
 .chathead{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .chathead b{font-size:16px;color:var(--gold)}
-.chathead span{font-size:13px;color:var(--muted)}
+.chathead span{font-size:13px;font-weight:700;color:var(--ivory);text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.chathead b{text-shadow:0 1px 3px rgba(0,0,0,.8)}
 .chatlist{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px}
 .chatlist .empty{margin:auto 0}
-.cm{max-width:82%;align-self:flex-start;padding:8px 12px;border-radius:14px 14px 14px 4px;background:rgba(255,255,255,.08);font-size:15px;line-height:1.35;overflow-wrap:anywhere}
+.cm{max-width:82%;align-self:flex-start;padding:8px 12px;border-radius:14px 14px 14px 4px;background:rgba(14,30,25,.82);box-shadow:0 2px 8px rgba(0,0,0,.3);font-size:15px;line-height:1.35;overflow-wrap:anywhere}
 .cm .cn{display:block;font-size:12px;font-weight:800;margin-bottom:2px}
 .cm .cn small{font-weight:600;color:var(--muted)}
-.cm.me{align-self:flex-end;border-radius:14px 14px 4px 14px;background:rgba(242,194,48,.18)}
+.cm.me{align-self:flex-end;border-radius:14px 14px 4px 14px;background:rgba(74,58,16,.88)}
 .chatform{display:flex;gap:8px}
 #chatForm .txt{flex:1 1 auto;min-width:0}
 #chatForm .btn{flex:0 0 auto;width:auto;min-width:0;min-height:48px;padding:0 20px;font-size:15px}
