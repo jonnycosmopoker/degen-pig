@@ -478,7 +478,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="die" id="die0"></div>
     <div class="die" id="die1"></div>
     <div class="callout" id="callout" aria-live="polite" hidden></div>
-    <div class="hint" id="hint">Tap or flick the table to roll</div>
+    <div class="hint" id="hint"><span id="hintTxt">Tap or flick the table to roll</span></div>
     <div class="clock" id="clock" role="timer" hidden></div>
     <div class="watchn" id="watchN" hidden></div>
   </div>
@@ -599,6 +599,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="defrow"><button class="btn ghost" id="defaultsBtn" type="button">Use the default rules</button><span id="defNote"></span></div>
     <div class="opts">
       <div class="opt"><span><b>Sound effects</b><small>Dice, oinks, coins and fire.</small></span><button class="tog" id="tSound" type="button" role="switch" aria-checked="true" aria-label="Sound effects"></button></div>
+      <div class="opt" id="shakeOpt" hidden><span><b>Shake to roll</b><small id="shakeNote">Shake your phone to roll the dice. iPhones ask for motion access the first time.</small></span><button class="tog" id="tShake" type="button" role="switch" aria-checked="true" aria-label="Shake to roll"></button></div>
     </div>
     <fieldset>
       <legend>Final turn starts when someone reaches</legend>
@@ -771,7 +772,7 @@ function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[
 var DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,timer:30};
 var S={phase:'menu',cfg:{target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
-  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true};
+  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true};
 
 
 /* ---------- achievements: saved on this device for each human player name ---------- */
@@ -938,12 +939,43 @@ function renderAch(){
 }
 
 /* ---------- saved setup (this device only) ---------- */
+/* ---- shake to roll: the phone's motion sensor; iPhones need one tap to grant access ---- */
+var SHAKE={ok:false,asked:false,granted:false,denied:false,hits:[],last:0};
+SHAKE.ok=typeof window.DeviceMotionEvent!=='undefined'&&window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+function shakeAsk(){
+  if(!SHAKE.ok||!S.shake||SHAKE.asked)return;SHAKE.asked=true;
+  var D=window.DeviceMotionEvent;
+  if(D&&typeof D.requestPermission==='function'){D.requestPermission().then(function(r){if(r==='granted')shakeOn();else{SHAKE.denied=true;render()}}).catch(function(){SHAKE.asked=false})}
+  else shakeOn();
+}
+function shakeOn(){if(SHAKE.granted)return;SHAKE.granted=true;window.addEventListener('devicemotion',onMotion);render()}
+function onMotion(e){
+  if(!S.shake)return;
+  var a=e.acceleration,x,y,z,m;
+  if(a&&a.x!=null){x=a.x;y=a.y;z=a.z||0;m=Math.sqrt(x*x+y*y+z*z)}
+  else{var g=e.accelerationIncludingGravity;if(!g||g.x==null)return;x=g.x;y=g.y;z=g.z||0;m=Math.abs(Math.sqrt(x*x+y*y+z*z)-9.81)}
+  var now=Date.now();
+  if(m<13)return;
+  SHAKE.hits=SHAKE.hits.filter(function(h){return now-h.t<600});SHAKE.hits.push({t:now,x:x,y:y});
+  if(SHAKE.hits.length<3||now-SHAKE.last<1400)return;
+  var sx=0,sy=0;SHAKE.hits.forEach(function(h){sx+=h.x;sy+=h.y});SHAKE.hits=[];
+  if(shakeRoll(sx,sy))SHAKE.last=now;
+}
+/* a shake does what tapping the table does, and only when tapping would roll */
+function shakeRoll(sx,sy){
+  if(tray.offsetParent===null||ON.chatOpen||document.querySelector('dialog[open]'))return false;
+  var r=tray.getBoundingClientRect(),k=Math.hypot(sx,sy)||1,dir={dx:sx/k*160,dy:-sy/k*160,x:r.width/2,y:r.height/2,speed:1.7};
+  if(S.online){if(S.busy||blocked()||!canRoll())return false;ac();onSend('roll',{dir:dir})}
+  else{if(S.busy||isBotTurn()||!canRoll())return false;doRoll(dir)}
+  try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}
+  return true;
+}
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
-  if(p.sound===false)S.sound=false;
+  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -1494,6 +1526,7 @@ function renderMain(){
   ['menu','setup','online','settings','ach','host','room','lb','gh'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
   dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
   var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
+  $('hintTxt').textContent=SHAKE.ok&&S.shake&&!SHAKE.denied?'Tap, flick or shake to roll':'Tap or flick the table to roll';
   $('hint').hidden=!(canRoll()&&!(S.online&&inGame&&blocked())&&!S.callout&&(ph==='setup'||ph==='menu'||(inGame&&S.rolls.length===0)));
   $('rollBtn').disabled=false;
 
@@ -1638,7 +1671,8 @@ function renderScreens(ph){
   if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
   if(ph==='settings'){
     var c=S.cfg;
-    $('tSound').setAttribute('aria-checked',S.sound?'true':'false');
+    $('tSound').setAttribute('aria-checked',S.sound?'true':'false');$('shakeOpt').hidden=!SHAKE.ok;$('tShake').setAttribute('aria-checked',S.shake?'true':'false');
+    $('shakeNote').textContent=SHAKE.denied?'Motion access was turned down. Close and reopen the page, then turn this on again.':'Shake your phone to roll the dice. iPhones ask for motion access the first time.';
     $('tGolden').setAttribute('aria-checked',c.golden?'true':'false');
     $('tNoDbl').setAttribute('aria-checked',c.noDbl?'true':'false');
     $('tReroll').setAttribute('aria-checked',c.reroll?'true':'false');
@@ -1684,6 +1718,7 @@ function setKind(i,t){S.types[i]=t}
 $('presetSolo').addEventListener('click',function(){readSetup();var c=['b','c','g','b','c'];for(var i=0;i<6;i++)S.types[i]=i===0?'h':c[i-1];savePrefs();render()});
 $('presetAll').addEventListener('click',function(){readSetup();for(var i=0;i<6;i++)S.types[i]='h';savePrefs();render()});
 $('rollBtn').addEventListener('click',function(){
+  shakeAsk();
   if(S.online){if(S.busy||blocked())return;ac();onSend(S.pend?'reroll':(S.bust?'pass':'roll'));return}
   if(S.busy)return;ac();
   if(isBotTurn()&&!(S.phase==='order'&&S.ord.done))return;
@@ -1726,6 +1761,7 @@ $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
 $('backSettings').addEventListener('click',toMenu);
 function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
 $('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
+$('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
 $('tReroll').addEventListener('click',function(){setCfg('reroll',!S.cfg.reroll)});
@@ -1739,6 +1775,7 @@ $('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0
 var pd=null;
 tray.addEventListener('pointerdown',function(e){pd={x:e.clientX,y:e.clientY,t:performance.now()}});
 tray.addEventListener('pointerup',function(e){
+  shakeAsk();
   if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
   if(dist>24)dir={dx:dx,dy:dy,x:pd.x-r.left,y:pd.y-r.top,speed:clamp(dist/dt*1.1,0.85,1.9)};
   pd=null;if(S.online){if(!S.busy&&!blocked()&&canRoll()){ac();onSend('roll',{dir:dir})}return}if(isBotTurn())return;doRoll(dir);
@@ -2073,8 +2110,11 @@ $('rShare').addEventListener('click',function(){
 
 /* ---------- start ---------- */
 function start(data){
+  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE};   /* test hook, local test server only */
   loadPrefs();
-  if(data&&data.S&&data.S.phase){try{var snd=S.sound;Object.assign(S,data.S);S.sound=snd;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
+  if(data&&data.S&&data.S.phase){try{var snd=S.sound,shk=S.shake;Object.assign(S,data.S);S.sound=snd;S.shake=shk;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
+  /* Android and others need no permission for the motion sensor; iPhones wait for the first tap */
+  if(!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))shakeAsk();
   showFaces();render();layout();
   authLoad();var back=authFromHash();
   /* an invite link opens straight into the table: /?t=CODE&p=password */
