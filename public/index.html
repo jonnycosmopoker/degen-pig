@@ -866,8 +866,8 @@ function rand(a,b){return a+Math.random()*(b-a)}
 function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n}catch(e){return Math.floor(Math.random()*n)}}
 function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
 
-var DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false,timer:30};
-var S={phase:'menu',cfg:{target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:30};
+var S={phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic'};
 
@@ -1201,7 +1201,7 @@ function inGame(){return S.phase==='order'||S.phase==='play'||S.phase==='final'}
 function golden(i){return Math.max(0,P(i).score-RL().target)}
 function regular(i){return RL().golden?Math.min(P(i).score,RL().target):P(i).score}   /* with Golden Points, points above the target are counted apart */
 function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple}
-function cfgSummary(c){var x=[c.target+' Pig'];if(c.noDbl)x.push('Doubles disabled');if(c.golden)x.push('Golden Points');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');if(c.power)x.push('Five Ones 2x');if(c.triple)x.push('Enable 3x');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
+function cfgSummary(c){var x=[c.target+' Pig'];if(c.power)x.push('Five Ones 2x');if(c.triple)x.push('Enable 3x');if(c.golden)x.push('Golden Points');if(c.noDbl)x.push('Doubles disabled');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
 function points(a,b,m){return (a===1||b===1)?0:(a+b)*(a===b&&!RL().noDbl?2:1)*(m||1)}
 function barScore(){return Math.max.apply(null,S.players.map(function(p){return p.score}))}
 function leaders(){var b=barScore();return S.players.map(function(p,i){return p.score===b?i:-1}).filter(function(i){return i>=0})}
@@ -1830,7 +1830,7 @@ function renderScreens(ph){
     $('tPower').setAttribute('aria-checked',c.power?'true':'false');$('tTriple').setAttribute('aria-checked',c.triple?'true':'false');
     $('tg80').checked=c.target===80;$('tg100').checked=c.target===100;$('tg150').checked=c.target===150;$('tg200').checked=c.target===200;
     $('defaultsBtn').disabled=isDefault(c);
-    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double, Five Ones 2x and Enable 3x off.';
+    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles, Five Ones 2x and Golden Points on, and Enable 3x, Re-roll Pig and Verify Double off.';
   }
 }
 function rulesItems(){
@@ -2020,7 +2020,7 @@ function loadMe(){
     if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
-function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+function rulesLine(r){var x=[r.target+' Pig'];if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');if(r.golden)x.push('Golden Points');if(r.noDbl)x.push('no doubles');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function renderOnline(){
   var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;

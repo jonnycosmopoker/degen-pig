@@ -3,7 +3,7 @@
    plays computer seats, keeps the stats and graph history, and tracks achievements.
    The state object uses the same field names as the game page, so a phone can draw a snapshot directly. */
 
-export const DEF_RULES = { target: 100, golden: false, noDbl: false, reroll: false, verify: false, power: false, triple: false, timer: 30 };
+export const DEF_RULES = { target: 100, golden: true, noDbl: false, reroll: false, verify: false, power: true, triple: false, timer: 30 };
 
 /* achievement thresholds (names and wording live in the page) */
 const ACH = [
