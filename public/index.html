@@ -105,14 +105,39 @@ input{-webkit-user-select:text;user-select:text}
 .f5{transform:rotateY(-90deg) translateZ(calc(var(--d)/2))}
 .f3{transform:rotateX(90deg) translateZ(calc(var(--d)/2))}
 .f4{transform:rotateX(-90deg) translateZ(calc(var(--d)/2))}
-.pip{width:72%;height:72%;border-radius:50%;background:var(--ink);place-self:center}
+.pip{width:72%;height:72%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:0 0 0 calc(var(--d)*.014) #7A4D08;place-self:center}
 .tl{grid-area:1/1}.tr{grid-area:1/3}.ml{grid-area:2/1}.c{grid-area:2/2}.mr{grid-area:2/3}.bl{grid-area:3/1}.br{grid-area:3/3}
 .f1 .pip{background:var(--red);width:100%;height:100%}
 .f1 .dlogo{grid-area:1/1/4/4;width:118%;height:118%;place-self:center;display:block}
 .die.gold .face,.die.gold .core{background:var(--gold)}
-.die.gold .f1 .pip{background:var(--ink)}
+.die.gold .pip{background:var(--ink);box-shadow:none}
 .die.bust .face,.die.bust .core{background:var(--red)}
-.die.bust .f1 .pip{background:var(--ivory)}
+.die.bust .pip{background:var(--ivory);box-shadow:none}
+/* unlockable dice: Green & Gold and Black & Gold (gold doubles and red busts look the same on every set) */
+#app[data-skin="green"] .face{background:linear-gradient(160deg,#22412F,#0F211B);box-shadow:inset 0 0 0 calc(var(--d)*.018) rgba(242,194,48,.45),inset 0 0 calc(var(--d)*.14) rgba(0,0,0,.45)}
+#app[data-skin="green"] .core{background:#12261F}
+#app[data-skin="black"] .face{background:linear-gradient(160deg,#2E2E2E,#0D0D0D);box-shadow:inset 0 0 0 calc(var(--d)*.018) rgba(242,194,48,.35),inset 0 0 calc(var(--d)*.14) rgba(0,0,0,.5)}
+#app[data-skin="black"] .core{background:#151515}
+#app[data-skin] .pip{box-shadow:none}
+#app[data-skin] .die.gold .face{background:var(--gold);box-shadow:inset 0 0 calc(var(--d)*.14) rgba(70,45,10,.3)}
+#app[data-skin] .die.gold .core{background:var(--gold)}
+#app[data-skin] .die.bust .face{background:var(--red);box-shadow:inset 0 0 calc(var(--d)*.14) rgba(70,0,0,.3)}
+#app[data-skin] .die.bust .core{background:var(--red)}
+/* the dice picker in Settings */
+.skins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.skin{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border-radius:14px;background:var(--panel);border:2px solid transparent;cursor:pointer;color:var(--ivory);font-weight:800;font-size:14px;text-align:center}
+.skin small{font-weight:600;font-size:11px;color:var(--muted);line-height:1.25}
+.skin.on{border-color:var(--gold)}
+.skin.locked{cursor:pointer}
+.skin.locked .mini{opacity:.35;filter:grayscale(.6)}
+.skin .lk{display:block;color:var(--muted);font-size:11px;font-weight:700;line-height:1.3}
+.skin .lk svg{width:9px;height:10px;vertical-align:-1px;margin-right:3px;color:var(--gold)}
+.mini{width:52px;height:52px;border-radius:11px;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px;box-sizing:border-box;box-shadow:0 4px 8px rgba(0,0,0,.4)}
+.mini i{border-radius:50%;width:80%;height:80%;place-self:center;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%)}
+.mini.classic{background:var(--ivory)}.mini.classic i{box-shadow:0 0 0 1px #7A4D08}
+.mini.green{background:linear-gradient(160deg,#22412F,#0F211B);box-shadow:inset 0 0 0 1.5px rgba(242,194,48,.45),0 4px 8px rgba(0,0,0,.4)}
+.mini.black{background:linear-gradient(160deg,#2E2E2E,#0D0D0D);box-shadow:inset 0 0 0 1.5px rgba(242,194,48,.35),0 4px 8px rgba(0,0,0,.4)}
+.skinnote{margin:6px 2px 0;font-size:13px;color:var(--muted);min-height:1em}
 .die.dim{opacity:.4}
 
 .callout{position:absolute;left:50%;top:18px;transform:translateX(-50%);padding:7px 16px;border-radius:999px;background:var(--felt);font-weight:800;font-size:15px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 16px rgba(10,4,0,.5)}
@@ -613,6 +638,11 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <div class="opt" id="shakeOpt" hidden><span><b>Shake to roll</b><small id="shakeNote">Shake your phone to roll the dice. iPhones ask for motion access the first time.</small></span><button class="tog" id="tShake" type="button" role="switch" aria-checked="true" aria-label="Shake to roll"></button></div>
     </div>
     <fieldset>
+      <legend>Dice</legend>
+      <div class="skins" id="skins"></div>
+      <p class="skinnote" id="skinNote" role="status"></p>
+    </fieldset>
+    <fieldset>
       <legend>Final turn starts when someone reaches</legend>
       <div class="seg seg4">
         <label><input type="radio" name="target" id="tg80" value="80">80 Pig</label>
@@ -784,7 +814,7 @@ function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[
 var DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false,timer:30};
 var S={phase:'menu',cfg:{target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
-  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true};
+  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic'};
 
 
 /* ---------- achievements: saved on this device for each human player name ---------- */
@@ -907,6 +937,7 @@ function achToast(){
   var more=[];achQ=achQ.filter(function(o){if(o.who===q.who){more.push(o);return false}return true});
   more.forEach(function(o){var ot=tierOf(o.a,o.lv);if(ot>t){more.push(q);q=o;t=ot;more.splice(more.indexOf(o),1)}});
   var sub=more.length?esc(q.who)+' · '+TIER[t]+' · and '+more.map(function(o){return esc(o.a.n)}).join(', '):esc(q.who)+' · '+TIER[t];
+  if(q.a.id==='onfire'||q.a.id==='doubleboxcars')sub+=' · New dice unlocked in Settings';
   el.innerHTML=badgeImg(q.a,q.a.k==='one'?1:q.lv,44)+'<span><small>'+(more.length?(more.length+1)+' achievements unlocked':'Achievement unlocked')+'</small><b>'+esc(q.a.n)+'</b><em>'+sub+'</em></span>';
   el.classList.remove('out');el.hidden=false;
   setTimeout(function(){el.classList.add('out');setTimeout(function(){el.hidden=true;toastBusy=false;achToast()},320)},2800);
@@ -982,12 +1013,21 @@ function shakeRoll(sx,sy){
   try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}
   return true;
 }
+/* ---- dice sets: Metallic Gold for everyone; the dark sets are unlocked by Golden Pig badges earned on this phone or this account ---- */
+var SKINS=[{id:'classic',n:'Metallic Gold',d:'The house dice'},{id:'green',n:'Green & Gold',ach:'onfire'},{id:'black',n:'Black & Gold',ach:'doubleboxcars'}];
+function skinOpen(sk){if(!sk.ach)return true;var d=achLoad(),k;for(k in d.p)if(d.p[k]&&d.p[k].v&&d.p[k].v[sk.ach])return true;return !!(ON.rec&&ON.rec.v&&ON.rec.v[sk.ach])}
+function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0]}
+function applySkin(){var sk=skinById(S.skin);if(!skinOpen(sk))sk=SKINS[0];if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id}
+function renderSkins(){
+  $('skins').innerHTML=SKINS.map(function(sk){var open=skinOpen(sk),a=sk.ach?ACHBY[sk.ach]:null,on=open&&skinById(S.skin).id===sk.id||(sk.id==='classic'&&!skinOpen(skinById(S.skin)));
+    return '<button type="button" class="skin'+(on?' on':'')+(open?'':' locked')+'" data-skin="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="mini '+sk.id+'"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></span>'+sk.n+(open?'<small>'+(sk.d||'Unlocked')+'</small>':'<span class="lk">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Unlock with<br>'+esc(a?a.n:'')+'</span>')+'</button>'}).join('');
+}
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
-  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;
+  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,triple:!!c.triple,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -1529,7 +1569,7 @@ function chartPick(e){
   if(r!==chartSel){chartSel=r;drawChart();drawReadout()}
 }
 function render(){
-  renderMain();achToast();chatUI();
+  renderMain();achToast();chatUI();applySkin();if(S.phase==='settings')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
   var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
@@ -1788,6 +1828,9 @@ $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
 $('backSettings').addEventListener('click',toMenu);
 function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
 $('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
+$('skins').addEventListener('click',function(e){var b=e.target.closest('.skin');if(!b)return;var sk=skinById(b.getAttribute('data-skin'));
+  if(!skinOpen(sk)){var a=ACHBY[sk.ach];$('skinNote').textContent='Locked. Earn the Golden Pig badge '+a.n+' ('+a.d+') to unlock '+sk.n+'.';return}
+  S.skin=sk.id;savePrefs();$('skinNote').textContent=sk.n+' dice are on the table.';render()});
 $('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
@@ -2147,7 +2190,7 @@ $('rShare').addEventListener('click',function(){
 function start(data){
   if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE,ON:ON,renderHist:renderHist};   /* test hook, local test server only */
   loadPrefs();
-  if(data&&data.S&&data.S.phase){try{var snd=S.sound,shk=S.shake;Object.assign(S,data.S);S.sound=snd;S.shake=shk;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
+  if(data&&data.S&&data.S.phase){try{var snd=S.sound,shk=S.shake,skn=S.skin;Object.assign(S,data.S);S.sound=snd;S.shake=shk;S.skin=skn;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
   /* Android and others need no permission for the motion sensor; iPhones wait for the first tap */
   if(!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))shakeAsk();
   showFaces();render();layout();
