@@ -3,7 +3,7 @@
    plays computer seats, keeps the stats and graph history, and tracks achievements.
    The state object uses the same field names as the game page, so a phone can draw a snapshot directly. */
 
-export const DEF_RULES = { target: 100, golden: false, noDbl: false, reroll: false, verify: false, power: false, timer: 30 };
+export const DEF_RULES = { target: 100, golden: false, noDbl: false, reroll: false, verify: false, power: false, triple: false, timer: 30 };
 
 /* achievement thresholds (names and wording live in the page) */
 const ACH = [
@@ -125,7 +125,7 @@ export function Engine(S) {
   function beginOrder() {
     S.order = []; S.pos = 0; S.turn = 0; S.rolls = []; S.bust = false; S.finalDone = false; S.queue = []; S.trigger = -1; S.n = S.players.length; S.finalMode = 'turn';
     S.players.forEach(p => { p.score = 0; p.hot = false; p.rr = RL().reroll ? 3 : 0; p.pw = 0; p.pwReady = false; p.g = { turns: 0, rolls: 0, busts: 0, burnMax: 0, finalDef: null, dbl: 0, six: 0, forced: 0, wireFail: false }; p.st = { f: [0, 0, 0, 0, 0, 0], d: 0, lost: 0, sn: 0 } });
-    S.pend = null; S.inReroll = false; S.rrFail = false; S.hotTurn = false; S.powerTurn = false; S.snake = false; S.mustRoll = false; S.winners = [];
+    S.pend = null; S.inReroll = false; S.rrFail = false; S.hotTurn = false; S.hotX = 1; S.powerTurn = false; S.snake = false; S.mustRoll = false; S.winners = [];
     /* Game 1 draws a random seating order. Every later game keeps that order and moves the first turn one seat along. */
     let all; const G = S.games || 0;
     if (G > 0 && S.baseOrder && S.baseOrder.length === S.players.length) { const r = G % S.baseOrder.length; all = S.baseOrder.slice(r).concat(S.baseOrder.slice(0, r)) }
@@ -141,16 +141,27 @@ export function Engine(S) {
     if (mine === 0 && lead > 75) return true;
     return S.phase === 'final' && lead - mine > 75;
   }
+  /* how many separate reasons this player's turn is doubled: Five Ones Double, two snake eyes this game, far behind (at 0 with someone over 75, or 75+ back on the final turn).
+     With Enable Triples on, two or more reasons at once make it a ×3 turn instead of ×2. */
+  function hotReasons(i) {
+    let n = S.powerTurn ? 1 : 0;
+    if (RL().noDbl) return n;
+    if (P(i).st && P(i).st.sn >= 2) n++;
+    const mine = P(i).score, lead = Math.max.apply(null, S.players.map((q, j) => j === i ? -1 : q.score));
+    if ((mine === 0 && lead > 75) || (S.phase === 'final' && lead - mine > 75)) n++;
+    return n;
+  }
+  const MX = () => S.hotX || (S.hotTurn ? 2 : 1);
   function beginTurn() {
     const p = P(S.cur); S.pwFull = false; S.powerTurn = false; S.rrUsed = false;
     if (p.g) { p.g.turns++; p.g.dbl = 0; p.g.six = 0; p.g.forced = 0; if (S.phase === 'final' && p.g.finalDef == null) p.g.finalDef = barScore() - p.score }
     if (RL().power && p.pwReady) { p.pwReady = false; p.pw = 0; S.powerTurn = true }
-    S.hotTurn = S.powerTurn || onDoubles(S.cur);
+    const why = hotReasons(S.cur); S.hotX = why === 0 ? 1 : (RL().triple && why >= 2 ? 3 : 2); S.hotTurn = S.hotX > 1;
     S.turnId = (S.turnId || 0) + 1;
-    if (S.hotTurn) S.fx = { hot: true };
+    if (S.hotTurn) S.fx = { hot: true, x: S.hotX };
   }
   function nextPlayer() {
-    S.turn = 0; S.rolls = []; S.bust = false; S.snake = false; S.pend = null; S.inReroll = false; S.rrFail = false; S.mustRoll = false; S.finalDone = false; S.marks = ['', '']; S.hotTurn = false; say(null);
+    S.turn = 0; S.rolls = []; S.bust = false; S.snake = false; S.pend = null; S.inReroll = false; S.rrFail = false; S.mustRoll = false; S.finalDone = false; S.marks = ['', '']; S.hotTurn = false; S.hotX = 1; say(null);
     if (S.phase === 'final') { S.queue.shift(); if (!S.queue.length) { endGame(); return } S.cur = S.queue[0] }
     else { S.pos = (S.pos + 1) % S.n; S.cur = S.order[S.pos]; if (S.pos === 0) achRound() }
     beginTurn();
@@ -162,7 +173,7 @@ export function Engine(S) {
     if (S.phase === 'play' && p.score >= RL().target) {
       S.trigger = S.cur; S.phase = 'final'; S.queue = [];
       for (let k = 1; k < S.n; k++) S.queue.push(S.order[(S.pos + k) % S.n]);
-      S.cur = S.queue[0]; S.turn = 0; S.rolls = []; S.mustRoll = false; S.marks = ['', '']; S.hotTurn = false; beginTurn();
+      S.cur = S.queue[0]; S.turn = 0; S.rolls = []; S.mustRoll = false; S.marks = ['', '']; S.hotTurn = false; S.hotX = 1; beginTurn();
       say(p.name + ' locked in ' + p.score + (RL().golden ? ' · ' + Math.max(0, p.score - RL().target) + ' golden' : ''), 'gold');
     } else { nextPlayer(); if (S.phase !== 'over') say(p.name + ' banked ' + amt) }
     S.fx.lock = amt;
@@ -170,12 +181,12 @@ export function Engine(S) {
   }
   function rollText(a, b, pts, dbl, m) {
     if (dbl) return 'Doubles! ' + (a + b) + ' ×' + (2 * m) + ' = ' + pts;
-    return m > 1 ? a + ' + ' + b + ' = ' + (a + b) + ', ×2 = ' + pts : a + ' + ' + b + ' = ' + pts;
+    return m > 1 ? a + ' + ' + b + ' = ' + (a + b) + ', ×' + m + ' = ' + pts : a + ' + ' + b + ' = ' + pts;
   }
   function rollResult(a, b) {
     const one = (a === 1 || b === 1), snake = (a === 1 && b === 1), pair = (a === b && !one), dbl = pair && !RL().noDbl;
     S.marks = one ? [a === 1 ? 'bust' : 'dim', b === 1 ? 'bust' : 'dim'] : dbl ? ['gold', 'gold'] : ['', ''];
-    const p = P(S.cur), m = S.hotTurn ? 2 : 1;
+    const p = P(S.cur), m = MX();
     if (p.st) { p.st.f[a - 1]++; p.st.f[b - 1]++; if (pair) p.st.d++ }
     achRoll(p, a, b);
     if (RL().power && one && !p.pwReady) { p.pw = Math.min(5, (p.pw || 0) + (a === 1) + (b === 1)); if (p.pw >= 5) { p.pwReady = true; S.pwFull = true } }
@@ -198,7 +209,7 @@ export function Engine(S) {
     say(fromReroll ? 'RE-ROLL BUST' : snake ? 'SNAKE EYES' : 'BUST', 'red');
     return { bust: true, snake, burn };
   }
-  function rec(i, ev, amt, risk, rolls) { if (!S.hist || !S.hist[i]) return; S.hist[i].push({ s: P(i).score, ev, amt, risk: risk || 0, rolls: rolls || 0, hot: !!S.hotTurn }) }
+  function rec(i, ev, amt, risk, rolls) { if (!S.hist || !S.hist[i]) return; S.hist[i].push({ s: P(i).score, ev, amt, risk: risk || 0, rolls: rolls || 0, hot: S.hotTurn ? MX() : 0 }) }
   function endGame() {
     const w = leaders();
     if (S.hist) { const R = Math.max.apply(null, S.hist.map(h => h.length)); S.hist.forEach((h, i) => { while (h.length < R) h.push({ s: P(i).score, ev: 'pad', amt: 0, hot: false }) }) }
@@ -210,7 +221,7 @@ export function Engine(S) {
       at: Date.now(), game: S.games, rules: Object.assign({}, RL()),
       players: S.players.map((p, i) => ({ uid: p.uid || null, name: p.name, cpu: !!p.bot, score: p.score, banked: (p.g && p.g.banked) || 0, regular: regular(i), golden: golden(i), won: w.indexOf(i) >= 0, rolls: p.st.f.reduce((x, y) => x + y, 0) / 2, doubles: p.st.d, lost: p.st.lost }))
     });
-    S.phase = 'over'; S.winners = w; S.hotTurn = false; S.marks = ['', '']; say(null);
+    S.phase = 'over'; S.winners = w; S.hotTurn = false; S.hotX = 1; S.marks = ['', '']; say(null);
   }
 
   /* ---- actions; each returns false when it is not allowed right now ---- */
@@ -239,7 +250,7 @@ export function Engine(S) {
 
   /* ---- computer decisions ---- */
   function botDecide(i) {
-    const p = P(i), B = p.score, Tn = S.turn, m = S.hotTurn ? 2 : 1, st = ctrl(i) || 'b', k = st === 'c' ? 0.75 : st === 'g' ? 1.35 : 1, margin = st === 'c' ? 6 : st === 'g' ? 20 : 12;
+    const p = P(i), B = p.score, Tn = S.turn, m = MX(), st = ctrl(i) || 'b', k = st === 'c' ? 0.75 : st === 'g' ? 1.35 : 1, margin = st === 'c' ? 6 : st === 'g' ? 20 : 12;
     if (Tn <= 0 || S.mustRoll) return 'roll';
     const maxO = Math.max.apply(null, S.players.filter((q, j) => j !== i).map(q => q.score));
     let thr = (240 * m - B) / 11 * k; const total = B + Tn;
@@ -255,7 +266,7 @@ export function Engine(S) {
   }
   function botReroll(i) {
     const p = P(i); if (S.phase === 'final' || p.score === 0) return true;
-    const st = ctrl(i) || 'b', k = st === 'c' ? 1.3 : st === 'g' ? 0.75 : 1, m = S.hotTurn ? 2 : 1;
+    const st = ctrl(i) || 'b', k = st === 'c' ? 1.3 : st === 'g' ? 0.75 : 1, m = MX();
     return 11 * p.score * k < 25 * 14 * m;
   }
   /* one computer move for the seat whose turn it is: returns {kind, result} */

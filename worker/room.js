@@ -22,7 +22,7 @@ export async function hashPw(code, pw) {
 }
 export function cleanRules(r) {
   r = r || {}; const t = [80, 100, 150, 200].includes(r.target) ? r.target : 100;
-  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
+  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, triple: !!r.triple, timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
 }
 
 export class TableRoom {

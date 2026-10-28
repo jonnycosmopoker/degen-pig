@@ -260,6 +260,9 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 
 .tile .hotb{position:absolute;top:-12px;right:-5px;padding:0 6px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:11px;font-weight:800;line-height:16px;border:2px solid var(--felt)}
 .seal{position:absolute;left:20px;top:20px;width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--ink);display:grid;place-items:center;font-family:var(--display);font-size:22px;box-shadow:0 6px 16px rgba(10,4,0,.55),inset 0 0 0 3px rgba(20,32,28,.22);pointer-events:none;transform:rotate(-8deg);animation:sealpulse .9s ease-in-out infinite alternate}
+.seal.x3{background:#D93A3A;color:#FFF6C2;box-shadow:0 0 0 3px #F2C230,0 0 22px rgba(217,58,58,.7)}
+.x2chip.x3{background:#D93A3A;color:#FFF6C2}
+.tile .hotb.x3{background:#D93A3A;color:#FFF6C2;border-color:#F2C230}
 @keyframes sealpulse{from{transform:rotate(-8deg) scale(1)}to{transform:rotate(-8deg) scale(1.12)}}
 #app.hot .inlay{border-color:var(--gold);box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)}
 .x2chip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;background:var(--gold);color:var(--ink);font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
@@ -560,6 +563,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <div class="opt"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
       <div class="opt"><span><b>Five Ones Double</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones Double"></button></div>
+      <div class="opt"><span><b>Enable Triples</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones Double, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable Triples"></button></div>
     </div>
     <p class="cap" id="hRules"></p>
     <button class="mrow gold" id="hCreate" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h8l6 6v12z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg></span><span class="mtx"><b>Open the Table</b><small>Players can join once it’s open</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -617,6 +621,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <div class="opt"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt"><span><b>Verify Double</b><small>After rolling a double, a player cannot lock in. They must keep rolling until a roll is not a double.</small></span><button class="tog" id="tVerify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
       <div class="opt"><span><b>Five Ones Double</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones Double"></button></div>
+      <div class="opt"><span><b>Enable Triples</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones Double, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable Triples"></button></div>
     </div>
   </section>
 
@@ -770,8 +775,8 @@ function rand(a,b){return a+Math.random()*(b-a)}
 function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n}catch(e){return Math.floor(Math.random()*n)}}
 function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
 
-var DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,timer:30};
-var S={phase:'menu',cfg:{target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+var DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false,timer:30};
+var S={phase:'menu',cfg:{target:100,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true};
 
@@ -975,7 +980,7 @@ function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
   if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;
-  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
+  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,triple:!!c.triple,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
 function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
@@ -1066,8 +1071,8 @@ function RL(){return S.rules||S.cfg}                       /* the rule set of th
 function inGame(){return S.phase==='order'||S.phase==='play'||S.phase==='final'}
 function golden(i){return Math.max(0,P(i).score-RL().target)}
 function regular(i){return RL().golden?Math.min(P(i).score,RL().target):P(i).score}   /* with Golden Points, points above the target are counted apart */
-function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power}
-function cfgSummary(c){var x=[c.target+' Pig'];if(c.noDbl)x.push('Doubles disabled');if(c.golden)x.push('Golden Points');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');if(c.power)x.push('Five Ones Double');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
+function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple}
+function cfgSummary(c){var x=[c.target+' Pig'];if(c.noDbl)x.push('Doubles disabled');if(c.golden)x.push('Golden Points');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');if(c.power)x.push('Five Ones Double');if(c.triple)x.push('Triples');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
 function points(a,b,m){return (a===1||b===1)?0:(a+b)*(a===b&&!RL().noDbl?2:1)*(m||1)}
 function barScore(){return Math.max.apply(null,S.players.map(function(p){return p.score}))}
 function leaders(){var b=barScore();return S.players.map(function(p,i){return p.score===b?i:-1}).filter(function(i){return i>=0})}
@@ -1092,7 +1097,7 @@ function isBotTurn(){var i=activeIdx();return i>=0&&!!S.players[i]&&!!S.players[
 /* How a computer player decides. Rolling again is worth it while the expected gain (about 6.7 a roll, doubled on a doubles turn)
    beats the expected loss: 10 in 36 rolls wipe the turn, and snake eyes (1 in 36) burns the banked score too. */
 function botDecide(i){
-  var p=P(i),B=p.score,Tn=S.turn,m=S.hotTurn?2:1,st=p.bot,k=st==='c'?0.75:st==='g'?1.35:1,margin=st==='c'?6:st==='g'?20:12;
+  var p=P(i),B=p.score,Tn=S.turn,m=MX(),st=p.bot,k=st==='c'?0.75:st==='g'?1.35:1,margin=st==='c'?6:st==='g'?20:12;
   if(Tn<=0||S.mustRoll)return 'roll';
   var maxO=Math.max.apply(null,S.players.filter(function(q,j){return j!==i}).map(function(q){return q.score}));
   var total=B+Tn,thr=(240*m-B)/11*k;
@@ -1125,19 +1130,19 @@ function botAct(){
 /* Re-roll Pig for computer players: a re-roll risks the banked score (a 1 counts as snake eyes) to save the turn total. */
 function botReroll(i){
   var p=P(i);if(S.phase==='final'||p.score===0)return true;
-  var k=p.bot==='c'?1.3:p.bot==='g'?0.75:1,m=S.hotTurn?2:1;
+  var k=p.bot==='c'?1.3:p.bot==='g'?0.75:1,m=MX();
   return 11*p.score*k<25*14*m;   /* risk the bank (11 in 36) only while it is small next to a fresh turn's worth */
 }
 function botThrow(){return {dx:rand(-0.6,0.6),dy:1,x:T.w/2+rand(-T.w*0.15,T.w*0.15),y:margin(),speed:rand(1.05,1.4)}}
 function startGame(){
-  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power};
+  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power,triple:!!S.cfg.triple};
   S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):'P'+(i+1)),score:0,wins:0,hot:false,bot:bot})}
   S.games=0;S.ledger=[];S.baseOrder=null;S.sess=S.players.map(function(){return {f:[0,0,0,0,0,0],d:0,lost:0,rolls:0}});
   beginOrder();
 }
 function beginOrder(){
   S.order=[];S.pos=0;S.turn=0;S.rolls=[];S.bust=false;S.finalDone=false;S.queue=[];S.trigger=-1;
-  S.players.forEach(function(p){p.score=0;p.hot=false;p.rr=RL().reroll?3:0;p.pw=0;p.pwReady=false;p.g={turns:0,rolls:0,busts:0,burnMax:0,finalDef:null,dbl:0,six:0,forced:0,wireFail:false};p.st={f:[0,0,0,0,0,0],d:0,lost:0,sn:0}});S.pend=null;S.inReroll=false;S.rrFail=false;S.hotTurn=false;S.powerTurn=false;S.snake=false;S.burnShow=null;
+  S.players.forEach(function(p){p.score=0;p.hot=false;p.rr=RL().reroll?3:0;p.pw=0;p.pwReady=false;p.g={turns:0,rolls:0,busts:0,burnMax:0,finalDef:null,dbl:0,six:0,forced:0,wireFail:false};p.st={f:[0,0,0,0,0,0],d:0,lost:0,sn:0}});S.pend=null;S.inReroll=false;S.rrFail=false;S.hotTurn=false;S.hotX=1;S.powerTurn=false;S.snake=false;S.burnShow=null;
   /* Game 1 draws a random seating order. Every later game keeps that order and moves the first turn one seat along. */
   var all,G=S.games||0;
   if(G>0&&S.baseOrder&&S.baseOrder.length===S.players.length){var r=G%S.baseOrder.length;all=S.baseOrder.slice(r).concat(S.baseOrder.slice(0,r))}
@@ -1168,13 +1173,23 @@ function onDoubles(i){
   return S.phase==='final'&&lead-mine>75;
 }
 function checkCatchUp(){}
+/* how many separate reasons a turn is doubled (Five Ones Double, two snake eyes, far behind). With Enable Triples, two or more make it ×3 */
+function hotReasons(i,power){
+  var n=power?1:0;if(RL().noDbl)return n;
+  if(P(i).st&&P(i).st.sn>=2)n++;
+  var mine=P(i).score,lead=Math.max.apply(null,S.players.map(function(q,j){return j===i?-1:q.score}));
+  if((mine===0&&lead>75)||(S.phase==='final'&&lead-mine>75))n++;
+  return n;
+}
+function hotMult(n){return n===0?1:(RL().triple&&n>=2?3:2)}
+function MX(){return S.hotX||(S.hotTurn?2:1)}
 function beginTurn(){var p=P(S.cur);S.pwFull=false;S.powerTurn=false;S.rrUsed=false;
   if(p.g){p.g.turns++;p.g.dbl=0;p.g.six=0;p.g.forced=0;if(S.phase==='final'&&p.g.finalDef==null)p.g.finalDef=barScore()-p.score}
   if(RL().power&&p.pwReady){p.pwReady=false;p.pw=0;S.powerTurn=true}   /* Five Ones Double: a full row of dots doubles this turn, then resets */
-  S.hotTurn=S.powerTurn||onDoubles(S.cur);if(S.hotTurn)setTimeout(sfxHot,450)}
+  S.hotX=hotMult(hotReasons(S.cur,S.powerTurn));S.hotTurn=S.hotX>1;if(S.hotTurn)setTimeout(sfxHot,450)}
 function nextPlayer(){
   checkCatchUp();
-  S.turn=0;S.rolls=[];S.bust=false;S.snake=false;S.pend=null;S.inReroll=false;S.rrFail=false;S.mustRoll=false;S.finalDone=false;S.finalMsg='';S.marks=['',''];S.hotTurn=false;say(null);
+  S.turn=0;S.rolls=[];S.bust=false;S.snake=false;S.pend=null;S.inReroll=false;S.rrFail=false;S.mustRoll=false;S.finalDone=false;S.finalMsg='';S.marks=['',''];S.hotTurn=false;S.hotX=1;say(null);
   if(S.phase==='final'){S.queue.shift();if(!S.queue.length){endGame();return}S.cur=S.queue[0]}
   else{S.pos=(S.pos+1)%S.n;S.cur=S.order[S.pos];if(S.pos===0)achRound()}
   beginTurn();
@@ -1185,20 +1200,20 @@ function lockIn(){
   if(S.phase==='play'&&p.score>=RL().target){
     S.trigger=S.cur;S.phase='final';S.queue=[];
     for(var k=1;k<S.n;k++)S.queue.push(S.order[(S.pos+k)%S.n]);
-    S.cur=S.queue[0];S.turn=0;S.rolls=[];S.mustRoll=false;S.marks=['',''];S.hotTurn=false;beginTurn();
+    S.cur=S.queue[0];S.turn=0;S.rolls=[];S.mustRoll=false;S.marks=['',''];S.hotTurn=false;S.hotX=1;beginTurn();
     say(p.name+' locked in '+p.score+(RL().golden?' · '+Math.max(0,p.score-RL().target)+' golden':''),'gold');
   }else{nextPlayer();if(S.phase!=='over')say(p.name+' banked '+amt)}
 }
 function rollText(a,b,pts,dbl,m){
   if(dbl)return 'Doubles! '+(a+b)+' ×'+(2*m)+' = '+pts;
-  return m>1?a+' + '+b+' = '+(a+b)+', ×2 = '+pts:a+' + '+b+' = '+pts;
+  return m>1?a+' + '+b+' = '+(a+b)+', ×'+m+' = '+pts:a+' + '+b+' = '+pts;
 }
 function rollResult(a,b){
   var one=(a===1||b===1),snake=(a===1&&b===1),pair=(a===b&&!one),dbl=pair&&!RL().noDbl;
   S.marks=one?[a===1?'bust':'dim',b===1?'bust':'dim']:dbl?['gold','gold']:['',''];
   if(!inGame()){say(snake?'SNAKE EYES':one?'BUST':rollText(a,b,points(a,b,1),dbl,1),one?'red':dbl?'gold':'');return {bust:one,dbl:dbl,snake:snake,burn:0}}
   if(S.phase==='order'){S.marks=['',''];orderResult(a+b);return {}}
-  var p=P(S.cur),m=S.hotTurn?2:1;
+  var p=P(S.cur),m=MX();
   if(p.st){p.st.f[a-1]++;p.st.f[b-1]++;if(pair)p.st.d++}
   achRoll(p,a,b);
   if(RL().power&&one&&!p.pwReady){p.pw=Math.min(5,(p.pw||0)+(a===1)+(b===1));if(p.pw>=5){p.pwReady=true;S.pwFull=true}}   /* Five Ones Double: each 1 fills a dot */
@@ -1222,7 +1237,7 @@ function applyBust(a,b,snake,fromReroll){
   say(fromReroll?'RE-ROLL BUST':snake?'SNAKE EYES':'BUST','red');
   return {bust:true,snake:snake,burn:burn};
 }
-function rec(i,ev,amt,risk,rolls){if(!S.hist||!S.hist[i])return;S.hist[i].push({s:P(i).score,ev:ev,amt:amt,risk:risk||0,rolls:rolls||0,hot:!!S.hotTurn})}
+function rec(i,ev,amt,risk,rolls){if(!S.hist||!S.hist[i])return;S.hist[i].push({s:P(i).score,ev:ev,amt:amt,risk:risk||0,rolls:rolls||0,hot:S.hotTurn?MX():0})}
 function endGame(){
   var w=leaders();
   if(S.hist){var R=Math.max.apply(null,S.hist.map(function(h){return h.length}));S.hist.forEach(function(h,i){while(h.length<R)h.push({s:P(i).score,ev:'pad',amt:0,hot:false})})}
@@ -1231,7 +1246,7 @@ function endGame(){
   if(S.sess)S.players.forEach(function(p,i){var a=S.sess[i],st=p.st;if(!a||!st)return;st.f.forEach(function(v,k){a.f[k]+=v});a.d+=st.d;a.lost+=st.lost;a.rolls+=st.f.reduce(function(x,y){return x+y},0)/2});   /* dice stats for every game this session */
   (S.ledger=S.ledger||[]).push({s:S.players.map(function(_,i){return regular(i)}),g:S.players.map(function(_,i){return golden(i)}),w:w.slice()});
   achGame(w);
-  S.phase='over';S.winners=w;S.hotTurn=false;S.marks=['',''];say(null);
+  S.phase='over';S.winners=w;S.hotTurn=false;S.hotX=1;S.marks=['',''];say(null);
 }
 function doRoll(dir){
   if(!canRoll())return;
@@ -1467,7 +1482,7 @@ function drawReadout(){
   var r=chartSel<0?R:chartSel,head=chartSel<0?'Final scores · tap the graph for any round':r===0?'Start':'After round '+r;
   el.innerHTML='<div class="rh">'+head+'</div><div class="items">'+S.players.map(function(p,i){
     var e=r>0?S.hist[i][r-1]:null,val=e?e.s:0,tag='';
-    if(e&&chartSel>=0)tag=e.ev==='lock'?'+'+e.amt+(e.hot?' ×2':''):e.ev==='bust'?'bust':e.ev==='snake'?'snake eyes':e.ev==='zero'?'re-roll bust':'';
+    if(e&&chartSel>=0)tag=e.ev==='lock'?'+'+e.amt+(e.hot?' ×'+(e.hot===true?2:e.hot):''):e.ev==='bust'?'bust':e.ev==='snake'?'snake eyes':e.ev==='zero'?'re-roll bust':'';
     return '<div class="it"><i class="sw" style="background:var(--s'+(i+1)+')"></i><span class="n">'+esc(p.name)+'</span>'+(tag?'<em>'+tag+'</em>':'')+'<b>'+val+'</b></div>'}).join('')+'</div>';
 }
 function drawFacts(){
@@ -1524,7 +1539,7 @@ function render(){
 function renderMain(){
   var ph=S.phase,inGame=(ph==='order'||ph==='play'||ph==='final');
   $('app').dataset.phase=ph;
-  var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;
+  var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;$('seal').textContent='×'+MX();$('seal').classList.toggle('x3',MX()>2);
   $('soundBtn').textContent='Sound: '+(S.sound?'on':'off');
   var nonGame=['menu','setup','online','settings','ach','host','room','lb','gh'].indexOf(ph)>=0;
   ['menu','setup','online','settings','ach','host','room','lb','gh'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
@@ -1564,9 +1579,9 @@ function renderMain(){
         foot='<span class="bar"><i style="width:'+bank+'%"></i><i class="pend" style="width:'+pend+'%"></i></span>';
       }
     }
-    var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(onDoubles(i)||(RL().power&&p.pwReady));
+    var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
     var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones Double '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
-    var hb=(pending||(i===act&&hotNow))?'<span class="hotb">×2</span>':'';
+    var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
     return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+'</div>';
   }).join('');
 
@@ -1628,13 +1643,13 @@ function renderMain(){
     }else{
       setWho(p.name+': one final roll');$('l2').textContent='Needs';$('v2').textContent=need+'+';
       rb.textContent='Take the final roll';
-      var top=S.hotTurn?48:24;note.textContent=need>top?'One roll pays '+top+' at most, so the lead is out of reach.':S.hotTurn?'One roll only, and it pays double. A 1 scores nothing.':'One roll only. A 1 scores nothing.';
+      var top=24*MX();note.textContent=need>top?'One roll pays '+top+' at most, so the lead is out of reach.':S.hotTurn?'One roll only, and it pays '+(MX()>2?'triple':'double')+'. A 1 scores nothing.':'One roll only. A 1 scores nothing.';
     }
     return;
   }
   rolls.hidden=false;lb.hidden=S.bust;
   $('l1').textContent='Banked';$('v1').textContent=p.score;
-  $('l2').textContent=S.hotTurn?'At risk · ×2':'At risk';$('v2').textContent=S.turn;
+  $('l2').textContent=S.hotTurn?'At risk · ×'+MX():'At risk';$('v2').textContent=S.turn;
   $('l3').textContent='If you lock in';$('v3').textContent=p.score+S.turn;
   rolls.innerHTML=S.rolls.map(function(r){
     var mult=(r.dbl?2:1)*(r.m||1);
@@ -1664,7 +1679,8 @@ function renderMain(){
     if(ph==='final'){var nd=bar-(p.score+S.turn)+1;note.textContent=nd>0?'You need '+nd+' more to beat '+bar+'.':'You are ahead. Lock in to take the lead.'}
     else if(p.score+S.turn>=RL().target)note.textContent='That reaches '+RL().target+'. Lock in to trigger the final '+(S.finalMode==='roll'?'roll':'turn')+'.';
     else note.textContent=S.turn>0?'A 1 on either die wipes the '+S.turn+'.':'A 1 on either die ends the turn with nothing.';
-    if(S.powerTurn&&!S.rolls.length&&ph!=='final')note.textContent='Five Ones Double: all 5 dots filled, so every roll this turn is doubled.';
+    if(MX()>2&&!S.rolls.length&&ph!=='final')note.textContent='Triples: two ×2 bonuses stack this turn, so every roll is tripled.';
+    else if(S.powerTurn&&!S.rolls.length&&ph!=='final')note.textContent='Five Ones Double: all 5 dots filled, so every roll this turn is doubled.';
     if(S.mustRoll)note.textContent='Verify Double: you rolled a double, so you must roll again before you can lock in the '+S.turn+'.';
   }
 }
@@ -1681,10 +1697,10 @@ function renderScreens(ph){
     $('tNoDbl').setAttribute('aria-checked',c.noDbl?'true':'false');
     $('tReroll').setAttribute('aria-checked',c.reroll?'true':'false');
     $('tVerify').setAttribute('aria-checked',c.verify?'true':'false');
-    $('tPower').setAttribute('aria-checked',c.power?'true':'false');
+    $('tPower').setAttribute('aria-checked',c.power?'true':'false');$('tTriple').setAttribute('aria-checked',c.triple?'true':'false');
     $('tg80').checked=c.target===80;$('tg100').checked=c.target===100;$('tg150').checked=c.target===150;$('tg200').checked=c.target===200;
     $('defaultsBtn').disabled=isDefault(c);
-    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double and Five Ones Double off.';
+    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double, Five Ones Double and Triples off.';
   }
 }
 function rulesItems(){
@@ -1695,6 +1711,7 @@ function rulesItems(){
   if(c.reroll)x.push('Re-roll Pig: each player has 3 re-rolls a game. If the first roll of your turn has a single 1, you may re-roll instead of busting. A 1 on the re-roll drops your score to 0, but it does not count as snake eyes. Snake eyes can never be re-rolled.');
   if(c.verify)x.push('Verify Double: after rolling a double you cannot lock in. Keep rolling until a roll is not a double.');
   if(c.power)x.push('Five Ones Double: every 1 fills a dot under your score. Fill 5 dots and your next turn is doubled, then the dots reset.');
+  if(c.triple)x.push('Enable Triples: when two reasons for a ×2 turn land on the same turn, that turn is ×3 instead. The reasons are a full row of Five Ones Double dots, having rolled snake eyes twice this game, and being far behind (at 0 while someone is over 75, or 75+ behind on the final turn). Doubles on a ×3 turn pay ×6.');
   if(c.golden)x.push('Golden Points: every point above '+T+' is a golden point, shown on the score boxes and in the summary.');
   x.push('Lock in a score of '+T+' or more and every other player gets one last full turn. Highest score wins.');
   return x;
@@ -1705,7 +1722,7 @@ function openRules(){
   var g=inGame()||(S.online&&S.phase==='over');$('quitBtn').hidden=!g;$('quitBtn').textContent=S.online?'Leave the table':'End this game';$('closeRules').textContent=g?'Back to the game':'Close';
   var dl=$('rules');if(dl.showModal)dl.showModal();else dl.setAttribute('open','');
 }
-function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+'<span class="wn">'+esc(t)+(S.online&&ai===S.me?' (you)':'')+'</span>'+(cb?'<span class="cpuchip" title="'+STYLE[cb]+' computer player">CPU</span>':'')+(aw?'<span class="awaychip">Away · CPU playing</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip">×2 turn</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
+function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+'<span class="wn">'+esc(t)+(S.online&&ai===S.me?' (you)':'')+'</span>'+(cb?'<span class="cpuchip" title="'+STYLE[cb]+' computer player">CPU</span>':'')+(aw?'<span class="awaychip">Away · CPU playing</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip'+(MX()>2?' x3':'')+'">×'+MX()+' turn</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
 function ordinal(n){return n===1?'st':n===2?'nd':n===3?'rd':'th'}
 
 /* ---------- controls ---------- */
@@ -1741,7 +1758,7 @@ function askLeave(){
   if(leave.showModal)leave.showModal();else leave.setAttribute('open','')}
 function goToMenu(){
   if(S.busy){setTimeout(goToMenu,250);return}
-  $('over').scrollTop=0;showPage(0,false);S.phase='menu';S.rules=null;S.order=[];S.marks=['',''];S.hotTurn=false;S.ledger=[];say(null);render();
+  $('over').scrollTop=0;showPage(0,false);S.phase='menu';S.rules=null;S.order=[];S.marks=['',''];S.hotTurn=false;S.hotX=1;S.ledger=[];say(null);render();
 }
 $('newBtn').addEventListener('click',function(){if(S.online&&S.me<0){stopWatching();return}askLeave()});
 $('statsBtn').addEventListener('click',function(){var o=$('over'),on=!o.classList.contains('showstats');o.classList.toggle('showstats',on);this.textContent=on?'Back to scores':'View stats';o.scrollTop=0;if(on)drawSummary()});
@@ -1771,8 +1788,9 @@ $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
 $('tReroll').addEventListener('click',function(){setCfg('reroll',!S.cfg.reroll)});
 $('tVerify').addEventListener('click',function(){setCfg('verify',!S.cfg.verify)});
 $('tPower').addEventListener('click',function(){setCfg('power',!S.cfg.power)});
+$('tTriple').addEventListener('click',function(){setCfg('triple',!S.cfg.triple)});
 ['tg80','tg100','tg150','tg200'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('target',+$(id).value)})});
-$('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,timer:DEF.timer};savePrefs();render()});
+$('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,triple:DEF.triple,timer:DEF.timer};savePrefs();render()});
 $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0){stopWatching();return}askLeave()});
@@ -1866,7 +1884,7 @@ function loadMe(){
     if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
-function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones Double');if(r.triple)x.push('Triples');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function renderOnline(){
   var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;
@@ -1902,7 +1920,7 @@ function renderHist(){
 document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);
 function ordinalN(n){return n+ordinal(n)}
 /* online tables start from their own defaults (Golden Points and Five Ones Double on, no timer); a host's last choices are remembered */
-var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,timer:0};
+var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:0};
 function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
   if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k])c[k]=sv[k];return c}
 function renderHost(){
