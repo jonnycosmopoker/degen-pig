@@ -141,8 +141,8 @@ export function Engine(S) {
     if (mine === 0 && lead > 75) return true;
     return S.phase === 'final' && lead - mine > 75;
   }
-  /* how many separate reasons this player's turn is doubled: Five Ones Double, two snake eyes this game, far behind (at 0 with someone over 75, or 75+ back on the final turn).
-     With Enable Triples on, two or more reasons at once make it a ×3 turn instead of ×2. */
+  /* how many separate reasons this player's turn is doubled: Five Ones 2x, two snake eyes this game, far behind (at 0 with someone over 75, or 75+ back on the final turn).
+     With Enable 3x on, two or more reasons at once make it a ×3 turn instead of ×2. */
   function hotReasons(i) {
     let n = S.powerTurn ? 1 : 0;
     if (RL().noDbl) return n;

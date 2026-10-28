@@ -639,12 +639,12 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       </div>
     </fieldset>
     <div class="opts" id="hOpts">
+      <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Golden Points</b><small>Points above the target are counted as golden points.</small></span><button class="tog" data-k="golden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
-      <div class="opt"><span><b>Five Ones Double</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones Double"></button></div>
-      <div class="opt"><span><b>Enable Triples</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones Double, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable Triples"></button></div>
+      <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
     </div>
     <p class="cap" id="hRules"></p>
     <button class="mrow gold" id="hCreate" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h8l6 6v12z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg></span><span class="mtx"><b>Open the Table</b><small>Players can join once it’s open</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -699,12 +699,12 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       </div>
     </fieldset>
     <div class="opts">
+      <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Golden Points</b><small>Every point a player has above the target counts as a golden point, shown on the score boxes and in the summary.</small></span><button class="tog" id="tGolden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>Turns off every ×2: doubles score face value, and no catch-up or snake-eyes bonuses.</small></span><button class="tog" id="tNoDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt"><span><b>Verify Double</b><small>After rolling a double, a player cannot lock in. They must keep rolling until a roll is not a double.</small></span><button class="tog" id="tVerify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
-      <div class="opt"><span><b>Five Ones Double</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones Double"></button></div>
-      <div class="opt"><span><b>Enable Triples</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones Double, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable Triples"></button></div>
+      <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
     </div>
   </section>
 
@@ -903,7 +903,7 @@ var ACH=[
  {id:'grinder',n:'Grinder',c:'life',k:'max',L:[3,7,30,100],d:function(x){return 'Play on '+x+' days in a row'}},
  {id:'goldenhoard',n:'Golden Hoard',c:'life',k:'cnt',L:[250,1000,5000,25000],d:function(x){return 'Earn '+fmt(x)+' Golden Points in total, with Golden Points on'}},
  {id:'secondchance',n:'Second Chance',c:'set',k:'one',t:0,d:'Use a re-roll and lock in that same turn, with Re-roll Pig on'},
- {id:'powertrip',n:'Power Trip',c:'set',k:'one',t:1,d:'Bank 30+ on a doubled Five Ones turn, with Five Ones Double on'},
+ {id:'powertrip',n:'Power Trip',c:'set',k:'one',t:1,d:'Bank 30+ on a doubled Five Ones turn, with Five Ones 2x on'},
  {id:'verified',n:'Verified',c:'set',k:'one',t:2,d:'Survive three forced rolls in a row, with Verify Double on'},
  {id:'goldenhog',n:'Golden Hog',c:'set',k:'one',t:2,d:'Finish a game with 50+ Golden Points, with Golden Points on'},
  {id:'homegame',n:'Home Game',c:'multi',k:'cnt',L:[5,25,100,250],online:1,d:function(x){return 'Host '+x+' online tables that fill and play'}},
@@ -1201,7 +1201,7 @@ function inGame(){return S.phase==='order'||S.phase==='play'||S.phase==='final'}
 function golden(i){return Math.max(0,P(i).score-RL().target)}
 function regular(i){return RL().golden?Math.min(P(i).score,RL().target):P(i).score}   /* with Golden Points, points above the target are counted apart */
 function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple}
-function cfgSummary(c){var x=[c.target+' Pig'];if(c.noDbl)x.push('Doubles disabled');if(c.golden)x.push('Golden Points');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');if(c.power)x.push('Five Ones Double');if(c.triple)x.push('Triples');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
+function cfgSummary(c){var x=[c.target+' Pig'];if(c.noDbl)x.push('Doubles disabled');if(c.golden)x.push('Golden Points');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');if(c.power)x.push('Five Ones 2x');if(c.triple)x.push('Enable 3x');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
 function points(a,b,m){return (a===1||b===1)?0:(a+b)*(a===b&&!RL().noDbl?2:1)*(m||1)}
 function barScore(){return Math.max.apply(null,S.players.map(function(p){return p.score}))}
 function leaders(){var b=barScore();return S.players.map(function(p,i){return p.score===b?i:-1}).filter(function(i){return i>=0})}
@@ -1302,7 +1302,7 @@ function onDoubles(i){
   return S.phase==='final'&&lead-mine>75;
 }
 function checkCatchUp(){}
-/* how many separate reasons a turn is doubled (Five Ones Double, two snake eyes, far behind). With Enable Triples, two or more make it ×3 */
+/* how many separate reasons a turn is doubled (Five Ones 2x, two snake eyes, far behind). With Enable 3x, two or more make it ×3 */
 function hotReasons(i,power){
   var n=power?1:0;if(RL().noDbl)return n;
   if(P(i).st&&P(i).st.sn>=2)n++;
@@ -1314,7 +1314,7 @@ function hotMult(n){return n===0?1:(RL().triple&&n>=2?3:2)}
 function MX(){return S.hotX||(S.hotTurn?2:1)}
 function beginTurn(){var p=P(S.cur);S.pwFull=false;S.powerTurn=false;S.rrUsed=false;
   if(p.g){p.g.turns++;p.g.dbl=0;p.g.six=0;p.g.forced=0;if(S.phase==='final'&&p.g.finalDef==null)p.g.finalDef=barScore()-p.score}
-  if(RL().power&&p.pwReady){p.pwReady=false;p.pw=0;S.powerTurn=true}   /* Five Ones Double: a full row of dots doubles this turn, then resets */
+  if(RL().power&&p.pwReady){p.pwReady=false;p.pw=0;S.powerTurn=true}   /* Five Ones 2x: a full row of dots doubles this turn, then resets */
   S.hotX=hotMult(hotReasons(S.cur,S.powerTurn));S.hotTurn=S.hotX>1;if(S.hotTurn)setTimeout(sfxHot,450)}
 function nextPlayer(){
   checkCatchUp();
@@ -1345,7 +1345,7 @@ function rollResult(a,b){
   var p=P(S.cur),m=MX();
   if(p.st){p.st.f[a-1]++;p.st.f[b-1]++;if(pair)p.st.d++}
   achRoll(p,a,b);
-  if(RL().power&&one&&!p.pwReady){p.pw=Math.min(5,(p.pw||0)+(a===1)+(b===1));if(p.pw>=5){p.pwReady=true;S.pwFull=true}}   /* Five Ones Double: each 1 fills a dot */
+  if(RL().power&&one&&!p.pwReady){p.pw=Math.min(5,(p.pw||0)+(a===1)+(b===1));if(p.pw>=5){p.pwReady=true;S.pwFull=true}}   /* Five Ones 2x: each 1 fills a dot */
   if(S.inReroll){S.inReroll=false;if(one)return applyBust(a,b,false,true)}      /* Re-roll Pig: any 1 on a re-roll drops the score to 0 */
   else if(one&&!snake&&S.rolls.length===0&&RL().reroll&&(p.rr||0)>0){             /* only a single 1 on the first roll of a turn */
     S.pend={a:a,b:b,snake:snake};say(snake?'SNAKE EYES':'ROLLED A 1','red');return {bust:true,pend:true}}
@@ -1710,7 +1710,7 @@ function renderMain(){
       }
     }
     var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
-    var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones Double '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
+    var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
     var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
     return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+'</div>';
   }).join('');
@@ -1809,8 +1809,8 @@ function renderMain(){
     if(ph==='final'){var nd=bar-(p.score+S.turn)+1;note.textContent=nd>0?'You need '+nd+' more to beat '+bar+'.':'You are ahead. Lock in to take the lead.'}
     else if(p.score+S.turn>=RL().target)note.textContent='That reaches '+RL().target+'. Lock in to trigger the final '+(S.finalMode==='roll'?'roll':'turn')+'.';
     else note.textContent=S.turn>0?'A 1 on either die wipes the '+S.turn+'.':'A 1 on either die ends the turn with nothing.';
-    if(MX()>2&&!S.rolls.length&&ph!=='final')note.textContent='Triples: two ×2 bonuses stack this turn, so every roll is tripled.';
-    else if(S.powerTurn&&!S.rolls.length&&ph!=='final')note.textContent='Five Ones Double: all 5 dots filled, so every roll this turn is doubled.';
+    if(MX()>2&&!S.rolls.length&&ph!=='final')note.textContent='Enable 3x: two ×2 bonuses stack this turn, so every roll is tripled.';
+    else if(S.powerTurn&&!S.rolls.length&&ph!=='final')note.textContent='Five Ones 2x: all 5 dots filled, so every roll this turn is doubled.';
     if(S.mustRoll)note.textContent='Verify Double: you rolled a double, so you must roll again before you can lock in the '+S.turn+'.';
   }
 }
@@ -1830,7 +1830,7 @@ function renderScreens(ph){
     $('tPower').setAttribute('aria-checked',c.power?'true':'false');$('tTriple').setAttribute('aria-checked',c.triple?'true':'false');
     $('tg80').checked=c.target===80;$('tg100').checked=c.target===100;$('tg150').checked=c.target===150;$('tg200').checked=c.target===200;
     $('defaultsBtn').disabled=isDefault(c);
-    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double, Five Ones Double and Triples off.';
+    $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles on, and Golden Points, Re-roll Pig, Verify Double, Five Ones 2x and Enable 3x off.';
   }
 }
 function rulesItems(){
@@ -1840,8 +1840,8 @@ function rulesItems(){
   if(!c.noDbl)x.push('Once the leader has more than 75 banked, a player still on zero gets every roll doubled on their next turn.','A player who starts their final turn more than 75 behind the leader also gets every roll doubled.','Roll snake eyes twice in one game and every roll you make pays double for the rest of that game.');
   if(c.reroll)x.push('Re-roll Pig: each player has 3 re-rolls a game. If the first roll of your turn has a single 1, you may re-roll instead of busting. A 1 on the re-roll drops your score to 0, but it does not count as snake eyes. Snake eyes can never be re-rolled.');
   if(c.verify)x.push('Verify Double: after rolling a double you cannot lock in. Keep rolling until a roll is not a double.');
-  if(c.power)x.push('Five Ones Double: every 1 fills a dot under your score. Fill 5 dots and your next turn is doubled, then the dots reset.');
-  if(c.triple)x.push('Enable Triples: when two reasons for a ×2 turn land on the same turn, that turn is ×3 instead. The reasons are a full row of Five Ones Double dots, having rolled snake eyes twice this game, and being far behind (at 0 while someone is over 75, or 75+ behind on the final turn). Doubles on a ×3 turn pay ×6.');
+  if(c.power)x.push('Five Ones 2x: every 1 fills a dot under your score. Fill 5 dots and your next turn is doubled, then the dots reset.');
+  if(c.triple)x.push('Enable 3x: when two reasons for a ×2 turn land on the same turn, that turn is ×3 instead. The reasons are a full row of Five Ones 2x dots, having rolled snake eyes twice this game, and being far behind (at 0 while someone is over 75, or 75+ behind on the final turn). Doubles on a ×3 turn pay ×6.');
   if(c.golden)x.push('Golden Points: every point above '+T+' is a golden point, shown on the score boxes and in the summary.');
   x.push('Lock in a score of '+T+' or more and every other player gets one last full turn. Highest score wins.');
   return x;
@@ -2020,7 +2020,7 @@ function loadMe(){
     if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
-function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones Double');if(r.triple)x.push('Triples');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function renderOnline(){
   var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;
@@ -2060,7 +2060,7 @@ function renderHist(){
 }
 document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);
 function ordinalN(n){return n+ordinal(n)}
-/* online tables start from their own defaults (Golden Points and Five Ones Double on, no timer); a host's last choices are remembered */
+/* online tables start from their own defaults (Golden Points and Five Ones 2x on, no timer); a host's last choices are remembered */
 var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:0};
 function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
   if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k])c[k]=sv[k];return c}
@@ -2071,7 +2071,7 @@ function renderHost(){
   $('ht80').checked=c.target===80;$('ht100').checked=c.target===100;$('ht150').checked=c.target===150;$('ht200').checked=c.target===200;
   $('hm0').checked=c.timer===0;$('hm15').checked=c.timer===15;$('hm30').checked=c.timer===30;$('hm60').checked=c.timer===60;
   Array.prototype.forEach.call(document.querySelectorAll('#hOpts .tog'),function(b){b.setAttribute('aria-checked',c[b.getAttribute('data-k')]?'true':'false')});
-  $('hRules').textContent='Online tables start with Golden Points and Five Ones Double on and no timer. Your choices here are remembered for next time.';
+  $('hRules').textContent='Online tables start with Golden Points and Five Ones 2x on and no timer. Your choices here are remembered for next time.';
 }
 function renderRoom(){
   var m=ON.meta;if(!m)return;
