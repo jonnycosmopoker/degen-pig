@@ -108,6 +108,7 @@ input{-webkit-user-select:text;user-select:text}
 .pip{width:72%;height:72%;border-radius:50%;background:var(--ink);place-self:center}
 .tl{grid-area:1/1}.tr{grid-area:1/3}.ml{grid-area:2/1}.c{grid-area:2/2}.mr{grid-area:2/3}.bl{grid-area:3/1}.br{grid-area:3/3}
 .f1 .pip{background:var(--red);width:100%;height:100%}
+.f1 .dlogo{grid-area:1/1/4/4;width:118%;height:118%;place-self:center;display:block}
 .die.gold .face,.die.gold .core{background:var(--gold)}
 .die.gold .f1 .pip{background:var(--ink)}
 .die.bust .face,.die.bust .core{background:var(--red)}
@@ -981,9 +982,11 @@ function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
 var FACE={1:[0,0],2:[0,-90],3:[-90,0],4:[90,0],5:[0,90],6:[0,180]};
 var tray=$('tray'),T={w:300,h:200},D=80,placed=false;
+/* the 1 on each die is the Degen Pig logo, copied from the header with its own gradient ids */
+function dieLogo(k){var src=document.querySelector('.top .pig');return src.outerHTML.replace('class="pig"','class="dlogo" aria-hidden="true"').replace(/ role="img"/,'').replace(/ aria-label="[^"]*"/,'').replace(/pg-/g,k+'-')}
 var dice=[0,1].map(function(i){
   var el=$('die'+i),h='<div class="cube"><div class="core"></div><div class="core cx"></div><div class="core cy"></div>';
-  for(var f=1;f<=6;f++){h+='<div class="face f'+f+'">'+PIPS[f].map(function(p){return '<i class="pip '+p+'"></i>'}).join('')+'</div>'}
+  for(var f=1;f<=6;f++){h+='<div class="face f'+f+'">'+(f===1?dieLogo('d'+i):PIPS[f].map(function(p){return '<i class="pip '+p+'"></i>'}).join(''))+'</div>'}
   el.innerHTML=h+'</div>';
   return {el:el,cube:el.firstChild,sh:$('sh'+i),x:0,y:0,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,spin:i?9:-12};
 });
@@ -1025,7 +1028,8 @@ function throwDice(vals,dir){
       d.rx0=d.rx;d.ry0=d.ry;d.sp0=d.spin;
       d.rxT=f[0]+360*(2+Math.floor(Math.random()*2))*(Math.random()<0.5?-1:1);
       d.ryT=f[1]+360*(2+Math.floor(Math.random()*2))*(Math.random()<0.5?-1:1);
-      d.spT=rand(-26,26)+(Math.random()<0.5?180:0)*(Math.random()<0.5?-1:1);
+      /* a 1 shows the pig logo, so it always lands the right way up (other faces may land either way) */
+      d.spT=rand(-26,26)+(vals[i]===1?0:(Math.random()<0.5?180:0)*(Math.random()<0.5?-1:1));
       if(reduce){d.z=0;d.vz=0;d.vx=0;d.vy=0}
       else{d.x=clamp(sx+Math.cos(perp)*off,m,T.w-m);d.y=clamp(sy+Math.sin(perp)*off,m,T.h-m);d.vx=Math.cos(a)*sp;d.vy=Math.sin(a)*sp;d.z=1;d.vz=0}
     });
