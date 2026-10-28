@@ -124,6 +124,30 @@ input{-webkit-user-select:text;user-select:text}
 #app[data-skin] .die.bust .face{background:var(--red);box-shadow:inset 0 0 calc(var(--d)*.14) rgba(70,0,0,.3)}
 #app[data-skin] .die.bust .core{background:var(--red)}
 /* the dice picker in Settings */
+.f1 .one{display:none}
+#app[data-skin="original"] .f1 .dlogo{display:none}
+#app[data-skin="original"] .f1 .one{display:block;background:var(--red);width:100%;height:100%}
+#app[data-skin="original"] .pip{background:var(--ink)}
+#app[data-skin="original"] .die.gold .f1 .one{background:var(--ink)}
+#app[data-skin="original"] .die.bust .pip{background:var(--ivory)}
+.mini.original{background:var(--ivory)}.mini.original i{background:var(--ink);box-shadow:none}
+#dice>*{flex-shrink:0}
+.skinlist{display:flex;flex-direction:column;gap:10px}
+.skrow{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;background:var(--panel);border:2px solid transparent;text-align:left;cursor:pointer;color:var(--ivory)}
+.skrow.on{border-color:var(--gold)}
+.skrow .mini{flex:none;width:60px;height:60px;padding:10px}
+.skrow.locked .mini{opacity:.4;filter:grayscale(.5)}
+.sktx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sktx b{font-size:17px;font-weight:800}
+.sktx small{font-size:13px;color:var(--muted);line-height:1.3}
+.sk-on{font-size:13px;font-weight:800;color:var(--gold)}
+.sk-use{font-size:13px;font-weight:700;color:var(--ivory)}
+.sk-lock{font-size:13px;font-weight:700;color:var(--ivory)}
+.sk-lock svg{width:10px;height:11px;vertical-align:-1px;margin-right:5px;color:var(--gold)}
+.sk-bar{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:3px}
+.sk-bar i{display:block;height:100%;background:var(--gold);border-radius:3px}
+.sk-prog{font-size:12px;color:var(--muted)}
+#diceBtn .mini{flex:none;width:44px;height:44px;padding:7px;border-radius:10px}
 .skins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .skin{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border-radius:14px;background:var(--panel);border:2px solid transparent;cursor:pointer;color:var(--ivory);font-weight:800;font-size:14px;text-align:center}
 .skin small{font-weight:600;font-size:11px;color:var(--muted);line-height:1.25}
@@ -366,7 +390,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .defrow .btn{flex:none;min-height:48px;padding:8px 16px;font-size:15px}
 .defrow span{font-size:13px;color:var(--muted)}
 /* online play: lobby, host form, waiting room */
-#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray,#app[data-phase="gh"] .tray{display:none}
+#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray,#app[data-phase="gh"] .tray,#app[data-phase="dice"] .tray{display:none}
 .joinrow{display:flex;gap:8px}
 .joinrow .txt{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.12em}
 .joinrow .btn{flex:none;min-height:48px;padding:0 18px;font-size:16px}
@@ -637,11 +661,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <div class="opt"><span><b>Sound effects</b><small>Dice, oinks, coins and fire.</small></span><button class="tog" id="tSound" type="button" role="switch" aria-checked="true" aria-label="Sound effects"></button></div>
       <div class="opt" id="shakeOpt" hidden><span><b>Shake to roll</b><small id="shakeNote">Shake your phone to roll the dice. iPhones ask for motion access the first time.</small></span><button class="tog" id="tShake" type="button" role="switch" aria-checked="true" aria-label="Shake to roll"></button></div>
     </div>
-    <fieldset>
-      <legend>Dice</legend>
-      <div class="skins" id="skins"></div>
-      <p class="skinnote" id="skinNote" role="status"></p>
-    </fieldset>
+    <button class="mrow" id="diceBtn" type="button"><span class="mini classic" id="diceMini"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></span><span class="mtx"><b>Dice</b><small id="diceSub">Metallic Gold</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     <fieldset>
       <legend>Final turn starts when someone reaches</legend>
       <div class="seg seg4">
@@ -659,6 +679,14 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <div class="opt"><span><b>Five Ones Double</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones Double"></button></div>
       <div class="opt"><span><b>Enable Triples</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones Double, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable Triples"></button></div>
     </div>
+  </section>
+
+  <section class="dock scroll" id="dice" hidden>
+    <button type="button" class="link back" id="backDice">‹ Settings</button>
+    <h1 class="screen-h">Dice</h1>
+    <p class="cap">Pick the dice you roll with. Play more to unlock the others.</p>
+    <div class="skinlist" id="skins"></div>
+    <p class="skinnote" id="skinNote" role="status"></p>
   </section>
 
   <section class="dock scroll" id="setup" hidden>
@@ -937,7 +965,6 @@ function achToast(){
   var more=[];achQ=achQ.filter(function(o){if(o.who===q.who){more.push(o);return false}return true});
   more.forEach(function(o){var ot=tierOf(o.a,o.lv);if(ot>t){more.push(q);q=o;t=ot;more.splice(more.indexOf(o),1)}});
   var sub=more.length?esc(q.who)+' · '+TIER[t]+' · and '+more.map(function(o){return esc(o.a.n)}).join(', '):esc(q.who)+' · '+TIER[t];
-  if(q.a.id==='onfire'||q.a.id==='doubleboxcars')sub+=' · New dice unlocked in Settings';
   el.innerHTML=badgeImg(q.a,q.a.k==='one'?1:q.lv,44)+'<span><small>'+(more.length?(more.length+1)+' achievements unlocked':'Achievement unlocked')+'</small><b>'+esc(q.a.n)+'</b><em>'+sub+'</em></span>';
   el.classList.remove('out');el.hidden=false;
   setTimeout(function(){el.classList.add('out');setTimeout(function(){el.hidden=true;toastBusy=false;achToast()},320)},2800);
@@ -1014,13 +1041,31 @@ function shakeRoll(sx,sy){
   return true;
 }
 /* ---- dice sets: Metallic Gold for everyone; the dark sets are unlocked by Golden Pig badges earned on this phone or this account ---- */
-var SKINS=[{id:'classic',n:'Metallic Gold',d:'The house dice'},{id:'green',n:'Green & Gold',ach:'onfire'},{id:'black',n:'Black & Gold',ach:'doubleboxcars'}];
-function skinOpen(sk){if(!sk.ach)return true;var d=achLoad(),k;for(k in d.p)if(d.p[k]&&d.p[k].v&&d.p[k].v[sk.ach])return true;return !!(ON.rec&&ON.rec.v&&ON.rec.v[sk.ach])}
+var SKINS=[
+  {id:'classic',n:'Metallic Gold',d:'The house dice: gold pips and the Degen Pig on the 1.'},
+  {id:'original',n:'Original',d:'Plain ivory dice, black pips and a red 1. No logo.',need:5,src:'pnp'},
+  {id:'green',n:'Green & Gold',d:'Dark green dice with gold pips.',need:500,src:'online'},
+  {id:'black',n:'Black & Gold',d:'Black dice with gold pips.',need:2500,src:'online'}];
+/* Pass n Play games finished on this phone (counted from when this went in, or the most any local player has played, whichever is more) */
+function pnpGames(){var n=0;try{n=+localStorage.getItem('degenpig-pnp')||0}catch(e){}var d=achLoad(),k;for(k in d.p){var v=d.p[k]&&d.p[k].v&&d.p[k].v.degen;if(v>n)n=v}return n}
+function pnpCount(){try{localStorage.setItem('degenpig-pnp',String(pnpGames()+1))}catch(e){}}
+function onlineGames(){return (ON.rec&&ON.rec.v&&ON.rec.v.degen)||0}
+function skinHave(sk){return !sk.need?0:sk.src==='pnp'?pnpGames():onlineGames()}
+function skinOpen(sk){return !sk.need||skinHave(sk)>=sk.need}
 function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0]}
-function applySkin(){var sk=skinById(S.skin);if(!skinOpen(sk))sk=SKINS[0];if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id}
+function skinNow(){var sk=skinById(S.skin);return skinOpen(sk)?sk:SKINS[0]}
+function applySkin(){var sk=skinNow();if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id;
+  var m=$('diceMini');if(m){m.className='mini '+sk.id;$('diceSub').textContent=sk.n}}
+var MINI='<i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i>';
 function renderSkins(){
-  $('skins').innerHTML=SKINS.map(function(sk){var open=skinOpen(sk),a=sk.ach?ACHBY[sk.ach]:null,on=open&&skinById(S.skin).id===sk.id||(sk.id==='classic'&&!skinOpen(skinById(S.skin)));
-    return '<button type="button" class="skin'+(on?' on':'')+(open?'':' locked')+'" data-skin="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="mini '+sk.id+'"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></span>'+sk.n+(open?'<small>'+(sk.d||'Unlocked')+'</small>':'<span class="lk">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Unlock with<br>'+esc(a?a.n:'')+'</span>')+'</button>'}).join('');
+  var cur=skinNow();
+  $('skins').innerHTML=SKINS.map(function(sk){
+    var open=skinOpen(sk),on=cur.id===sk.id,have=skinHave(sk),st;
+    if(on)st='<span class="sk-on">In use</span>';
+    else if(open)st='<span class="sk-use">Tap to use</span>';
+    else{var where=sk.src==='pnp'?'Pass n Play games':'online games',pct=Math.min(100,Math.round(have/sk.need*100));
+      st='<span class="sk-lock">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Play '+fmt(sk.need)+' '+where+'</span><span class="sk-bar"><i style="width:'+pct+'%"></i></span><span class="sk-prog">'+(sk.src==='online'&&!AUTH?'Sign in under Online Play to count your games':fmt(have)+' of '+fmt(sk.need))+'</span>'}
+    return '<button type="button" class="skrow'+(on?' on':'')+(open?'':' locked')+'" data-skin="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="mini '+sk.id+'">'+MINI+'</span><span class="sktx"><b>'+sk.n+'</b><small>'+sk.d+'</small>'+st+'</span></button>'}).join('');
 }
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
@@ -1037,7 +1082,7 @@ var tray=$('tray'),T={w:300,h:200},D=80,placed=false;
 function dieLogo(k){var src=document.querySelector('.top .pig');return src.outerHTML.replace('class="pig"','class="dlogo" aria-hidden="true"').replace(/ role="img"/,'').replace(/ aria-label="[^"]*"/,'').replace(/pg-/g,k+'-')}
 var dice=[0,1].map(function(i){
   var el=$('die'+i),h='<div class="cube"><div class="core"></div><div class="core cx"></div><div class="core cy"></div>';
-  for(var f=1;f<=6;f++){h+='<div class="face f'+f+'">'+(f===1?dieLogo('d'+i):PIPS[f].map(function(p){return '<i class="pip '+p+'"></i>'}).join(''))+'</div>'}
+  for(var f=1;f<=6;f++){h+='<div class="face f'+f+'">'+(f===1?dieLogo('d'+i)+'<i class="pip c one"></i>':PIPS[f].map(function(p){return '<i class="pip '+p+'"></i>'}).join(''))+'</div>'}
   el.innerHTML=h+'</div>';
   return {el:el,cube:el.firstChild,sh:$('sh'+i),x:0,y:0,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,spin:i?9:-12};
 });
@@ -1285,6 +1330,7 @@ function applyBust(a,b,snake,fromReroll){
 }
 function rec(i,ev,amt,risk,rolls){if(!S.hist||!S.hist[i])return;S.hist[i].push({s:P(i).score,ev:ev,amt:amt,risk:risk||0,rolls:rolls||0,hot:S.hotTurn?MX():0})}
 function endGame(){
+  if(!S.online)pnpCount();
   var w=leaders();
   if(S.hist){var R=Math.max.apply(null,S.hist.map(function(h){return h.length}));S.hist.forEach(function(h,i){while(h.length<R)h.push({s:P(i).score,ev:'pad',amt:0,hot:false})})}
   chartSel=-1;
@@ -1569,7 +1615,7 @@ function chartPick(e){
   if(r!==chartSel){chartSel=r;drawChart();drawReadout()}
 }
 function render(){
-  renderMain();achToast();chatUI();applySkin();if(S.phase==='settings')renderSkins();
+  renderMain();achToast();chatUI();applySkin();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
   var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
@@ -1587,8 +1633,8 @@ function renderMain(){
   $('app').dataset.phase=ph;
   var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;$('seal').textContent='×'+MX();$('seal').classList.toggle('x3',MX()>2);
   $('soundBtn').textContent='Sound: '+(S.sound?'on':'off');
-  var nonGame=['menu','setup','online','settings','ach','host','room','lb','gh'].indexOf(ph)>=0;
-  ['menu','setup','online','settings','ach','host','room','lb','gh'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
+  var nonGame=['menu','setup','online','settings','ach','host','room','lb','gh','dice'].indexOf(ph)>=0;
+  ['menu','setup','online','settings','ach','host','room','lb','gh','dice'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
   dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
   var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
   $('hintTxt').textContent=SHAKE.ok&&S.shake&&!SHAKE.denied?'Tap, flick or shake to roll':'Tap or flick the table to roll';
@@ -1828,9 +1874,11 @@ $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
 $('backSettings').addEventListener('click',toMenu);
 function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
 $('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
-$('skins').addEventListener('click',function(e){var b=e.target.closest('.skin');if(!b)return;var sk=skinById(b.getAttribute('data-skin'));
-  if(!skinOpen(sk)){var a=ACHBY[sk.ach];$('skinNote').textContent='Locked. Earn the Golden Pig badge '+a.n+' ('+a.d+') to unlock '+sk.n+'.';return}
+$('skins').addEventListener('click',function(e){var b=e.target.closest('.skrow');if(!b)return;var sk=skinById(b.getAttribute('data-skin'));
+  if(!skinOpen(sk)){$('skinNote').textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass n Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
   S.skin=sk.id;savePrefs();$('skinNote').textContent=sk.n+' dice are on the table.';render()});
+$('diceBtn').addEventListener('click',function(){S.phase='dice';$('skinNote').textContent='';$('dice').scrollTop=0;if(AUTH)loadMe();render()});
+$('backDice').addEventListener('click',function(){S.phase='settings';render()});
 $('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
@@ -1930,7 +1978,7 @@ function loadMe(){
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
-    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();
+    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
 function rulesLine(r){var x=[r.target+' Pig'];if(r.noDbl)x.push('no doubles');if(r.golden)x.push('Golden Points');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');if(r.power)x.push('Five Ones Double');if(r.triple)x.push('Triples');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
