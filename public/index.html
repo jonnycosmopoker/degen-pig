@@ -181,6 +181,7 @@ fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;
 .tab{min-height:40px;padding:0 14px;border-radius:999px;background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer}
 .tab.on{background:var(--ivory);border-color:var(--ivory);color:var(--ink)}
 .swipe{margin-left:auto;font-size:12px;color:var(--muted);padding-right:2px}
+#gh>*{flex-shrink:0}
 .pager{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
 .pager::-webkit-scrollbar{display:none}
 .page{flex:0 0 100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;gap:10px}
@@ -353,6 +354,10 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .lrow .lt b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lrow .lt span{font-size:13px;color:var(--muted)}
 .lrow .btn{flex:none;min-height:44px;padding:0 16px;font-size:15px}
+#gh>*{flex-shrink:0}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+.pager span{font-size:14px;font-weight:700;color:var(--muted)}
+.pager .link:disabled{opacity:.35;cursor:default}
 .hist{border-radius:14px;background:var(--panel);padding:0 14px}
 .hist summary{list-style:none;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:12px 0;min-height:44px;justify-content:center}
 .hist summary::-webkit-details-marker{display:none}
@@ -573,8 +578,9 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="gh" hidden>
     <button type="button" class="link back" id="backGh">‹ Online Play</button>
     <h1 class="screen-h">Game History</h1>
-    <p class="cap">Every table you've played, newest first. Tap one to see everyone's final totals.</p>
+    <p class="cap">Your last 100 tables, newest first, 25 to a page. Tap one to see everyone's final totals.</p>
     <div class="lobby" id="histList"></div>
+    <div class="pager" id="ghPager" hidden><button type="button" class="link" id="ghNewer">‹ Newer</button><span id="ghPageLbl"></span><button type="button" class="link" id="ghOlder">Older ›</button></div>
   </section>
 
   <section class="dock scroll" id="lb" hidden>
@@ -1909,7 +1915,12 @@ function renderHist(){
   var H=histEntries();
   /* keep opened tables open when the record reloads, and leave the list alone when nothing changed */
   ON.histOpen=ON.histOpen||{};
-  var hh=!ON.rec?'<div class="empty">Loading your games…</div>':!H.length?'<div class="empty">No games yet. Host or join a table and your results will show up here.</div>':H.map(function(g){
+  /* 25 tables a page, newest first */
+  var PER=25,pages=Math.max(1,Math.ceil(H.length/PER));ON.ghPage=Math.min(Math.max(0,ON.ghPage||0),pages-1);
+  var from=ON.ghPage*PER,PH=H.slice(from,from+PER);
+  $('ghPager').hidden=H.length<=PER;$('ghNewer').disabled=ON.ghPage===0;$('ghOlder').disabled=ON.ghPage>=pages-1;
+  $('ghPageLbl').textContent=(from+1)+'–'+(from+PH.length)+' of '+H.length;
+  var hh=!ON.rec?'<div class="empty">Loading your games…</div>':!H.length?'<div class="empty">No games yet. Host or join a table and your results will show up here.</div>':PH.map(function(g){
     var order=g.players.map(function(_,i){return i}).sort(function(a,b){return g.players[b].total-g.players[a].total||g.players[b].wins-g.players[a].wins||a-b});
     var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.total>me.total}).length,d=new Date(g.start),gd=g.rules&&g.rules.golden;
     var sum=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+g.games+' game'+(g.games===1?'':'s')+' · '+ordinalN(rank)+' of '+g.players.length+' with '+fmt(me.total)+' points, '+me.wins+' win'+(me.wins===1?'':'s')+(g.closed?'':' · still open');
@@ -2106,7 +2117,9 @@ $('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!
 $('endOk').addEventListener('click',function(){$('endDlg').close()});
 $('rStart').addEventListener('click',function(){onSend('start')});
 $('lbBtn').addEventListener('click',function(){S.phase='lb';$('lb').scrollTop=0;loadLb(ON.lbP);render()});
-$('ghBtn').addEventListener('click',function(){S.phase='gh';$('gh').scrollTop=0;loadMe();render()});
+$('ghBtn').addEventListener('click',function(){S.phase='gh';ON.ghPage=0;$('gh').scrollTop=0;loadMe();render()});
+$('ghNewer').addEventListener('click',function(){ON.ghPage--;renderHist();$('gh').scrollTop=0;window.scrollTo(0,0)});
+$('ghOlder').addEventListener('click',function(){ON.ghPage++;renderHist();$('gh').scrollTop=0;window.scrollTo(0,0)});
 $('backGh').addEventListener('click',function(){S.phase='online';onEnter();render()});
 $('backLb').addEventListener('click',function(){S.phase='online';onEnter();render()});
 Array.prototype.forEach.call(document.querySelectorAll('#lb .tab'),function(b){b.addEventListener('click',function(){ON.lbP=b.getAttribute('data-p');if(!ON.lb[ON.lbP])loadLb(ON.lbP);else{renderLb();loadLb(ON.lbP)}})});
@@ -2132,7 +2145,7 @@ $('rShare').addEventListener('click',function(){
 
 /* ---------- start ---------- */
 function start(data){
-  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE};   /* test hook, local test server only */
+  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE,ON:ON,renderHist:renderHist};   /* test hook, local test server only */
   loadPrefs();
   if(data&&data.S&&data.S.phase){try{var snd=S.sound,shk=S.shake;Object.assign(S,data.S);S.sound=snd;S.shake=shk;S.finalMode='turn';S.busy=false;S.rolling=false;S.burnShow=null}catch(e){}}
   /* Android and others need no permission for the motion sensor; iPhones wait for the first tap */
