@@ -339,6 +339,12 @@ dialog{background:var(--panel);color:var(--ivory);border:1px solid var(--line);b
 dialog::backdrop{background:rgba(4,10,8,.7)}
 dialog h2{font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.04em;margin:0 0 12px;color:var(--gold)}
 dialog ol{margin:0 0 16px;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:15px}
+.rtext{font-size:15px;line-height:1.45;margin:0 0 16px}
+.rtext p{margin:0 0 10px}
+.rtext ul{margin:0 0 10px;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.rtext h3{margin:14px 0 6px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)}
+.rtext b{color:#FFF6DA}
+.rtext .rnote{color:var(--muted);font-size:14px}
 dialog .actions{flex-direction:column}
 dialog .btn{flex:none;min-height:52px;font-size:16px}
 .dlgp{margin:0 0 16px;font-size:15px;color:var(--ivory);line-height:1.45}
@@ -836,7 +842,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 
   <dialog id="rules" aria-labelledby="rulesTitle">
     <h2 id="rulesTitle">How to play</h2>
-    <ol id="rulesList"></ol>
+    <div class="rtext" id="rulesList"></div>
     <div class="actions">
       <button class="btn primary" id="closeRules" type="button">Back to the game</button>
       <button class="btn ghost" id="soundBtn" type="button">Sound: on</button>
@@ -1858,22 +1864,29 @@ function renderScreens(ph){
     $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles, Golden Points and Five Ones 2x on, and Enable 3x, Re-roll Pig and Verify Double off.';
   }
 }
-function rulesItems(){
-  var c=RL(),T=c.target,x=['The turn order is drawn at random.','On your turn, roll as many times as you like. Every roll adds to your turn total.'];
-  x.push(c.noDbl?'Disable Doubles is on: doubles score face value and every ×2 bonus is off.':'Doubles pay double: 3 + 3 is 6, doubled to 12.');
-  x.push('A 1 on either die wipes the turn total and ends your turn.','Snake eyes (two 1s) burns your whole score down to zero.','Lock in to bank the turn total and pass the dice.');
-  if(!c.noDbl)x.push('Once the leader has more than 75 banked, a player still on zero gets every roll doubled on their next turn.','A player who starts their final turn more than 75 behind the leader also gets every roll doubled.','Roll snake eyes twice in one game and every roll you make pays double for the rest of that game.');
-  if(c.reroll)x.push('Re-roll Pig: each player has 3 re-rolls a game. If the first roll of your turn has a single 1, you may re-roll instead of busting. A 1 on the re-roll drops your score to 0, but it does not count as snake eyes. Snake eyes can never be re-rolled.');
-  if(c.verify)x.push('Verify Double: after rolling a double you cannot lock in. Keep rolling until a roll is not a double.');
-  if(c.power)x.push('Five Ones 2x: every 1 fills a dot under your score. Fill 5 dots and your next turn is doubled, then the dots reset.');
-  if(c.triple)x.push('Enable 3x: when two reasons for a ×2 turn land on the same turn, that turn is ×3 instead. The reasons are a full row of Five Ones 2x dots, having rolled snake eyes twice this game, and being far behind (at 0 while someone is over 75, or 75+ behind on the final turn). Doubles on a ×3 turn pay ×6.');
-  if(c.golden)x.push('Golden Points: every point above '+T+' is a golden point, shown on the score boxes and in the summary.');
-  x.push('Lock in a score of '+T+' or more and every other player gets one last full turn. Highest score wins.');
-  return x;
+/* the rules, in table-talk style, matching whichever rules this game (or Settings) has switched on */
+function rulesHTML(){
+  var c=RL(),T=c.target,h='',dbl=!c.noDbl;
+  h+='<p>You and the dice. Roll as long as you’ve got the nerve: <b>every roll adds up'+(dbl?', doubles pay double.':'.')+'</b></p>';
+  if(!dbl)h+='<p class="rnote">Doubles are switched off: a double just scores what it shows.</p>';
+  h+='<p>But the 1s are out to get you:</p><ul><li><b>One 1:</b> your turn’s gone. Nothing banked.</li><li><b>Two 1s (snake eyes):</b> your whole score burns to zero.</li></ul>';
+  h+='<p>Scared? <b>Lock in</b> and bank what you’ve got.</p>';
+  h+='<p><b>First to bank '+T+' rings the bell.</b> Everybody else gets one last shot to pass them, so a big lead isn’t safe until the last die drops.</p>';
+  var hot=[];
+  if(c.power)hot.push('Every 1 you roll fills a dot. Fill five and your next turn pays double.');
+  if(dbl){hot.push('Stuck at zero while someone’s past 75? Your rolls pay double.','Down 75+ on your last turn? Double.','Burned by snake eyes twice? Every roll pays double for the rest of the game.')}
+  if(hot.length)h+='<h3>Getting hot (×2 turns)</h3><ul><li>'+hot.join('</li><li>')+'</li></ul>';
+  if(c.golden)h+='<p>Points past '+T+' are <b>Golden Points</b>, pure flex.</p>';
+  var ex=[];
+  if(c.triple&&(c.power||dbl))ex.push('<b>Enable 3x:</b> two ×2 reasons on the same turn make it ×3. Doubles on a ×3 turn pay ×6.');
+  if(c.reroll)ex.push('<b>Re-roll Pig:</b> 3 chances a game to re-roll a single 1 on your first roll of a turn. A 1 on the re-roll drops your score to 0. Snake eyes can’t be re-rolled.');
+  if(c.verify)ex.push('<b>Verify Double:</b> after doubles you have to roll again before you can lock in.');
+  if(ex.length)h+='<h3>House rules on this table</h3><ul><li>'+ex.join('</li><li>')+'</li></ul>';
+  return h;
 }
 function openRules(){
   $('rulesTitle').textContent='How to play · '+RL().target+' Pig';
-  $('rulesList').innerHTML=rulesItems().map(function(t){return '<li>'+esc(t)+'</li>'}).join('');
+  $('rulesList').innerHTML=rulesHTML();$('rulesList').scrollTop=0;
   var g=inGame()||(S.online&&S.phase==='over');$('quitBtn').hidden=!g;$('quitBtn').textContent=S.online?'Leave the table':'End this game';$('closeRules').textContent=g?'Back to the game':'Close';
   var dl=$('rules');if(dl.showModal)dl.showModal();else dl.setAttribute('open','');
 }
