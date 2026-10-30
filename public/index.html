@@ -264,6 +264,11 @@ fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;
 .names{display:flex;flex-direction:column;gap:8px}
 .prow{display:flex;gap:8px}
 .prow .txt{flex:1 1 0;min-width:0}
+.youbtn{flex:none;width:52px;min-height:48px;border-radius:14px;background:transparent;border:2px dashed var(--line);color:var(--muted);font-weight:800;font-size:12px;cursor:pointer}
+.youbtn.on{background:var(--gold);border:2px solid var(--gold);color:var(--ink)}
+.prow.isyou .txt{border-color:rgba(242,194,48,.6)}
+.younote{margin:2px 0 0}.younote b{color:var(--ivory)}
+.link.inl{display:inline;min-height:0;padding:0;border:0;background:none;color:var(--gold);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
 .kind{flex:none;width:138px;min-height:48px;border-radius:14px;background:var(--panel);border:2px solid var(--line);font-weight:700;font-size:13px;cursor:pointer}
 .kind.cpu{border-color:var(--gold);color:var(--gold)}
 .presets{display:flex;gap:8px;flex-wrap:wrap}
@@ -651,7 +656,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="online" hidden>
     <div class="headrow"><button type="button" class="link back" id="backOnline">‹ Main menu</button><h1 class="screen-h">Online Play</h1></div>
     <div class="signcard" id="signCard">
-      <p>Sign in to play online. Your achievements and table history are saved to your account, on any phone.</p>
+      <p id="signIntro">Sign in to play online. Your achievements and table history are saved to your account, on any phone.</p>
       <p class="inapp" id="inAppNote" hidden>You're in another app's built-in browser, where Google sign-in is often blocked. Open <b>degenpig.com</b> in Safari or Chrome (tap ••• then "Open in browser"), or sign in with an email code below.</p>
       <button class="btn gbtn" id="gSignIn" type="button"><svg viewBox="0 0 48 48" width="22" height="22" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Sign in with Google</button>
       <div class="ordiv"><span>or</span></div>
@@ -811,13 +816,14 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
         <button type="button" class="link" id="presetSolo">Solo vs computers</button>
         <button type="button" class="link" id="presetAll">Everyone human</button>
       </div>
+      <p class="cap younote" id="youNote"></p>
       <div class="names" id="names">
-        <div class="prow" id="prow0"><input class="txt" id="name0" maxlength="10" placeholder="Player 1" aria-label="Player 1 name" autocomplete="off"><button type="button" class="kind" id="kind0">Human</button></div>
-        <div class="prow" id="prow1"><input class="txt" id="name1" maxlength="10" placeholder="Player 2" aria-label="Player 2 name" autocomplete="off"><button type="button" class="kind" id="kind1">Human</button></div>
-        <div class="prow" id="prow2"><input class="txt" id="name2" maxlength="10" placeholder="Player 3" aria-label="Player 3 name" autocomplete="off"><button type="button" class="kind" id="kind2">Human</button></div>
-        <div class="prow" id="prow3"><input class="txt" id="name3" maxlength="10" placeholder="Player 4" aria-label="Player 4 name" autocomplete="off"><button type="button" class="kind" id="kind3">Human</button></div>
-        <div class="prow" id="prow4"><input class="txt" id="name4" maxlength="10" placeholder="Player 5" aria-label="Player 5 name" autocomplete="off"><button type="button" class="kind" id="kind4">Human</button></div>
-        <div class="prow" id="prow5"><input class="txt" id="name5" maxlength="10" placeholder="Player 6" aria-label="Player 6 name" autocomplete="off"><button type="button" class="kind" id="kind5">Human</button></div>
+        <div class="prow" id="prow0"><button type="button" class="youbtn" id="you0" aria-pressed="false" aria-label="Player 1 is you">You</button><input class="txt" id="name0" maxlength="10" placeholder="Player 1" aria-label="Player 1 name" autocomplete="off"><button type="button" class="kind" id="kind0">Human</button></div>
+        <div class="prow" id="prow1"><button type="button" class="youbtn" id="you1" aria-pressed="false" aria-label="Player 2 is you">You</button><input class="txt" id="name1" maxlength="10" placeholder="Player 2" aria-label="Player 2 name" autocomplete="off"><button type="button" class="kind" id="kind1">Human</button></div>
+        <div class="prow" id="prow2"><button type="button" class="youbtn" id="you2" aria-pressed="false" aria-label="Player 3 is you">You</button><input class="txt" id="name2" maxlength="10" placeholder="Player 3" aria-label="Player 3 name" autocomplete="off"><button type="button" class="kind" id="kind2">Human</button></div>
+        <div class="prow" id="prow3"><button type="button" class="youbtn" id="you3" aria-pressed="false" aria-label="Player 4 is you">You</button><input class="txt" id="name3" maxlength="10" placeholder="Player 4" aria-label="Player 4 name" autocomplete="off"><button type="button" class="kind" id="kind3">Human</button></div>
+        <div class="prow" id="prow4"><button type="button" class="youbtn" id="you4" aria-pressed="false" aria-label="Player 5 is you">You</button><input class="txt" id="name4" maxlength="10" placeholder="Player 5" aria-label="Player 5 name" autocomplete="off"><button type="button" class="kind" id="kind4">Human</button></div>
+        <div class="prow" id="prow5"><button type="button" class="youbtn" id="you5" aria-pressed="false" aria-label="Player 6 is you">You</button><input class="txt" id="name5" maxlength="10" placeholder="Player 6" aria-label="Player 6 name" autocomplete="off"><button type="button" class="kind" id="kind5">Human</button></div>
       </div>
     </fieldset>
     <div class="actions"><button class="btn primary" id="startBtn" type="button">Start game</button></div>
@@ -845,7 +851,8 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="ach" hidden>
     <button type="button" class="link back" id="backAch">‹ Main menu</button>
     <h1 class="screen-h">Achievements</h1>
-    <div class="achwho" id="achWho" role="group" aria-label="Whose achievements"></div>
+    <div id="achSign"></div>
+    <div class="achwho" id="achWho" role="group" aria-label="Whose achievements" hidden></div>
     <p class="cap" id="achSum"></p>
     <div class="achlist" id="achList"></div>
   </section>
@@ -948,10 +955,10 @@ function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[
 var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:30};
 var S={phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
-  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic'};
+  busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic',youSeat:0};
 
 
-/* ---------- achievements: saved on this device for each human player name ---------- */
+/* ---------- achievements: saved only to a signed-in account (online games, and the seat marked You in Pass n Play) ---------- */
 var TIER=['Piglet','Hog','Boar','Golden Pig'],TIERC=['#E8A774','#DCE4E9','#F09A45','#F2C230'];
 function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 /* k: max = best single value, cnt = lifetime total, min = lowest value (fewer is better), one = a single badge of tier t */
@@ -1005,15 +1012,19 @@ var ACHBY={};ACH.forEach(function(a){ACHBY[a.id]=a});
 var ACHCAT=[['turn','Single turn'],['game','Single game'],['life','Lifetime'],['set','Setting-specific'],['multi','Online play'],['shame','Hidden hall of shame']];
 var AD=null,achQ=[],achSel=null,toastBusy=false;
 function achLoad(){if(AD)return AD;try{AD=JSON.parse(localStorage.getItem('degenpig-ach')||'null')}catch(e){AD=null}if(!AD||typeof AD!=='object'||!AD.p||typeof AD.p!=='object')AD={p:{}};return AD}
-function achSave(){try{localStorage.setItem('degenpig-ach',JSON.stringify(AD))}catch(e){}}
+function achSave(){try{if(AD)localStorage.setItem('degenpig-ach',JSON.stringify(AD))}catch(e){}achPush()}
+/* send the account's badges to the server (a moment after the last change, so a burst of unlocks is one request) */
+function achPush(){if(!AUTH||!ON.rec)return;clearTimeout(achPush.t);achPush.t=setTimeout(function(){var r=ON.rec;if(!r)return;
+  authed('/api/ach',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({v:r.v||{},opp:r.opp||{},pday:r.pday,pds:r.pds,pws:r.pws})}).then(function(d){if(d&&d.rec&&ON.rec){for(var k in d.rec)ON.rec[k]=d.rec[k]}}).catch(function(){})},700)}
 function achKey(n){return String(n||'').trim().toLowerCase()}
-function achRec(p){if(!p||p.bot)return null;var d=achLoad(),k=achKey(p.name);if(!k)return null;var r=d.p[k];if(!r||typeof r!=='object')r=d.p[k]={};if(!r.v)r.v={};if(!r.opp)r.opp={};r.name=p.name;return r}
+/* Achievements are saved only to a signed-in account. In Pass n Play that means the one seat marked You; nobody else at the table earns them. */
+function achRec(p){if(!p||p.bot||!p.you||!AUTH||!ON.rec)return null;var r=ON.rec;if(!r.v)r.v={};if(!r.opp)r.opp={};return r}
 /* how many levels are earned, counted as the highest level index + 1 (0 = none); a single badge is 0 or 1 */
 function achLevel(a,r){var v=r&&r.v?r.v[a.id]:null;if(a.k==='one')return v?1:0;if(v==null)return 0;var n=0;a.L.forEach(function(x,i){if(x!=null&&(a.k==='min'?v<=x:v>=x))n=i+1});return n}
 function achSet(p,id,val,mode){
   var r=achRec(p);if(!r)return;var a=ACHBY[id],old=achLevel(a,r),cur=r.v[id];
   if(mode==='add')r.v[id]=(cur||0)+val;else if(mode==='max'){if(cur==null||val>cur)r.v[id]=val}else if(mode==='min'){if(cur==null||val<cur)r.v[id]=val}else r.v[id]=1;
-  var nw=achLevel(a,r);if(nw>old)achQ.push({a:a,lv:nw,who:r.name});achSave();
+  var nw=achLevel(a,r);if(nw>old)achQ.push({a:a,lv:nw,who:p.name});achSave();
 }
 function dayStr(off){var d=new Date();d.setDate(d.getDate()+(off||0));return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
 function achRoll(p,a,b){
@@ -1042,9 +1053,9 @@ function achGame(w){
   S.players.forEach(function(p,i){
     if(p.bot||!p.g)return;var g=p.g,won=w.indexOf(i)>=0,r=achRec(p);if(!r)return;
     achSet(p,'degen',1,'add');
-    if(r.day!==today){r.ds=r.day===yest?(r.ds||0)+1:1;r.day=today;achSet(p,'grinder',r.ds,'max')}
+    if(r.pday!==today){r.pds=r.pday===yest?(r.pds||0)+1:1;r.pday=today;achSet(p,'grinder',r.pds,'max')}
     if(RL().golden){var gp=golden(i);if(gp>0)achSet(p,'goldenhoard',gp,'add');if(gp>=50)achSet(p,'goldenhog',1)}
-    if(n>=3){if(won){r.ws=(r.ws||0)+1;achSet(p,'hotstreak',r.ws,'max')}else{r.ws=0;achSave()}}
+    if(n>=3){if(won){r.pws=(r.pws||0)+1;achSet(p,'hotstreak',r.pws,'max')}else{r.pws=0;achSave()}}
     if(!won)return;
     achSet(p,'shark',1,'add');
     if(g.finalDef!=null&&g.finalDef>0){achSet(p,'suckout',g.finalDef,'max');if(g.finalDef>=50)achSet(p,'comeback',1,'add')}
@@ -1054,7 +1065,7 @@ function achGame(w){
     if(!g.busts)achSet(p,'cleangame',1);
     if(!g.wireFail)achSet(p,'wire',1);
     if(p.st&&p.st.sn>=2)achSet(p,'snakecharmer',1);
-    S.players.forEach(function(q,j){if(j===i||q.bot||w.indexOf(j)>=0)return;var k=achKey(q.name);if(!k||k===achKey(p.name))return;r.opp[k]=(r.opp[k]||0)+1;achSet(p,'nemesis',r.opp[k],'max')});
+    S.players.forEach(function(q,j){if(j===i||q.bot||w.indexOf(j)>=0)return;var k=achKey(q.name);if(!k||k===achKey(p.name))return;k='n:'+k.slice(0,20);r.opp[k]=(r.opp[k]||0)+1;achSet(p,'nemesis',r.opp[k],'max')});
   });
 }
 function tierOf(a,lv){return a.k==='one'?a.t:lv-1}
@@ -1077,14 +1088,15 @@ function achToast(){
   setTimeout(function(){el.classList.add('out');setTimeout(function(){el.hidden=true;toastBusy=false;achToast()},320)},2800);
 }
 function renderAch(){
-  var d0=achLoad(),d={p:{}},keys;for(var k0 in d0.p)d.p[k0]=d0.p[k0];
-  if(ON.rec&&ON.rec.v)d.p['@online']={name:(ON.rec.name||myId().name||'You')+' (online)',v:ON.rec.v};
-  keys=Object.keys(d.p).filter(function(k){return d.p[k]&&d.p[k].v}).sort(function(a,b){return (b==='@online')-(a==='@online')});
-  if(!achSel||keys.indexOf(achSel)<0){achSel=keys.indexOf('@online')>=0?'@online':null;for(var i=0;i<S.names.length&&!achSel;i++){var k=achKey(S.names[i]);if(k&&keys.indexOf(k)>=0)achSel=k}if(!achSel&&keys.length)achSel=keys[0]}
-  var r=achSel?d.p[achSel]:null;
-  $('achWho').innerHTML=keys.length>1?keys.map(function(k){return '<button type="button" class="tab'+(k===achSel?' on':'')+'" data-k="'+esc(k)+'" aria-pressed="'+(k===achSel)+'">'+esc(d.p[k].name||k)+'</button>'}).join(''):'';
+  /* signed out: the same Google / email sign-in card as Online Play, moved to the top of this page */
+  var card=$('signCard'),slot=$('achSign');
+  $('signIntro').textContent='Sign in with Google or your email to earn achievements. They’re saved to your account, so they follow you to any phone.';
+  if(!AUTH){if(card.parentNode!==slot){ON.cardHome=ON.cardHome||card.parentNode;ON.cardNext=ON.cardNext||card.nextSibling;slot.appendChild(card)}card.hidden=false}
+  else signCardHome();
+  $('achWho').innerHTML='';
+  var r=AUTH&&ON.rec?{name:myId().name||(ON.user&&ON.user.name)||'You',v:ON.rec.v||{}}:null;
   var tot=0,got=0;ACH.forEach(function(a){if(a.k==='one'){tot++;if(achLevel(a,r))got++}else a.L.forEach(function(x,i){if(x!=null){tot++;if(i<achLevel(a,r))got++}})});
-  $('achSum').textContent=r?(r.name+' has unlocked '+got+' of '+tot+' badge levels. '+(achSel==='@online'?'Achievements from online games are saved to your player profile.':'Each player’s achievements are saved on this device under their name. Computer players don’t earn them.')):'Nobody has earned anything on this device yet. Play Pass n Play and each player’s achievements are saved here under their name. Computer players don’t earn them.';
+  $('achSum').textContent=!AUTH?'Here’s every badge you can earn. None are saved until you sign in.':!r?'Loading your achievements…':('You have unlocked '+got+' of '+tot+' badge levels. Badges from online games and from your seat in Pass n Play (the one marked You) are saved to your account.');
   var h='';
   ACHCAT.forEach(function(c){
     h+='<h2 class="sechead">'+c[1]+'</h2>';
@@ -1187,9 +1199,9 @@ function renderSkins(){
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
-  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;
+  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,triple:!!c.triple,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -1344,7 +1356,7 @@ function botReroll(i){
 function botThrow(){return {dx:rand(-0.6,0.6),dy:1,x:T.w/2+rand(-T.w*0.15,T.w*0.15),y:margin(),speed:rand(1.05,1.4)}}
 function startGame(){
   S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power,triple:!!S.cfg.triple};
-  S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):'P'+(i+1)),score:0,wins:0,hot:false,bot:bot})}
+  S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):(i===S.youSeat&&myId().name)||'P'+(i+1)),score:0,wins:0,hot:false,bot:bot,you:!bot&&i===S.youSeat})}
   S.games=0;S.ledger=[];S.baseOrder=null;S.sess=S.players.map(function(){return {f:[0,0,0,0,0,0],d:0,lost:0,rolls:0}});
   beginOrder();
 }
@@ -1778,8 +1790,11 @@ function renderMain(){
     renderScreens(ph);
     if(ph!=='setup')return;
     $('count').textContent=S.n;$('less').disabled=S.n<=2;$('more').disabled=S.n>=6;
-    for(var i=0;i<6;i++){var inp=$('name'+i),t=S.types[i],kb=$('kind'+i);$('prow'+i).hidden=i>=S.n;if(document.activeElement!==inp)inp.value=S.names[i];
-      inp.placeholder=t==='h'?'Player '+(i+1):botName(i);kb.textContent=t==='h'?'Human':'CPU · '+STYLE[t];kb.className='kind'+(t==='h'?'':' cpu');
+    if(S.youSeat>=S.n)S.youSeat=0;
+    var signed=!!AUTH;$('youNote').innerHTML=signed?'Badges earned in the seat marked <b>You</b> save to your account. Tap <b>You</b> on another seat to move it.':'<button type="button" class="link inl" id="youSign">Sign in</button> to save your achievements. Only a signed-in player earns them.';
+    for(var i=0;i<6;i++){var inp=$('name'+i),t=S.types[i],kb=$('kind'+i),yb=$('you'+i),me=signed&&i===S.youSeat&&t==='h';$('prow'+i).hidden=i>=S.n;if(document.activeElement!==inp)inp.value=S.names[i];
+      yb.hidden=!signed||t!=='h';yb.classList.toggle('on',me);yb.setAttribute('aria-pressed',me?'true':'false');$('prow'+i).classList.toggle('isyou',me);
+      inp.placeholder=t==='h'?(me&&myId().name?myId().name:'Player '+(i+1)):botName(i);kb.textContent=t==='h'?'Human':'CPU · '+STYLE[t];kb.className='kind'+(t==='h'?'':' cpu');
       kb.setAttribute('aria-label','Player '+(i+1)+': '+(t==='h'?'human':STYLE[t]+' computer')+'. Tap to change.')}
     return;
   }
@@ -1982,6 +1997,8 @@ $('more').addEventListener('click',function(){readSetup();S.n=Math.min(6,S.n+1);
 $('setup').addEventListener('input',function(){readSetup()});
 $('startBtn').addEventListener('click',function(){if(S.busy)return;ac();readSetup();startGame();render()});
 function setKind(i,t){S.types[i]=t}
+[0,1,2,3,4,5].forEach(function(i){$('you'+i).addEventListener('click',function(){readSetup();S.youSeat=i;savePrefs();render()})});
+$('youNote').addEventListener('click',function(e){if(e.target.id==='youSign'){S.phase='ach';$('ach').scrollTop=0;render()}});
 [0,1,2,3,4,5].forEach(function(i){$('kind'+i).addEventListener('click',function(){readSetup();var o='hcbg',t=o[(o.indexOf(S.types[i])+1)%4];setKind(i,t);savePrefs();render()})});
 $('presetSolo').addEventListener('click',function(){readSetup();var c=['b','c','g','b','c'];for(var i=0;i<6;i++)S.types[i]=i===0?'h':c[i-1];savePrefs();render()});
 $('presetAll').addEventListener('click',function(){readSetup();for(var i=0;i<6;i++)S.types[i]='h';savePrefs();render()});
@@ -2120,17 +2137,35 @@ function checkCode(){
       loadMe();render();if(pend&&pend.code)setTimeout(function(){onJoin(pend.code,pend.pw||'')},300)})
     .catch(function(){b.disabled=false;emNote('Could not reach the sign-in server. Check your connection.',true)});
 }
-function signIn(){location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+'/?online=1')}
+function signIn(){location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+(S.phase==='ach'?'/?ach=1':'/?online=1'))}
 function signOut(){var t=AUTH&&AUTH.at;if(t)fetch(SB.url+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+t}}).catch(function(){});AUTH=null;authSave();ON.user=null;ON.rec=null;render()}
 function authed(path,opt){return token().then(function(t){if(!t)throw new Error('signin');opt=opt||{};var h={};for(var k in (opt.headers||{}))h[k]=opt.headers[k];h.Authorization='Bearer '+t;opt.headers=h;return api(path,opt)})}
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
 function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
 function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.live=d.live||[];ON.counts=d.counts||null;ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
+/* Before accounts held every badge, Pass n Play saved them on the phone under each player's name. The first time someone signs in here,
+   the phone's player with their name (their online name, or their Google first name) is added into the account, then removed from the phone. */
+function achMigrate(){
+  if(!ON.rec||!ON.user||achMigrate.busy)return;var flag='degenpig-achmig:'+ON.user.id;try{if(localStorage.getItem(flag))return}catch(e){return}
+  var d=achLoad(),names=[myId().name,(ON.user.name||'').split(' ')[0]].map(achKey).filter(Boolean),k=null;
+  for(var i=0;i<names.length&&!k;i++)if(d.p[names[i]]&&d.p[names[i]].v)k=names[i];
+  if(!k){try{localStorage.setItem(flag,'1')}catch(e){}return}
+  var old=d.p[k],cur=ON.rec.v||{},v={},opp={};
+  ACH.forEach(function(a){var o=old.v[a.id],c=cur[a.id];if(o==null)return;
+    if(a.k==='one'){if(o)v[a.id]=1}else if(a.k==='min'){if(o>0&&(c==null||o<c))v[a.id]=o}else if(a.k==='cnt')v[a.id]=(c||0)+o;else if(c==null||o>c)v[a.id]=o});
+  for(var n in (old.opp||{}))opp['n:'+String(n).slice(0,20)]=old.opp[n];
+  /* sent straight to the account; the phone copy is removed only once the account has it */
+  achMigrate.busy=true;
+  authed('/api/ach',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({v:v,opp:opp})}).then(function(x){achMigrate.busy=false;
+    if(!x||!x.rec)return;try{localStorage.setItem(flag,'1')}catch(e){}
+    if(ON.rec)for(var f in x.rec)ON.rec[f]=x.rec[f];delete d.p[k];AD=d;try{localStorage.setItem('degenpig-ach',JSON.stringify(AD))}catch(e){}
+    if(S.phase==='ach')renderAch();if(S.phase==='dice')renderSkins()}).catch(function(){achMigrate.busy=false});
+}
 function loadMe(){
   if(!AUTH){ON.user=null;ON.rec=null;return}
   authed('/api/me').then(function(d){
-    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;
+    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;achMigrate();
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
@@ -2139,7 +2174,9 @@ function loadMe(){
 }
 function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+function signCardHome(){var c=$('signCard');$('signIntro').textContent='Sign in to play online. Your achievements and table history are saved to your account, on any phone.';if(ON.cardHome&&c.parentNode!==ON.cardHome)ON.cardHome.insertBefore(c,ON.cardNext||null)}
 function renderOnline(){
+  signCardHome();
   var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;
   $('ownerLink').hidden=!(ON.admin&&!out);
   if(!out)$('acctWho').innerHTML='Signed in'+(ON.user?' as <b>'+esc(ON.user.email||ON.user.name)+'</b>':'');
@@ -2425,7 +2462,8 @@ function start(data){
   /* an invite link opens straight into the table: /?t=CODE&p=password */
   try{var q=new URLSearchParams(location.search),tc=q.get('t');
     if(!tc&&AUTH){var pend=JSON.parse(localStorage.getItem('degenpig-pending')||'null');if(pend&&pend.code){localStorage.removeItem('degenpig-pending');tc=pend.code;q.set('p',pend.pw||'')}}
-    if(!tc&&(back||q.get('online'))){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render()}if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
+    if(!tc&&q.get('ach')){history.replaceState(null,'',location.pathname);S.phase='ach';loadMe();render()}
+    else if(!tc&&(back||q.get('online'))){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render()}if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
     if(myId().name||!AUTH)onJoin(tc,q.get('p')||'');else{$('onMsg').className='onmsg ok';$('onMsg').textContent='Type your name, then tap Join to sit at table '+tc.toUpperCase()+'.';$('joinCode').value=tc.toUpperCase();ON.pw=q.get('p')||''}}
     /* back at a table you were sitting at (the page was closed or reloaded): take your seat again */
     else{var sv=JSON.parse(localStorage.getItem('degenpig-table')||'null');if(sv&&sv.code&&AUTH){S.phase='online';onEnter();render();netNote('Rejoining your table…',2500);onJoin(sv.code,sv.pw||'')}}}catch(e){}

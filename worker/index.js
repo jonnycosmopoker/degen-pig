@@ -100,7 +100,7 @@ export class Lobby {
 }
 
 /* Player records: achievements, rivals and table history, keyed by player id. */
-const ACC_METHODS = ['get', 'put', 'del', 'claim', 'touch', 'top', 'lbAdd', 'board'];
+const ACC_METHODS = ['get', 'put', 'del', 'claim', 'touch', 'top', 'lbAdd', 'board', 'achMerge'];
 export class Accounts {
   constructor(state) { this.A = new AccountsLogic(state.storage) }
   async fetch(req) {

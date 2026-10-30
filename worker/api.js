@@ -25,6 +25,10 @@ export async function handleApi(d, method, path, token, body) {
   if (path === '/api/claim' && method === 'POST') {
     return [200, { ok: true, moved: await d.accounts.claim(user.id, String((body && body.legacy) || '').slice(0, 64)) }];
   }
+  if (path === '/api/ach' && method === 'POST') {
+    const r = await d.accounts.achMerge(user.id, body);
+    return r ? [200, { ok: true, rec: r }] : [400, { error: 'Bad request' }];
+  }
   if (path === '/api/delete' && method === 'POST') {
     await d.accounts.del(user.id);
     const removed = d.deleteSignin ? await d.deleteSignin(user).catch(() => false) : false;

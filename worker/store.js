@@ -1,3 +1,4 @@
+import { ACH_KINDS } from '../shared/engine.js';
 /* Storage-backed logic for the lobby, the stats counters and player accounts.
    The Durable Objects in worker/index.js hand these their storage; the local dev server hands them MemStorage.
    Storage API used: get(key), put(key, value), delete(key), list({ prefix }) -> Map. */
@@ -106,6 +107,26 @@ export class AccountsLogic {
     const wb = (await this.s.get('lb:w:' + weekKey(now))) || {};
     let top = null, best = 4; for (const u in wb) if (wb[u].wins > best) { best = wb[u].wins; top = u }
     return top;
+  }
+  /* Pass n Play badges for a signed-in player: merge what the phone sends without ever lowering what the account already has */
+  async achMerge(uid, d) {
+    if (!uid || !d || typeof d !== 'object') return null;
+    const rec = (await this.s.get('u:' + uid)) || { v: {}, opp: {}, history: [], created: Date.now() };
+    rec.v = rec.v || {}; rec.opp = rec.opp || {};
+    const num = x => { const n = Number(x); return isFinite(n) && n >= 0 ? Math.min(n, 1e9) : null };
+    for (const id in (d.v || {})) {
+      const k = ACH_KINDS[id], n = num(d.v[id]); if (!k || n == null) continue;
+      const cur = rec.v[id];
+      if (k === 'one') { if (n) rec.v[id] = 1 }
+      else if (k === 'min') { if (n > 0 && (cur == null || n < cur)) rec.v[id] = n }
+      else if (cur == null || n > cur) rec.v[id] = n;
+    }
+    let c = 0;
+    for (const key in (d.opp || {})) { if (++c > 300) break; if (!/^n:/.test(key) || key.length > 24) continue; const n = num(d.opp[key]); if (n != null && n > (rec.opp[key] || 0)) rec.opp[key] = n }
+    if (typeof d.pday === 'string' && d.pday.length <= 12) rec.pday = d.pday;
+    const pds = num(d.pds), pws = num(d.pws); if (pds != null) rec.pds = pds; if (pws != null) rec.pws = pws;
+    await this.s.put('u:' + uid, rec);
+    return { v: rec.v, opp: rec.opp, pday: rec.pday, pds: rec.pds, pws: rec.pws };
   }
   async board(period, uid) {
     const now = Date.now(), key = period === 'week' ? 'lb:w:' + weekKey(now) : period === 'month' ? 'lb:m:' + monthKey(now) : 'lb:all';

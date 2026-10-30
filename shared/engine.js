@@ -20,6 +20,8 @@ const ACH = [
   ['crowd','one',2],['nightowl','one',1],['toppig','one',3],['nemesis','max',[10,25,50,100]],['fulltable','cnt',[1,10,50,200]],
   ['tilted','max',[5,7,10,null]],['snakecollector','cnt',[25,100,250,500]],['burntbacon','cnt',[1000,10000,50000,100000]],['roughstart','one',0]
 ];
+/* each badge's kind, for merging records: counts and bests only go up, 'min' badges only go down */
+export const ACH_KINDS = Object.fromEntries(ACH.map(a => [a[0], a[1]]));
 const ACHBY = {};
 ACH.forEach(a => { ACHBY[a[0]] = { id: a[0], k: a[1], L: Array.isArray(a[2]) ? a[2] : null, t: Array.isArray(a[2]) ? null : a[2] } });
 export function achLevel(id, rec) {
