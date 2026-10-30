@@ -2188,6 +2188,9 @@ function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k
 function trackMoney(c){var t=c&&c.track;if(!t||!t.on)return null;var v=function(x){var n=Math.round(parseFloat(String(x||'').replace(/[^0-9.]/g,''))*100)/100;return isFinite(n)&&n>0?Math.min(n,100000):0};
   var m={game:v(t.game),point:v(t.point),golden:c.golden?v(t.golden):0};return m.game||m.point||m.golden?m:null}
 function cash(cents,sign){var a=Math.abs(cents)/100,t=a%1?a.toFixed(2):String(a);t=t.replace(/\B(?=(\d{3})+(?!\d))/g,',');return (sign?(cents>0?'+':cents<0?'−':''):'')+'$'+t}
+/* Track $ table name when the host leaves the name blank, e.g. "$10/Game $.25/Pt $1/GP" */
+function trackName(m,golden){var d=function(v){var t=v%1?v.toFixed(2):String(v);return '$'+t.replace(/^0\./,'.')};
+  var x=[];if(m.game)x.push(d(m.game)+'/Game');if(m.point)x.push(d(m.point)+'/Pt');if(golden&&m.golden)x.push(d(m.golden)+'/GP');return x.join(' ')}
 function moneyLine(m,golden){var x=[];if(m.game)x.push(cash(m.game*100)+' game');if(m.point)x.push(cash(m.point*100)+' pt');if(golden&&m.golden)x.push(cash(m.golden*100)+' golden');return x.join(' · ')}
 function renderHost(){
   $('hSeats').textContent=ON.hostSeats;$('hLess').disabled=ON.hostSeats<=2;$('hMore').disabled=ON.hostSeats>=6;
@@ -2199,7 +2202,7 @@ function renderHost(){
   $('hRules').textContent='Online tables start with Golden Points and Five Ones 2x on and no timer. Your choices here are remembered for next time.';
   var tk=c.track||(c.track={on:false,game:'',point:'',golden:''});
   $('hTrack').classList.toggle('on',!!tk.on);$('hTrack').setAttribute('aria-expanded',tk.on?'true':'false');$('hMoney').hidden=!tk.on;
-  var mo=trackMoney(c);$('hTrackSub').textContent=!tk.on?'Off':mo?'On · '+cash(Math.round(mo.game*100))+' a game':'Fill in amounts';
+  var mo=trackMoney(c);$('hName').placeholder=mo?trackName(mo,c.golden):'Monday night pigs';$('hTrackSub').textContent=!tk.on?'Off':mo?'On · '+cash(Math.round(mo.game*100))+' a game':'Fill in amounts';
   ['game','point','golden'].forEach(function(k){var el=$('hM'+k);if(document.activeElement!==el)el.value=tk[k]||''});
   $('hMgoldRow').hidden=!c.golden;$('hMnote').textContent=c.golden?'':'Golden Points is off, so points are counted on full scores.';
 }
@@ -2364,7 +2367,7 @@ $('hCreate').addEventListener('click',function(){
   if(ON.hcfg.track&&ON.hcfg.track.on&&!trackMoney(ON.hcfg)){$('hMsg').textContent='Fill in at least one Track $ amount, or turn Track $ off.';$('hMgame').focus();return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
   try{localStorage.setItem('degenpig-hostcfg',JSON.stringify(ON.hcfg))}catch(e){}
-  authed('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:Object.assign({},ON.hcfg,{money:trackMoney(ON.hcfg)}),hostUid:me.uid,hostName:me.name})})
+  authed('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(trackMoney(ON.hcfg)?trackName(trackMoney(ON.hcfg),ON.hcfg.golden):(me.name+'’s table')),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:Object.assign({},ON.hcfg,{money:trackMoney(ON.hcfg)}),hostUid:me.uid,hostName:me.name})})
     .then(function(d){b.disabled=false;onJoin(d.code,priv?pw:'')})
     .catch(function(e){b.disabled=false;$('hMsg').textContent=String(e.message).indexOf('401')>=0||e.message==='signin'?'Please sign in again.':'Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
 });

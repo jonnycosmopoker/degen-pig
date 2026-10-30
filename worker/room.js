@@ -45,7 +45,7 @@ export class TableRoom {
   async init(o) {
     if (this.meta) return { ok: false, error: 'exists' };
     this.meta = {
-      code: o.code, name: clean(o.name, 24) || 'Degen Pig table', public: !o.private, pw: o.private ? await hashPw(o.code, o.password || '') : null,
+      code: o.code, name: clean(o.name, 32) || 'Degen Pig table', public: !o.private, pw: o.private ? await hashPw(o.code, o.password || '') : null,
       seats: Math.max(2, Math.min(6, o.seats | 0 || 4)), rules: cleanRules(o.rules), hostUid: clean(o.hostUid, 64), hostName: clean(o.hostName, 12) || 'Host',
       status: 'waiting', createdAt: this.now()
     };
