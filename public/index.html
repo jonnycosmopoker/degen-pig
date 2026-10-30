@@ -561,10 +561,16 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 #over:not(.showstats) #ptsStand{display:none}
 .ptsstand{display:flex;flex-direction:column;gap:8px}
 .ptsstand h3{margin:6px 0 2px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.row.mn{grid-template-columns:18px minmax(0,1fr) auto auto 26px;gap:8px}
-.row.mn .sc,.row.mn .tt{font-family:inherit;font-weight:800;font-size:17px;letter-spacing:-.01em;white-space:nowrap}
-.row.mn .nm small span{white-space:nowrap}
-.row.mn .nm small{display:block;font-size:11px;font-weight:600;color:var(--muted);white-space:normal;line-height:1.3}
+.row.mn{grid-template-columns:14px minmax(0,1fr) var(--mw1,auto) var(--mw2,auto) 22px;gap:7px;padding-left:10px;padding-right:10px}
+.row.mn .nm .sw{margin-right:6px}
+.row.mn{border:2px solid transparent}
+.row.mn.first{border-color:var(--gold)}
+.row.mn.rhead span{text-align:right}
+.row.mn.rhead span:nth-child(2){text-align:left}
+.row.mn .sc,.row.mn .tt{font-family:inherit;font-weight:800;font-size:16px;letter-spacing:-.02em;white-space:nowrap}
+
+.row.mn .brk{grid-column:2/-1;margin-top:-4px;font-size:12px;font-weight:600;color:var(--muted);line-height:1.35}
+.row.mn .brk span{white-space:nowrap}
 .row .mup{color:#7FE0A0}.row .mdn{color:var(--red-text)}
 .row .mz{color:var(--muted)}
 #over .actions .btn{font-size:16px;padding:8px 6px}
@@ -1828,7 +1834,12 @@ function renderMain(){
       var cls=function(c){return c>0?'mup':c<0?'mdn':'mz'};
       $('standings').innerHTML='<div class="row rhead mn"><span></span><span>Player</span><span>This game</span><span>Total</span><span>Wins</span></div>'+ms.map(function(i,k){var p=P(i),mv=(last.m||[])[i]||0,pp=(last.mp||[])[i]||[0,0,0],bits=[];
         if(pp[0])bits.push(cash(pp[0],true)+' game');if(pp[1])bits.push(cash(pp[1],true)+' points');if(pp[2])bits.push(cash(pp[2],true)+' golden');
-        return '<div class="row mn'+(S.winners.indexOf(i)>=0?' first':'')+'"><span class="rk">'+(k+1)+'</span><span class="nm"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+(bits.length?'<small><span>'+bits.join(' ·</span> <span>')+'</span></small>':'')+'</span><span class="sc '+cls(mv)+'">'+cash(mv,true)+'</span><span class="tt '+cls(tm[i])+'">'+cash(tm[i],true)+'</span><span class="net'+((p.wins||0)>0?' up':'')+'">'+(p.wins||0)+'</span></div>'}).join('');
+        return '<div class="row mn'+(S.winners.indexOf(i)>=0?' first':'')+'"><span class="rk">'+(k+1)+'</span><span class="nm"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+'</span><span class="sc '+cls(mv)+'">'+cash(mv,true)+'</span><span class="tt '+cls(tm[i])+'">'+cash(tm[i],true)+'</span><span class="net'+((p.wins||0)>0?' up':'')+'">'+(p.wins||0)+'</span>'+(bits.length?'<span class="brk"><span>'+bits.join(' ·</span> <span>')+'</span></span>':'')+'</div>'}).join('');
+      /* every row (and the header) uses the same column widths: the widest amount in each column */
+      (function(){var st=$('standings'),w1=0,w2=0;st.style.removeProperty('--mw1');st.style.removeProperty('--mw2');
+        Array.prototype.forEach.call(st.querySelectorAll('.row.mn:not(.rhead)'),function(r){w1=Math.max(w1,r.querySelector('.sc').scrollWidth);w2=Math.max(w2,r.querySelector('.tt').scrollWidth)});
+        var h=st.querySelector('.row.mn.rhead');if(h){w1=Math.max(w1,h.children[2].scrollWidth);w2=Math.max(w2,h.children[3].scrollWidth)}
+        if(w1&&w2){st.style.setProperty('--mw1',Math.ceil(w1)+'px');st.style.setProperty('--mw2',Math.ceil(w2)+'px')}})();
       $('ptsStand').innerHTML='<h3>Points</h3>'+ptsHTML;
       $('tallyCap').textContent='Track $ ('+moneyLine(RL().money,RL().golden)+'): the winner collects the game amount from each player, plus the difference in points'+(RL().golden?' and Golden Points':'')+'. Total adds up every game at this table. Points are under View stats.';
     }else{$('standings').innerHTML=ptsHTML;$('ptsStand').innerHTML=''}
