@@ -430,7 +430,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .back{align-self:flex-start;flex:none}
 .headrow{display:flex;align-items:center;gap:14px;flex:none}
 .headrow .back{align-self:center}
-.headrow .screen-h{flex:1;min-width:0}
+.headrow .screen-h{flex:1;min-width:0;font-size:clamp(18px,5.3vw,24px);line-height:1.1}
 .menu{display:flex;flex-direction:column;gap:10px}
 /* main menu: dark rows, each with a gold coin icon and an arrow */
 .mrow{display:flex;align-items:center;gap:14px;width:100%;min-height:62px;padding:8px 14px 8px 10px;border-radius:16px;border:1px solid rgba(242,194,48,.35);cursor:pointer;text-align:left;color:var(--ivory);background:linear-gradient(180deg,#17302A,#10231C);box-shadow:0 6px 14px rgba(0,0,0,.35)}
@@ -728,8 +728,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <section class="dock scroll" id="gh" hidden>
-    <button type="button" class="link back" id="backGh">‹ Online Play</button>
-    <h1 class="screen-h">Game History</h1>
+    <div class="headrow"><button type="button" class="link back" id="backGh">‹ Online Play</button><h1 class="screen-h">Game History</h1></div>
     <p class="cap">Your last 100 tables, newest first, 25 to a page. Tap one to see everyone's final totals.</p>
     <div class="lobby" id="histList"></div>
     <div class="pager" id="ghPager" hidden><button type="button" class="link" id="ghNewer">‹ Newer</button><span id="ghPageLbl"></span><button type="button" class="link" id="ghOlder">Older ›</button></div>
