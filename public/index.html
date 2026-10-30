@@ -530,6 +530,8 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .clock.mine{border-color:var(--gold);color:var(--gold);box-shadow:0 0 0 2px rgba(242,194,48,.25)}
 .clock.low{border-color:var(--red-text);color:var(--red-text);box-shadow:0 0 0 2px rgba(255,122,112,.25)}
 .netnote{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:21;max-width:min(92vw,380px);padding:10px 16px;border-radius:14px;background:var(--panel);border:1px solid var(--line);font-size:14px;font-weight:700;box-shadow:0 10px 26px rgba(0,0,0,.5);text-align:center}
+.awaychip.rc{border-color:var(--gold);color:var(--gold);animation:rcpulse 1.4s ease-in-out infinite}
+@keyframes rcpulse{50%{opacity:.45}}
 .awaychip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--red-text);color:var(--red-text);font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;vertical-align:middle}
 /* between games: scores first, graphs and dice stats one tap away */
 #over:not(.showstats) .chartcard,#over:not(.showstats) #facts{display:none}
@@ -1875,7 +1877,7 @@ function openRules(){
   var g=inGame()||(S.online&&S.phase==='over');$('quitBtn').hidden=!g;$('quitBtn').textContent=S.online?'Leave the table':'End this game';$('closeRules').textContent=g?'Back to the game':'Close';
   var dl=$('rules');if(dl.showModal)dl.showModal();else dl.setAttribute('open','');
 }
-function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+'<span class="wn">'+esc(t)+(S.online&&ai===S.me?' (you)':'')+'</span>'+(cb?'<span class="cpuchip" title="'+STYLE[cb]+' computer player">CPU</span>':'')+(aw?'<span class="awaychip">Away · CPU playing</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip'+(MX()>2?' x3':'')+'">×'+MX()+' turn</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
+function setWho(t){var ai=activeIdx(),cb=ai>=0&&S.players[ai]&&S.players[ai].bot,aw=ai>=0&&S.players[ai]&&S.players[ai].away,rc=ai>=0&&S.players[ai]&&S.players[ai].rc;$('who').innerHTML=(ai>=0?'<i class="sw" style="background:var(--s'+(ai+1)+');margin-right:8px"></i>':'')+'<span class="wn">'+esc(t)+(S.online&&ai===S.me?' (you)':'')+'</span>'+(cb?'<span class="cpuchip" title="'+STYLE[cb]+' computer player">CPU</span>':'')+(aw?'<span class="awaychip">Away · CPU playing</span>':'')+(rc?'<span class="awaychip rc">Reconnecting…</span>':'')+(S.hotTurn&&!S.bust&&!S.finalDone&&(S.phase==='play'||S.phase==='final')?'<span class="x2chip'+(MX()>2?' x3':'')+'">×'+MX()+' turn</span>':'')+(RL().reroll&&ai>=0&&(S.phase==='play'||S.phase==='final')?'<span class="rrchip">↻ '+(P(ai).rr||0)+' re-roll'+((P(ai).rr||0)===1?'':'s')+'</span>':'')}
 function ordinal(n){return n===1?'st':n===2?'nd':n===3?'rd':'th'}
 
 /* ---------- controls ---------- */
@@ -2222,7 +2224,7 @@ function applyState(m){
 function sideFx(ev){
   if(ev.lock)sfxLock(ev.lock);
   if(ev.hot)setTimeout(sfxHot,450);
-  if(ev.note)netNote(ev.note,3500);
+  if(ev.note)netNote(ev.note,/disconnected|make it back/.test(ev.note)?7000:3500);
   if(ev.unlocks&&ev.unlocks.length){ev.unlocks.forEach(function(u){var a=ACHBY[u.id];if(a)achQ.push({a:a,lv:u.lv,who:myId().name||'You'})});loadMe()}
 }
 function onVote(){
@@ -2237,8 +2239,8 @@ setInterval(function(){
   var on=S.online&&(S.phase==='play'||S.phase==='final')&&ON.deadline>0&&!S.rolling&&!S.bust;
   $('tray').classList.toggle('clocked',!!on);
   if(!on){el.hidden=true;return}
-  var left=Math.max(0,Math.ceil((ON.deadline-Date.now())/1000)),mine=!blocked();
-  el.hidden=false;el.textContent=(mine?'You · ':'')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');el.setAttribute('aria-label',(mine?'Your time left: ':'Time left: ')+left+' seconds');
+  var left=Math.max(0,Math.ceil((ON.deadline-Date.now())/1000)),mine=!blocked(),ap=S.players[activeIdx()],rcw=!!(ap&&ap.rc);
+  el.hidden=false;el.textContent=(rcw?'Waiting · ':mine?'You · ':'')+Math.floor(left/60)+':'+String(left%60).padStart(2,'0');el.setAttribute('aria-label',(mine?'Your time left: ':'Time left: ')+left+' seconds');
   el.className='clock'+(mine?' mine':'')+(mine&&left<=5?' low':'');
 },250);
 $('hostBtn').addEventListener('click',function(){if(!readOnName()){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}$('hMsg').textContent='';ON.hcfg=hostDefaults();S.phase='host';render()});

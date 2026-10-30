@@ -8,6 +8,7 @@ const BURN_MS = 2300;        /* extra time for the snake-eyes fire */
 const BOT_MS = 950;          /* pause before a computer acts */
 const BUST_PASS_MS = 2600;   /* a bust passes the dice on by itself after this */
 const WAIT_GRACE_MS = 30000; /* a dropped phone keeps its waiting-room seat this long */
+const GAME_GRACE_MS = 30000; /* mid-game, a dropped player gets this long to reconnect before a computer covers their seat */
 const EMPTY_END_MS = 300000; /* a game with nobody connected closes after this */
 const RESUME_MS = 25000;     /* after a server restart, players get this long to reconnect before a computer covers their seat */
 const BEAT_MS = 60000;       /* tables check in with the lobby this often, so dead ones drop off the list */
@@ -102,10 +103,26 @@ export class TableRoom {
       seat.away = true; this.broadcast();
       this.graces.set(c.uid, setTimeout(() => { this.graces.delete(c.uid); if (seat.away && this.meta.status === 'waiting') this.dropSeat(seat, 'left') }, WAIT_GRACE_MS));
     } else if (this.meta.status === 'playing') {
-      seat.away = true; if (this.G) this.G.players[this.seats.indexOf(seat)].away = true; this.pushLobby();
-      this.broadcast({ note: seat.name + ' disconnected. A computer is playing for them until they come back.' }); this.tick();
+      /* hold the seat for 30 seconds; the game only waits if it's their turn */
+      const i = this.seats.indexOf(seat), P = this.G && this.G.players[i];
+      seat.rc = true; seat.rcUntil = this.now() + GAME_GRACE_MS * this.k; if (P) P.rc = true; this.pushLobby();
+      const theirTurn = this.G && (this.G.phase === 'play' || this.G.phase === 'final') && this.G.cur === i;
+      this.broadcast({ note: seat.name + ' disconnected. Waiting 30 seconds for them to reconnect' + (theirTurn ? ', so the game is paused.' : ' before a computer covers for them.') });
+      this.tick();
+      this.graces.set(c.uid, setTimeout(() => this.graceOver(seat), GAME_GRACE_MS * this.k));
       this.checkEmpty();
     }
+  }
+  /* 30 seconds passed without them coming back: a computer takes their seat until they return */
+  graceOver(seat) {
+    this.graces.delete(seat.uid);
+    if (!seat.rc || this.meta.status !== 'playing') return;
+    const i = this.seats.indexOf(seat), P = this.G && this.G.players[i];
+    seat.rc = false; seat.away = true; if (P) { P.rc = false; P.away = true }
+    this.pushLobby();
+    this.broadcast({ note: seat.name + ' didn\u2019t make it back. A computer is playing for them until they return.' });
+    this.tick();
+    const S = this.G; if (S && S.phase === 'over') { const need = this.seats.filter(s => s.uid && !s.away && !s.rc).map(s => s.uid); if (need.length && need.every(u => this.votes.has(u))) { this.votes.clear(); S.fx = null; this.E.beginOrder(); this.after({ again: true }) } }
   }
   async onMessage(sock, raw) {
     let m; try { m = JSON.parse(raw) } catch (e) { return }
@@ -164,10 +181,10 @@ export class TableRoom {
       if (seat.host) this.seats.unshift(seat); else this.seats.push(seat);
       seat.acc = { v: {}, opp: {}, history: [] }; this.loadAcc(seat);
     }
-    c.uid = uid; seat.away = false; this.send(sock, { t: 'chatlog', list: this.chat.map(x => chatOut(x, uid)) });
+    c.uid = uid; seat.away = false; seat.rc = false; this.send(sock, { t: 'chatlog', list: this.chat.map(x => chatOut(x, uid)) });
     const g = this.graces.get(uid); if (g) { clearTimeout(g); this.graces.delete(uid) }
     if (this.emptyTimer) { clearTimeout(this.emptyTimer); this.emptyTimer = null }
-    if (this.G) { const i = this.seats.indexOf(seat); if (this.G.players[i]) this.G.players[i].away = false }
+    if (this.G) { const i = this.seats.indexOf(seat); if (this.G.players[i]) { this.G.players[i].away = false; this.G.players[i].rc = false } }
     this.pushLobby();
     if (this.meta.status === 'waiting' && this.seats.length >= this.meta.seats && this.seats.every(s => !s.away)) return this.startGame();
     this.broadcast(this.G ? { note: seat.name + ' is back.' } : null);
@@ -230,6 +247,9 @@ export class TableRoom {
     const wait = Math.max(0, this.busyUntil - this.now()), i = S.cur;
     if (this.E.ctrl(i)) { this.timer = setTimeout(() => this.botStep(), wait + (S.bust ? 1500 * this.k : (BOT_MS * this.k))); return }
     if (S.bust) { this.timer = setTimeout(() => { this.timer = null; S.fx = null; if (this.E.pass()) this.after({ fx: S.fx }) }, wait + (BUST_PASS_MS * this.k)); return }
+    if (S.players[i].rc) {   /* paused: show everyone how long until a computer steps in */
+      this.deadline = (this.seats[i] && this.seats[i].rcUntil) || 0;
+      this.broadcastDeadline(); return }
     if (S.rules.timer === 0) { this.broadcastDeadline(); return }   /* No timer: wait as long as it takes */
     const ms = S.rules.timer * 1000 * this.k; this.deadline = this.now() + wait + ms;
     this.timer = setTimeout(() => { this.timer = null; S.fx = null; S.unlocks = []; const who = S.players[S.cur].name; if (this.E.timeout()) this.after({ fx: S.fx, note: who + ' ran out of time.' }) }, wait + ms);
