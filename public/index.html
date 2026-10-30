@@ -237,6 +237,12 @@ input{-webkit-user-select:text;user-select:text}
 .note{font-size:13px;color:var(--muted);text-align:center;min-height:35px;text-wrap:balance}
 
 .field{display:flex;flex-direction:column;gap:8px}
+.countrow{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.setbtn{display:flex;align-items:center;gap:10px;min-height:56px;padding:6px 14px 6px 8px;border-radius:16px;border:1px solid rgba(242,194,48,.35);background:linear-gradient(180deg,#17302A,#10231C);color:var(--ivory);font-weight:800;font-size:16px;cursor:pointer;text-align:left;box-shadow:0 6px 14px rgba(0,0,0,.35)}
+.setbtn>span:last-child{display:flex;flex-direction:column}
+.setbtn small{font-size:12px;font-weight:600;color:var(--muted)}
+.setbtn .coin{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#3B2305;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:inset 0 0 0 2px #8A5A0A,inset 0 0 0 4px #F6CF45,0 3px 6px rgba(0,0,0,.45)}
+.setbtn:active{transform:translateY(1px)}
 .field>label,.field>.flab,legend{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0}
 fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
 .stepper{display:flex;align-items:center;gap:12px}
@@ -587,7 +593,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="menu">
       <button class="mrow gold" id="mPass" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="3"/><path d="M15 9h3a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3v-3"/><circle cx="7" cy="7" r=".8" fill="currentColor"/><circle cx="11" cy="11" r=".8" fill="currentColor"/><circle cx="17" cy="17" r=".8" fill="currentColor"/></svg></span><span class="mtx"><b>Pass n Play</b><small>Share one phone around the table</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="mrow gold" id="mOnline" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span class="mtx"><b>Online Play</b><small>Everyone on their own phone</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      <button class="mrow" id="mSettings" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></span><span class="mtx"><b>Settings</b><small>Sound and game types</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mrow" id="lbBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V10h6v11M3 21v-6h6M15 21v-8h6v8M2 21h20"/><path d="M12 3l1 2 2 .3-1.5 1.4.4 2.1L12 7.8l-1.9 1 .4-2.1L9 5.3l2-.3z"/></svg></span><span class="mtx"><b>Leaderboard</b><small>Top online players, all-time and weekly</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="mrow" id="mAch" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></span><span class="mtx"><b>Achievements</b><small>Badges each player has earned</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="mrow" id="mRules" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2zM4 19a2 2 0 0 0 2 2h13"/></svg></span><span class="mtx"><b>Rules of the Game</b><small>How to play and every setting</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
@@ -611,13 +617,12 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="needauth"><button class="mrow gold" id="hostBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="12" rx="3"/><path d="M12 10v6M9 13h6M8 7V5M16 7V5"/></svg></span><span class="mtx"><b>Host a Table</b><small>Pick the rules and invite friends</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div>
     <div class="joinrow needauth"><input class="txt" id="joinCode" maxlength="6" placeholder="Table code" aria-label="Table code" autocomplete="off" autocapitalize="characters"><button class="btn ghost" id="joinBtn" type="button">Join</button></div>
     <p class="onmsg" id="onMsg" role="status"></p>
-    <button class="mrow" id="lbBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V10h6v11M3 21v-6h6M15 21v-8h6v8M2 21h20"/><path d="M12 3l1 2 2 .3-1.5 1.4.4 2.1L12 7.8l-1.9 1 .4-2.1L9 5.3l2-.3z"/></svg></span><span class="mtx"><b>Leaderboard</b><small>Top players this week, month, all time</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-    <button class="mrow needauth" id="ghBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></span><span class="mtx"><b>Game History</b><small id="ghSub">Your past tables and final scores</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     <div class="lcount" id="lobbyCount" role="status" hidden></div>
     <h2 class="sechead">Open tables</h2>
     <div class="lobby" id="lobbyList"></div>
     <h2 class="sechead" id="liveHead" hidden>Games in progress</h2>
     <div class="lobby" id="liveList"></div>
+    <button class="mrow needauth" id="ghBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg></span><span class="mtx"><b>Game History</b><small id="ghSub">Your past tables and final scores</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     <a class="link delacct needauth" id="ownerLink" href="/admin.html" hidden>Owner stats</a>
     <button type="button" class="link delacct needauth" id="delAcctBtn">Delete my account</button>
   </section>
@@ -675,7 +680,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <section class="dock scroll" id="lb" hidden>
-    <button type="button" class="link back" id="backLb">‹ Online Play</button>
+    <button type="button" class="link back" id="backLb">‹ Main menu</button>
     <h1 class="screen-h">Leaderboard</h1>
     <div class="tabs" role="group" aria-label="Time period">
       <button type="button" class="tab on" data-p="week" aria-pressed="true">This week</button>
@@ -696,7 +701,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <section class="dock scroll" id="settings" hidden>
-    <button type="button" class="link back" id="backSettings">‹ Main menu</button>
+    <button type="button" class="link back" id="backSettings">‹ Pass n Play</button>
     <h1 class="screen-h">Settings</h1>
     <div class="defrow"><button class="btn ghost" id="defaultsBtn" type="button">Use the default rules</button><span id="defNote"></span></div>
     <div class="opts">
@@ -734,6 +739,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="setup" hidden>
     <button type="button" class="link back" id="backSetup">‹ Main menu</button>
     <p class="intro" id="intro">Roll two dice as often as you dare. Doubles pay double, any 1 wipes the turn, and snake eyes burns your whole score. First to 100 sets the bar.</p>
+    <div class="countrow">
     <div class="field">
       <span class="flab" id="countLab">Players</span>
       <div class="stepper" role="group" aria-labelledby="countLab">
@@ -741,6 +747,8 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
         <output id="count">4</output>
         <button type="button" id="more" aria-label="More players">+</button>
       </div>
+    </div>
+    <button type="button" class="setbtn" id="setupSettings"><span class="coin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></span><span>Settings<small>Rules, dice, sound</small></span></button>
     </div>
     <fieldset>
       <legend>Who is playing</legend>
@@ -1832,7 +1840,7 @@ function renderMain(){
 function renderScreens(ph){
   if(ph==='ach')renderAch();
   if(ph==='online')renderOnline();if(ph==='lb')renderLb();if(ph==='gh')renderHist();if(ph==='host')renderHost();if(ph==='room')renderRoom();
-  if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Settings.';
+  if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Pass n Play, under Settings.';
   if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
   if(ph==='settings'){
     var c=S.cfg;
@@ -1917,14 +1925,14 @@ $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('
 function toMenu(){S.phase='menu';render()}
 $('mPass').addEventListener('click',function(){ac();S.phase='setup';render()});
 $('mOnline').addEventListener('click',function(){S.phase='online';$('onMsg').textContent='';onEnter();render()});
-$('mSettings').addEventListener('click',function(){S.phase='settings';render()});
+$('setupSettings').addEventListener('click',function(){readSetup();S.phase='settings';$('settings').scrollTop=0;render()});
 $('mAch').addEventListener('click',function(){S.phase='ach';$('ach').scrollTop=0;loadMe();render()});
 $('backAch').addEventListener('click',toMenu);
 $('achWho').addEventListener('click',function(e){var b=e.target.closest('button[data-k]');if(b){achSel=b.getAttribute('data-k');renderAch()}});
 $('mRules').addEventListener('click',openRules);
 $('backSetup').addEventListener('click',function(){readSetup();toMenu()});
 $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
-$('backSettings').addEventListener('click',toMenu);
+$('backSettings').addEventListener('click',function(){S.phase='setup';render()});
 function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
 $('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('skins').addEventListener('click',function(e){var b=e.target.closest('.skrow');if(!b)return;var sk=skinById(b.getAttribute('data-skin'));
@@ -2052,7 +2060,7 @@ function renderOnline(){
   else L.innerHTML=ON.tables.map(function(t){return '<div class="lrow"><div class="lt"><b>'+(t.locked?LOCK:'')+esc(t.name)+'</b><span>'+esc(t.host)+' · '+t.filled+' of '+t.seats+' seats · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-code="'+esc(t.code)+'" data-locked="'+(t.locked?1:0)+'" data-name="'+esc(t.name)+'">Join</button></div>'}).join('');
   /* one entry per table session: from opening the table to closing it, with everyone's final totals */
   var V=ON.offline?[]:(ON.live||[]);$('liveHead').hidden=!V.length;
-  $('liveList').innerHTML=V.map(function(t){return '<div class="lrow"><div class="lt"><b>'+esc(t.name)+'</b><span>'+esc(t.players.join(', '))+' · '+(t.games?'game '+(t.games+1):'first game')+' · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-watch="'+esc(t.code)+'">Watch</button></div>'}).join('');
+  $('liveList').innerHTML=V.map(function(t){return '<div class="lrow"><div class="lt"><b>'+(t.locked?LOCK:'')+esc(t.name)+'</b><span>'+esc(t.players.join(', '))+' · '+(t.games?'game '+(t.games+1):'first game')+' · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-watch="'+esc(t.code)+'" data-locked="'+(t.locked?1:0)+'" data-name="'+esc(t.name)+'">Watch</button></div>'}).join('');
   var NH=histEntries().length;$('ghSub').textContent=NH?NH+' table'+(NH===1?'':'s')+' played · final scores':'Your past tables and final scores';
 }
 function histEntries(){return ((ON.rec&&ON.rec.history)||[]).filter(function(x){return x&&x.sid&&x.players})}
@@ -2100,7 +2108,7 @@ function renderRoom(){
 }
 function netNote(t,ms){var n=$('netNote');if(!t){n.hidden=true;return}n.textContent=t;n.hidden=false;clearTimeout(netNote.t);if(ms)netNote.t=setTimeout(function(){n.hidden=true},ms)}
 function onJoin(code,pw){
-  code=String(code||'').trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){$('onMsg').className='onmsg';$('onMsg').textContent='Table codes are 6 letters and numbers.';return}
+  code=String(code||'').trim().toUpperCase();if(/^[A-Z0-9]{6}$/.test(code))ON.lastCode=code;if(!/^[A-Z0-9]{6}$/.test(code)){$('onMsg').className='onmsg';$('onMsg').textContent='Table codes are 6 letters and numbers.';return}
   if(!AUTH){try{localStorage.setItem('degenpig-pending',JSON.stringify({code:code,pw:pw||''}))}catch(e){}S.phase='online';$('onMsg').className='onmsg ok';$('onMsg').textContent='Sign in to join table '+code+'.';render();return}
   if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
   ON.watch=false;ON.code=code;ON.pw=pw||'';ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
@@ -2117,9 +2125,9 @@ function connect(){
     netNote('Connection lost. Reconnecting…');ON.retry++;setTimeout(function(){if(!ON.closing&&ON.code&&!ON.ws)connect()},Math.min(8000,700*Math.pow(2,ON.retry)))};
 }
 /* watch a public game in progress */
-function onWatch(code){
+function onWatch(code,pw){
   if(!AUTH){$('onMsg').className='onmsg';$('onMsg').textContent='Sign in to watch games.';return}
-  ON.code=code;ON.pw='';ON.watch=true;ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
+  ON.lastCode=code;ON.code=code;ON.pw=pw||'';ON.watch=true;ON.closing=false;ON.leaving=false;ON.retry=0;ON.queue=[];ON.busy=false;ON.meta=null;
   netNote('Joining as a spectator…',2000);connect();
 }
 function stopWatching(){ON.closing=true;ON.code=null;ON.watch=false;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
@@ -2180,7 +2188,7 @@ function onMsg(m){
   if(m.t==='timer'){ON.deadline=m.left>0?Date.now()+m.left:0;return}
   if(m.t==='error'){
     if(m.fatal){forgetTable();ON.closing=true;ON.code=null;try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null;S.online=false}
-    if(m.code==='password'){askPw(ON.lastCode,ON.lastName,true);return}
+    if(m.code==='password'){var w=ON.watch;if(w){ON.watch=false;S.phase='online';onEnter();render()}askPw(ON.lastCode,ON.lastName,true,w);return}
     if(m.code==='auth'){AUTH=null;authSave();ON.user=null}
     S.phase='online';$('onMsg').className='onmsg';$('onMsg').textContent=m.msg||'Something went wrong.';onEnter();render();return}
   if(m.t==='ended'&&ON.leaving){ON.leaving=false;return}
@@ -2222,7 +2230,7 @@ function onVote(){
 }
 function onLeave(){forgetTable();ON.leaving=true;onSend('leave');ON.closing=true;ON.code=null;setTimeout(function(){try{ON.ws&&ON.ws.close()}catch(e){}ON.ws=null},300);ON.queue=[];ON.busy=false;S.online=false;S.busy=false;S.rolling=false;S.phase='online';onEnter();render()}
 function blocked(){if(S.online){var a=activeIdx();return a!==S.me||!!(S.players[a]&&S.players[a].away)}return isBotTurn()}
-function askPw(code,name,wrong){ON.lastCode=code;ON.lastName=name;$('pwText').textContent=(wrong?'That password didn’t work. ':'')+(name?'“'+name+'”':'This table')+' is private. Enter its password to join.';$('pwIn').value='';var d=$('pwDlg');if(d.showModal)d.showModal();else d.setAttribute('open','');setTimeout(function(){$('pwIn').focus()},50)}
+function askPw(code,name,wrong,watch){ON.lastCode=code;ON.lastName=name;ON.pwWatch=!!watch;$('pwText').textContent=(wrong?'That password didn’t work. ':'')+(name?'“'+name+'”':'This table')+' is private. Enter its password to '+(watch?'watch':'join')+'.';$('pwGo').textContent=watch?'Watch the game':'Join the table';$('pwIn').value='';var d=$('pwDlg');if(d.showModal)d.showModal();else d.setAttribute('open','');setTimeout(function(){$('pwIn').focus()},50)}
 /* the turn clock */
 setInterval(function(){
   var el=$('clock');if(!el)return;
@@ -2256,7 +2264,7 @@ $('onName').addEventListener('input',readOnName);
 $('lobbyList').addEventListener('click',function(e){var b=e.target.closest('button[data-code]');if(!b)return;$('onMsg').textContent='';
   if(!readOnName()&&!myId().name){$('onMsg').className='onmsg';$('onMsg').textContent='Type your name first.';$('onName').focus();return}
   if(b.getAttribute('data-locked')==='1')askPw(b.getAttribute('data-code'),b.getAttribute('data-name'),false);else onJoin(b.getAttribute('data-code'),'')});
-$('pwGo').addEventListener('click',function(){$('pwDlg').close();onJoin(ON.lastCode,$('pwIn').value)});
+$('pwGo').addEventListener('click',function(){$('pwDlg').close();if(ON.pwWatch)onWatch(ON.lastCode,$('pwIn').value);else onJoin(ON.lastCode,$('pwIn').value)});
 $('pwIn').addEventListener('keydown',function(e){if(e.key==='Enter')$('pwGo').click()});
 $('pwCancel').addEventListener('click',function(){$('pwDlg').close();if(S.phase!=='online'){S.phase='online';onEnter();render()}});
 $('endOk').addEventListener('click',function(){$('endDlg').close()});
@@ -2266,9 +2274,11 @@ $('ghBtn').addEventListener('click',function(){S.phase='gh';ON.ghPage=0;$('gh').
 $('ghNewer').addEventListener('click',function(){ON.ghPage--;renderHist();$('gh').scrollTop=0;window.scrollTo(0,0)});
 $('ghOlder').addEventListener('click',function(){ON.ghPage++;renderHist();$('gh').scrollTop=0;window.scrollTo(0,0)});
 $('backGh').addEventListener('click',function(){S.phase='online';onEnter();render()});
-$('backLb').addEventListener('click',function(){S.phase='online';onEnter();render()});
+$('backLb').addEventListener('click',toMenu);
 Array.prototype.forEach.call(document.querySelectorAll('#lb .tab'),function(b){b.addEventListener('click',function(){ON.lbP=b.getAttribute('data-p');if(!ON.lb[ON.lbP])loadLb(ON.lbP);else{renderLb();loadLb(ON.lbP)}})});
-$('liveList').addEventListener('click',function(e){var b=e.target.closest('button[data-watch]');if(b){$('onMsg').textContent='';onWatch(b.getAttribute('data-watch'))}});
+$('liveList').addEventListener('click',function(e){var b=e.target.closest('button[data-watch]');if(!b)return;$('onMsg').textContent='';
+  if(!AUTH){$('onMsg').className='onmsg';$('onMsg').textContent='Sign in to watch games.';return}
+  if(b.getAttribute('data-locked')==='1')askPw(b.getAttribute('data-watch'),b.getAttribute('data-name'),false,true);else onWatch(b.getAttribute('data-watch'))});
 $('stopWatch').addEventListener('click',stopWatching);
 $('gSignIn').addEventListener('click',signIn);
 /* Telegram, Instagram, Facebook and similar apps open links in their own browser, which Google refuses to sign in from */

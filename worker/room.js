@@ -150,7 +150,7 @@ export class TableRoom {
     let seat = this.seats.find(s => s.uid === uid);
     /* spectators: watch a public game in progress; they see everything but can't act */
     if (m.watch && !seat) {
-      if (this.meta.pw) return this.send(sock, { t: 'error', fatal: true, msg: 'Private games can\u2019t be watched.' });
+      if (this.meta.pw && uid !== this.meta.hostUid && (await hashPw(this.meta.code, String(m.pw || ''))) !== this.meta.pw) return this.send(sock, { t: 'error', fatal: true, code: 'password', msg: 'Wrong password for this table.' });
       if (this.meta.status !== 'playing' || !this.G) return this.send(sock, { t: 'error', fatal: true, msg: 'That game hasn\u2019t started yet. Join it from Open tables instead.' });
       if (this.watchers() >= 50) return this.send(sock, { t: 'error', fatal: true, msg: 'Too many people are already watching this game.' });
       c.uid = uid; c.watch = true; c.name = name; this.send(sock, { t: 'chatlog', list: this.chat.map(x => chatOut(x, uid)) }); this.broadcast(); return;

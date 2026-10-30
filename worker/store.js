@@ -33,10 +33,10 @@ export class LobbyLogic {
     return (await this.tables()).filter(t => (t.status || 'waiting') === 'waiting').slice(0, 100)
       .map(t => ({ code: t.code, name: t.name, locked: t.locked, seats: t.seats, filled: t.filled, host: t.host, rules: t.rules, at: t.at }));
   }
-  /* public games in progress that lobby players can watch */
+  /* games in progress that lobby players can watch (private ones need the table password) */
   async live() {
-    return (await this.tables()).filter(t => t.status === 'playing' && !t.locked).slice(0, 50)
-      .map(t => ({ code: t.code, name: t.name, host: t.host, players: t.names || [], games: t.games || 0, rules: t.rules, at: t.at }));
+    return (await this.tables()).filter(t => t.status === 'playing').slice(0, 50)
+      .map(t => ({ code: t.code, name: t.name, locked: !!t.locked, host: t.host, players: t.names || [], games: t.games || 0, rules: t.rules, at: t.at }));
   }
   seen(uid) { if (uid) this.presence.set(uid, Date.now()) }
   /* for the lobby screen: people looking for a game (on Online Play, or seated at a table that hasn't started) and people playing */
