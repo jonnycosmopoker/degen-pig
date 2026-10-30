@@ -492,6 +492,10 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .hist .cap{margin:8px 0 12px}
 .hrw{display:grid;grid-template-columns:20px minmax(0,1fr) 64px 44px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums}
 .hist:has(.hg) .hrw{grid-template-columns:20px minmax(0,1fr) 58px 54px 40px}
+.hist:has(.hm) .hrw{grid-template-columns:18px minmax(0,1fr) 46px 74px 34px;gap:6px}
+.hist:has(.hg):has(.hm) .hrw{grid-template-columns:18px minmax(0,1fr) 40px 44px 74px 30px;gap:6px}
+.hrw .hm{font-weight:800;white-space:nowrap;text-align:right;justify-self:end}
+.hist summary .nw{white-space:nowrap}.hrw .hm.up{color:#7FE0A0}.hrw .hm.dn{color:var(--red-text)}
 .hrw span:nth-child(n+3){text-align:right}
 .hrw .hn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .hrw .hn em{font-style:normal;font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.06em}
@@ -2165,11 +2169,14 @@ function renderHist(){
   $('ghPager').hidden=H.length<=PER;$('ghNewer').disabled=ON.ghPage===0;$('ghOlder').disabled=ON.ghPage>=pages-1;
   $('ghPageLbl').textContent=(from+1)+'–'+(from+PH.length)+' of '+H.length;
   var hh=!ON.rec?'<div class="empty">Loading your games…</div>':!H.length?'<div class="empty">No games yet. Host or join a table and your results will show up here.</div>':PH.map(function(g){
-    var order=g.players.map(function(_,i){return i}).sort(function(a,b){return g.players[b].total-g.players[a].total||g.players[b].wins-g.players[a].wins||a-b});
-    var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return p.total>me.total}).length,d=new Date(g.start),gd=g.rules&&g.rules.golden;
-    var sum=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+g.games+' game'+(g.games===1?'':'s')+' · '+ordinalN(rank)+' of '+g.players.length+' with '+fmt(me.total)+' points, '+me.wins+' win'+(me.wins===1?'':'s')+(g.closed?'':' · still open');
-    var rows=order.map(function(i,k){var q=g.players[i];return '<div class="hrw'+(i===g.you?' me':'')+'"><span>'+(k+1)+'</span><span class="hn">'+esc(q.name)+(q.cpu?' <em>CPU</em>':'')+'</span><span>'+fmt(q.total)+'</span>'+(gd?'<span class="hg">'+fmt(q.golden)+'</span>':'')+'<span>'+q.wins+'</span></div>'}).join('');
-    return '<details class="hist" data-sid="'+esc(g.sid)+'"'+(ON.histOpen[g.sid]?' open':'')+'><summary><b>'+esc(g.table)+'</b><span>'+sum+'</span></summary><div class="hrw hh"><span></span><span class="hn">Player</span><span>Points</span>'+(gd?'<span class="hg">Golden</span>':'')+'<span>Wins</span></div>'+rows+'<p class="cap">'+esc(rulesLine(g.rules||{}))+(g.reason?' · '+esc(g.reason):'')+'</p></details>'}).join('');
+    var md=!!(g.rules&&g.rules.money&&g.players.some(function(q){return q.money!=null}));
+    /* ranked by money when Track $ was on, otherwise by full points (Golden Points included), then wins */
+    var key=function(q){return md?(q.money||0):(q.total||0)+(q.golden||0)};
+    var order=g.players.map(function(_,i){return i}).sort(function(a,b){return key(g.players[b])-key(g.players[a])||g.players[b].wins-g.players[a].wins||a-b});
+    var me=g.players[g.you]||{},rank=1+g.players.filter(function(p){return key(p)>key(me)}).length,d=new Date(g.start),gd=g.rules&&g.rules.golden;
+    var sum=d.toLocaleDateString(undefined,{month:'short',day:'numeric'})+' · '+g.games+' game'+(g.games===1?'':'s')+' · '+ordinalN(rank)+' of '+g.players.length+' with '+fmt(me.total)+' points, '+me.wins+' win'+(me.wins===1?'':'s')+(md?' · <span class="nw">'+cash(me.money||0,true)+'</span>':'')+(g.closed?'':' · still open');
+    var rows=order.map(function(i,k){var q=g.players[i];return '<div class="hrw'+(i===g.you?' me':'')+'"><span>'+(k+1)+'</span><span class="hn">'+esc(q.name)+(q.cpu?' <em>CPU</em>':'')+'</span><span>'+fmt(q.total)+'</span>'+(gd?'<span class="hg">'+fmt(q.golden)+'</span>':'')+(md?'<span class="hm '+((q.money||0)>0?'up':(q.money||0)<0?'dn':'')+'">'+cash(q.money||0,true)+'</span>':'')+'<span>'+q.wins+'</span></div>'}).join('');
+    return '<details class="hist" data-sid="'+esc(g.sid)+'"'+(ON.histOpen[g.sid]?' open':'')+'><summary><b>'+esc(g.table)+'</b><span>'+sum+'</span></summary><div class="hrw hh"><span></span><span class="hn">Player</span><span>Points</span>'+(gd?'<span class="hg">Golden</span>':'')+''+(md?'<span class="hm">$</span>':'')+'<span>Wins</span></div>'+rows+'<p class="cap">'+esc(rulesLine(g.rules||{}))+(g.reason?' · '+esc(g.reason):'')+'</p></details>'}).join('');
   var hl=$('histList');if(hl._html!==hh){hl.innerHTML=hh;hl._html=hh}
 }
 document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);

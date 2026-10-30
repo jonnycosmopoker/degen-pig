@@ -327,7 +327,8 @@ export class TableRoom {
       name: p.name, cpu: !!p.bot,
       total: S.ledger.reduce((a, g) => a + (g.s[i] || 0), 0),
       golden: gd ? S.ledger.reduce((a, g) => a + ((g.g || [])[i] || 0), 0) : 0,
-      wins: p.wins || 0
+      wins: p.wins || 0,
+      money: S.rules.money ? S.ledger.reduce((a, g) => a + ((g.m || [])[i] || 0), 0) : undefined   /* Track $: net cents over the session */
     }));
     const entry = { sid, table: m.name, code: m.code, start: m.createdAt, end: this.now(), games: S.games, rules: Object.assign({}, S.rules), closed: !!closed, reason: closed ? (m.endReason || '') : '', players: totals };
     for (let i = 0; i < this.seats.length; i++) {
