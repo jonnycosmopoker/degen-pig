@@ -1528,6 +1528,20 @@ function coin(t,v){
   tone(t,'sine',f,0,rand(0.1,0.2),0.3*v);tone(t,'sine',f*rand(1.48,1.63),0,rand(0.07,0.14),0.18*v);tone(t,'triangle',f*2.76,0,0.05,0.07*v);
   noise(t,0.012,'highpass',6000,0.7,0.32*v);
 }
+/* The finish-line bell: three quick strikes on a bright boxing-ring bell when someone banks the target and the last turns begin */
+var BELL=[[0.5,0.35,0.6],[1,1,1],[1.19,0.5,1.4],[1.5,0.35,1.6],[2,0.45,2],[2.52,0.25,2.6],[2.66,0.2,2.8],[3.01,0.15,3.2],[4.1,0.08,4]];
+function sfxBell(){
+  if(window.__dp)window.__dp.bells=(window.__dp.bells||0)+1;   /* counted by the local tests */
+  if(!ac())return;var t0=AC.currentTime+0.35;
+  [0,0.32,0.64].forEach(function(at,k){var t=t0+at,amp=(1-0.06*k)*0.16;
+    BELL.forEach(function(p){var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(1180*p[0],t);
+      g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(amp*p[1],t+0.002);g.gain.setTargetAtTime(0,t+0.002,1/(3.2*p[2]));
+      o.connect(g);g.connect(OUT);o.start(t);o.stop(t+1.9)});
+    /* the metal clank of the hammer */
+    var n=Math.floor(AC.sampleRate*0.06),buf=AC.createBuffer(1,n,AC.sampleRate),d=buf.getChannelData(0);for(var i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/AC.sampleRate*90);
+    var src=AC.createBufferSource(),hp=AC.createBiquadFilter(),ng=AC.createGain();src.buffer=buf;hp.type='highpass';hp.frequency.value=2500;ng.gain.value=0.25;src.connect(hp);hp.connect(ng);ng.connect(OUT);src.start(t)});
+}
+var bellPh=null;
 function sfxLock(amt){
   if(!ac())return;var t=AC.currentTime+0.01,n=clamp(Math.round((amt||24)/6),4,10);
   for(var i=0;i<n;i++){coin(t,1-i*0.04);t+=rand(0.045,0.075)}
@@ -1684,6 +1698,7 @@ function chartPick(e){
   if(r!==chartSel){chartSel=r;drawChart();drawReadout()}
 }
 function render(){
+  if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
   renderMain();achToast();chatUI();applySkin();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
