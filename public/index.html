@@ -421,7 +421,12 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .achtoast em{font-style:normal;font-size:13px;color:var(--muted)}
 @keyframes achin{from{transform:translate(-50%,-30px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
 @media (prefers-reduced-motion:reduce){.achtoast{animation:none}}
-#app[data-phase="menu"] #rulesBtn{visibility:hidden}
+/* main menu: a bigger, centered logo and wordmark */
+#app[data-phase="menu"] .top{justify-content:center;padding:4px 0 2px}
+#app[data-phase="menu"] .top-right{display:none}
+#app[data-phase="menu"] .title{gap:12px}
+#app[data-phase="menu"] .pig{width:54px;height:54px}
+#app[data-phase="menu"] .logo{font-size:clamp(26px,8.6vw,38px)}
 .back{align-self:flex-start;flex:none}
 .headrow{display:flex;align-items:center;gap:14px;flex:none}
 .headrow .back{align-self:center}
