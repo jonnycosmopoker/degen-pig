@@ -3,7 +3,7 @@
    plays computer seats, keeps the stats and graph history, and tracks achievements.
    The state object uses the same field names as the game page, so a phone can draw a snapshot directly. */
 
-export const DEF_RULES = { target: 100, golden: true, noDbl: false, reroll: false, verify: false, power: true, triple: false, timer: 30 };
+export const DEF_RULES = { target: 100, golden: true, noDbl: false, reroll: false, verify: false, power: true, triple: false, timer: 30, money: null };
 
 /* achievement thresholds (names and wording live in the page) */
 const ACH = [
@@ -210,12 +210,33 @@ export function Engine(S) {
     return { bust: true, snake, burn };
   }
   function rec(i, ev, amt, risk, rolls) { if (!S.hist || !S.hist[i]) return; S.hist[i].push({ s: P(i).score, ev, amt, risk: risk || 0, rolls: rolls || 0, hot: S.hotTurn ? MX() : 0 }) }
+  /* Track $: the winner collects from every other player the game amount, plus the point rate times the gap in regular points,
+     plus the golden rate times the gap in Golden Points. Losers don't settle with each other; tied winners split what they collect.
+     Everything is in cents. */
+  function settle(w) {
+    const M = RL().money; if (!M || !w.length) return null;
+    const c = v => Math.round((+v || 0) * 100), G = c(M.game), Pt = c(M.point), Gd = RL().golden ? c(M.golden) : 0;
+    const n = S.players.length, net = new Array(n).fill(0), parts = S.players.map(() => [0, 0, 0]);
+    const w0 = w[0], rw = regular(w0), gw = golden(w0);
+    for (let j = 0; j < n; j++) {
+      if (w.indexOf(j) >= 0) continue;
+      const owe = [G, Pt * Math.max(0, rw - regular(j)), Gd * Math.max(0, gw - golden(j))];
+      owe.forEach((amt, k) => {
+        parts[j][k] -= amt; net[j] -= amt;
+        const each = Math.floor(amt / w.length); let left = amt - each * w.length;
+        w.forEach(i => { const v = each + (left > 0 ? 1 : 0); if (left > 0) left--; parts[i][k] += v; net[i] += v });
+      });
+    }
+    return { net, parts };
+  }
   function endGame() {
     const w = leaders();
     if (S.hist) { const R = Math.max.apply(null, S.hist.map(h => h.length)); S.hist.forEach((h, i) => { while (h.length < R) h.push({ s: P(i).score, ev: 'pad', amt: 0, hot: false }) }) }
     w.forEach(i => { P(i).wins = (P(i).wins || 0) + 1 }); S.games = (S.games || 0) + 1;
     S.players.forEach((p, i) => { const a = S.sess[i], st = p.st; if (!a || !st) return; st.f.forEach((v, k) => { a.f[k] += v }); a.d += st.d; a.lost += st.lost; a.rolls += st.f.reduce((x, y) => x + y, 0) / 2 });
-    S.ledger.push({ s: S.players.map((_, i) => regular(i)), g: S.players.map((_, i) => golden(i)), w: w.slice() });
+    const entry = { s: S.players.map((_, i) => regular(i)), g: S.players.map((_, i) => golden(i)), w: w.slice() };
+    const cash = settle(w); if (cash) { entry.m = cash.net; entry.mp = cash.parts }
+    S.ledger.push(entry);
     achGame(w);
     S.records.push({
       at: Date.now(), game: S.games, rules: Object.assign({}, RL()),
@@ -278,5 +299,5 @@ export function Engine(S) {
     return { kind: 'roll', result: roll() };
   }
 
-  return { newSession, beginOrder, roll, reroll, takeBust, lockIn, pass, timeout, botMove, ctrl, golden, regular, leaders };
+  return { newSession, beginOrder, roll, reroll, takeBust, lockIn, pass, timeout, botMove, ctrl, golden, regular, leaders, settle };
 }

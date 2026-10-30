@@ -21,9 +21,16 @@ export async function hashPw(code, pw) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('degenpig:' + code + ':' + pw));
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
+/* Track $ amounts: dollars and cents, 0 to 100,000; off when nothing is set */
+function cleanMoney(m) {
+  if (!m || typeof m !== 'object') return null;
+  const v = x => { const n = Math.round(Number(x) * 100) / 100; return isFinite(n) && n > 0 ? Math.min(n, 100000) : 0 };
+  const out = { game: v(m.game), point: v(m.point), golden: v(m.golden) };
+  return out.game || out.point || out.golden ? out : null;
+}
 export function cleanRules(r) {
   r = r || {}; const t = [80, 100, 150, 200].includes(r.target) ? r.target : 100;
-  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, triple: !!r.triple, timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
+  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, triple: !!r.triple, money: cleanMoney(r.money), timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
 }
 
 export class TableRoom {

@@ -243,6 +243,19 @@ input{-webkit-user-select:text;user-select:text}
 .setbtn small{font-size:12px;font-weight:600;color:var(--muted)}
 .setbtn .coin{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#3B2305;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:inset 0 0 0 2px #8A5A0A,inset 0 0 0 4px #F6CF45,0 3px 6px rgba(0,0,0,.45)}
 .setbtn:active{transform:translateY(1px)}
+.trackbtn .coin{font-family:var(--display);font-size:20px;color:#3B2305}
+.trackbtn.on{border-color:var(--gold);box-shadow:0 0 0 2px rgba(242,194,48,.35),0 6px 14px rgba(0,0,0,.35)}
+.trackbtn{flex:0 1 auto;min-width:0}
+.trackbtn>span:last-child{min-width:0}
+.trackbtn small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.moneybox{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--panel);border:1px solid rgba(242,194,48,.35)}
+.moneybox .cap{margin:0}
+.mrowin{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mrowin>span:first-child{display:flex;flex-direction:column;font-weight:800;font-size:16px}
+.mrowin small{font-size:12px;font-weight:600;color:var(--muted)}
+.dollar{position:relative;flex:none;width:118px}
+.dollar i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-style:normal;font-weight:800;color:var(--gold)}
+.dollar .txt{padding-left:28px;text-align:right;font-variant-numeric:tabular-nums}
 .field>label,.field>.flab,legend{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0}
 fieldset{border:0;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
 .stepper{display:flex;align-items:center;gap:12px}
@@ -545,6 +558,13 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 /* between games: scores first, graphs and dice stats one tap away */
 #over:not(.showstats) .chartcard,#over:not(.showstats) #facts{display:none}
 #over.showstats #tally,#over.showstats #standings,#over.showstats #tallyCap{display:none}
+#over:not(.showstats) #ptsStand{display:none}
+.ptsstand{display:flex;flex-direction:column;gap:8px}
+.ptsstand h3{margin:6px 0 2px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.row.mn{grid-template-columns:18px minmax(0,1fr) 74px 74px 32px;gap:6px}
+.row.mn .nm small{display:block;font-size:11px;font-weight:600;color:var(--muted);white-space:normal;line-height:1.3}
+.row .mup{color:#7FE0A0}.row .mdn{color:var(--red-text)}
+.row .mz{color:var(--muted)}
 #over .actions .btn{font-size:16px;padding:8px 6px}
 .rrchip{display:inline-block;margin-left:8px;padding:2px 10px;border-radius:999px;border:1px solid var(--gold);color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.04em;vertical-align:middle}
 .tile .sc.au{color:var(--gold)}
@@ -641,9 +661,19 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="host" hidden>
     <div class="headrow"><button type="button" class="link back" id="backHost">‹ Online Lobby</button><h1 class="screen-h">Host a Table</h1></div>
     <div class="field"><label for="hName">Table name</label><input class="txt" id="hName" maxlength="24" placeholder="Monday night pigs" autocomplete="off"></div>
+    <div class="countrow">
     <div class="field">
       <span class="flab" id="hSeatsLab">Seats</span>
       <div class="stepper" role="group" aria-labelledby="hSeatsLab"><button type="button" id="hLess" aria-label="Fewer seats">−</button><output id="hSeats">4</output><button type="button" id="hMore" aria-label="More seats">+</button></div>
+    </div>
+    <button type="button" class="setbtn trackbtn" id="hTrack" aria-expanded="false" aria-controls="hMoney"><span class="coin">$</span><span>Track $<small id="hTrackSub">Off</small></span></button>
+    </div>
+    <div class="moneybox" id="hMoney" hidden>
+      <p class="cap">The game does the math after every game: the winner collects from each other player.</p>
+      <label class="mrowin"><span>Game<small>Paid by each player to the winner</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgame" inputmode="decimal" placeholder="50" maxlength="8"></span></label>
+      <label class="mrowin"><span>Point<small>For each point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMpoint" inputmode="decimal" placeholder="1" maxlength="8"></span></label>
+      <label class="mrowin" id="hMgoldRow"><span>Golden Point<small>For each Golden Point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgolden" inputmode="decimal" placeholder="3" maxlength="8"></span></label>
+      <p class="cap" id="hMnote"></p>
     </div>
     <fieldset>
       <legend>Who can join</legend>
@@ -830,6 +860,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       </div>
     </div>
     <ul class="facts" id="facts"></ul>
+    <div class="ptsstand" id="ptsStand"></div>
     <div class="tally" id="tally"></div>
     <div class="table" id="standings"></div>
     <p class="cap" id="tallyCap">Total and Wins keep adding up with every game until you go back to the main menu.</p>
@@ -1787,11 +1818,22 @@ function renderMain(){
     var sorted=S.players.map(function(_,i){return i}).sort(function(a,b){return P(b).score-P(a).score||a-b});
     var GD=RL().golden,g5=GD?' g5':'';
     $('tallyCap').textContent=GD?'With Golden Points on, This game and Total count regular points up to '+RL().target+'. Golden is each player\'s running total of Golden Points across every game, kept separately; the small +number is what they added this game. Totals, Golden Points and wins keep adding up until you go back to the main menu.':'Total and Wins keep adding up with every game until you go back to the main menu.';
-    $('standings').innerHTML='<div class="row rhead'+g5+'"><span></span><span>Player</span><span>This game</span>'+(GD?'<span>Golden</span>':'')+'<span>Total</span><span>Wins</span></div>'+sorted.map(function(i,k){var p=P(i);
+    var ptsHTML='<div class="row rhead'+g5+'"><span></span><span>Player</span><span>This game</span>'+(GD?'<span>Golden</span>':'')+'<span>Total</span><span>Wins</span></div>'+sorted.map(function(i,k){var p=P(i);
       return '<div class="row'+g5+(S.winners.indexOf(i)>=0?' first':'')+'"><span class="rk">'+(k+1)+'</span><span class="nm"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+'</span><span class="sc">'+regular(i)+'</span>'+(GD?'<span class="gd">'+(S.ledger||[]).reduce(function(a,g){return a+((g.g||[])[i]||0)},0)+(golden(i)>0&&(S.games||1)>1?'<small>+'+golden(i)+'</small>':'')+'</span>':'')+'<span class="tt">'+tot[i]+'</span><span class="net'+((p.wins||0)>0?' up':'')+'">'+(p.wins||0)+'</span></div>'}).join('');
+    /* Track $: dollars won and lost replace the points columns; the points table moves to View stats */
+    var Lm=(S.ledger||[]).filter(function(g){return g.m}),MO=RL().money&&Lm.length;
+    if(MO){var last=(S.ledger||[])[(S.ledger||[]).length-1]||{},tm=S.players.map(function(_,i){return Lm.reduce(function(a,g){return a+(g.m[i]||0)},0)});
+      var ms=S.players.map(function(_,i){return i}).sort(function(a,b){return ((last.m||[])[b]||0)-((last.m||[])[a]||0)||tm[b]-tm[a]||a-b});
+      var cls=function(c){return c>0?'mup':c<0?'mdn':'mz'};
+      $('standings').innerHTML='<div class="row rhead mn"><span></span><span>Player</span><span>This game</span><span>Total</span><span>Wins</span></div>'+ms.map(function(i,k){var p=P(i),mv=(last.m||[])[i]||0,pp=(last.mp||[])[i]||[0,0,0],bits=[];
+        if(pp[0])bits.push(cash(pp[0],true)+' game');if(pp[1])bits.push(cash(pp[1],true)+' points');if(pp[2])bits.push(cash(pp[2],true)+' golden');
+        return '<div class="row mn'+(S.winners.indexOf(i)>=0?' first':'')+'"><span class="rk">'+(k+1)+'</span><span class="nm"><i class="sw" style="background:var(--s'+(i+1)+')"></i>'+esc(p.name)+(bits.length?'<small>'+bits.join(' · ')+'</small>':'')+'</span><span class="sc '+cls(mv)+'">'+cash(mv,true)+'</span><span class="tt '+cls(tm[i])+'">'+cash(tm[i],true)+'</span><span class="net'+((p.wins||0)>0?' up':'')+'">'+(p.wins||0)+'</span></div>'}).join('');
+      $('ptsStand').innerHTML='<h3>Points</h3>'+ptsHTML;
+      $('tallyCap').textContent='Track $ ('+moneyLine(RL().money,RL().golden)+'): the winner collects the game amount from each player, plus the difference in points'+(RL().golden?' and Golden Points':'')+'. Total adds up every game at this table. Points are under View stats.';
+    }else{$('standings').innerHTML=ptsHTML;$('ptsStand').innerHTML=''}
     if(S.online&&ON.meta){var mv=ON.meta.players[ON.you],waitN=ON.meta.players.filter(function(q){return !q.cpu&&!q.away&&!q.again}).length;
       $('againBtn').textContent=mv&&mv.again?(waitN?'Waiting for '+waitN:'Starting…'):'Play again';$('againBtn').disabled=!!(mv&&mv.again);
-      $('tallyCap').textContent='Total and Wins add up over every game at this table. Each finished game is saved to every player\u2019s profile.'}
+      if(!MO)$('tallyCap').textContent='Total and Wins add up over every game at this table. Each finished game is saved to every player\u2019s profile.'}
     else{$('againBtn').textContent='Play again';$('againBtn').disabled=false}
     drawSummary();
     return;
@@ -2075,7 +2117,7 @@ function loadMe(){
     if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
-function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function renderOnline(){
   var out=!AUTH;$('online').classList.toggle('out',out);$('signCard').hidden=!out;$('acctLine').hidden=out;
@@ -2116,9 +2158,14 @@ function renderHist(){
 document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);
 function ordinalN(n){return n+ordinal(n)}
 /* online tables start from their own defaults (Golden Points and Five Ones 2x on, no timer); a host's last choices are remembered */
-var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:0};
-function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
-  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k])c[k]=sv[k];return c}
+var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:0,track:{on:false,game:'',point:'',golden:''}};
+function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k]&&typeof ONLINE_DEF[k]==='object'?Object.assign({},ONLINE_DEF[k]):ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
+  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];return c}
+/* Track $: the amounts the host typed, as numbers (or null when off or empty) */
+function trackMoney(c){var t=c&&c.track;if(!t||!t.on)return null;var v=function(x){var n=Math.round(parseFloat(String(x||'').replace(/[^0-9.]/g,''))*100)/100;return isFinite(n)&&n>0?Math.min(n,100000):0};
+  var m={game:v(t.game),point:v(t.point),golden:c.golden?v(t.golden):0};return m.game||m.point||m.golden?m:null}
+function cash(cents,sign){var a=Math.abs(cents)/100,t=a%1?a.toFixed(2):String(a);t=t.replace(/\B(?=(\d{3})+(?!\d))/g,',');return (sign?(cents>0?'+':cents<0?'−':''):'')+'$'+t}
+function moneyLine(m,golden){var x=[];if(m.game)x.push(cash(m.game*100)+' game');if(m.point)x.push(cash(m.point*100)+' pt');if(golden&&m.golden)x.push(cash(m.golden*100)+' golden');return x.join(' · ')}
 function renderHost(){
   $('hSeats').textContent=ON.hostSeats;$('hLess').disabled=ON.hostSeats<=2;$('hMore').disabled=ON.hostSeats>=6;
   $('hPwRow').hidden=!$('hPriv').checked;
@@ -2127,6 +2174,11 @@ function renderHost(){
   $('hm0').checked=c.timer===0;$('hm15').checked=c.timer===15;$('hm30').checked=c.timer===30;$('hm60').checked=c.timer===60;
   Array.prototype.forEach.call(document.querySelectorAll('#hOpts .tog'),function(b){b.setAttribute('aria-checked',c[b.getAttribute('data-k')]?'true':'false')});
   $('hRules').textContent='Online tables start with Golden Points and Five Ones 2x on and no timer. Your choices here are remembered for next time.';
+  var tk=c.track||(c.track={on:false,game:'',point:'',golden:''});
+  $('hTrack').classList.toggle('on',!!tk.on);$('hTrack').setAttribute('aria-expanded',tk.on?'true':'false');$('hMoney').hidden=!tk.on;
+  var mo=trackMoney(c);$('hTrackSub').textContent=!tk.on?'Off':mo?'On · '+cash(Math.round(mo.game*100))+' a game':'Fill in amounts';
+  ['game','point','golden'].forEach(function(k){var el=$('hM'+k);if(document.activeElement!==el)el.value=tk[k]||''});
+  $('hMgoldRow').hidden=!c.golden;$('hMnote').textContent=c.golden?'':'Golden Points is off, so points are counted on full scores.';
 }
 function renderRoom(){
   var m=ON.meta;if(!m)return;
@@ -2278,15 +2330,18 @@ $('backHost').addEventListener('click',function(){S.phase='online';onEnter();ren
 $('hLess').addEventListener('click',function(){ON.hostSeats=Math.max(2,ON.hostSeats-1);renderHost()});
 $('hMore').addEventListener('click',function(){ON.hostSeats=Math.min(6,ON.hostSeats+1);renderHost()});
 $('hPub').addEventListener('change',renderHost);
+$('hTrack').addEventListener('click',function(){var c=ON.hcfg,tk=c.track||(c.track={on:false,game:'',point:'',golden:''});tk.on=!tk.on;renderHost();if(tk.on&&!tk.game)setTimeout(function(){$('hMgame').focus()},50)});
+['game','point','golden'].forEach(function(k){$('hM'+k).addEventListener('input',function(){var c=ON.hcfg;c.track[k]=this.value.replace(/[^0-9.]/g,'').slice(0,8);if(this.value!==c.track[k])this.value=c.track[k];renderHost()})});
 $('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');if(!b)return;var k=b.getAttribute('data-k');ON.hcfg[k]=!ON.hcfg[k];renderHost()});
 ['ht80','ht100','ht150','ht200'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.target=+$(id).value;renderHost()})});
 ['hm0','hm15','hm30','hm60'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.timer=+$(id).value;renderHost()})});$('hPriv').addEventListener('change',renderHost);
 $('hCreate').addEventListener('click',function(){
   var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
   if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
+  if(ON.hcfg.track&&ON.hcfg.track.on&&!trackMoney(ON.hcfg)){$('hMsg').textContent='Fill in at least one Track $ amount, or turn Track $ off.';$('hMgame').focus();return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
   try{localStorage.setItem('degenpig-hostcfg',JSON.stringify(ON.hcfg))}catch(e){}
-  authed('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:ON.hcfg,hostUid:me.uid,hostName:me.name})})
+  authed('/api/tables',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name:$('hName').value.trim()||(me.name+'’s table'),seats:ON.hostSeats,private:priv,password:priv?pw:'',rules:Object.assign({},ON.hcfg,{money:trackMoney(ON.hcfg)}),hostUid:me.uid,hostName:me.name})})
     .then(function(d){b.disabled=false;onJoin(d.code,priv?pw:'')})
     .catch(function(e){b.disabled=false;$('hMsg').textContent=String(e.message).indexOf('401')>=0||e.message==='signin'?'Please sign in again.':'Could not reach the Degen Pig server. Online play works on the Degen Pig website.'});
 });
