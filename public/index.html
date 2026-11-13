@@ -913,7 +913,6 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
       <button class="mrow" id="mAch" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></span><span class="mtx"><b>Achievements</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="mrow" id="mShop" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16l-1.4 12.1a2 2 0 0 1-2 1.9H7.4a2 2 0 0 1-2-1.9z"/><path d="M8.5 9V6.5a3.5 3.5 0 0 1 7 0V9"/></svg></span><span class="mtx"><b>Degen Pig Shop</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
-    <p class="cap" id="menuRules"></p>
   </section>
 
   <section class="dock scroll" id="shop" hidden>
@@ -2282,7 +2281,6 @@ function renderMain(){
 function renderScreens(ph){
   if(ph==='ach')renderAch();
   if(ph==='online')renderOnline();if(ph==='lb')renderLb();if(ph==='gh')renderHist();if(ph==='host')renderHost();if(ph==='room')renderRoom();
-  if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Pass & Play, under Settings.';
   if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
   if(ph==='settings'){
     var c=S.cfg;
