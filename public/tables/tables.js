@@ -159,6 +159,65 @@ window.DPTable=function(cv,kind,A){
     for(var k=0;k<spots.length;k++){var per=2.2+rnd(k,1)*2.6,e=((t+rnd(k,2)*per)%per)/.55;if(e<1)glint(spots[k][0],spots[k][1],4+rnd(k,3)*5,Math.sin(Math.PI*e))}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';vignette(.3);
   }
+
+  /* ---------- Tropical Lagoon: a shallow turquoise lagoon over rippled sand, ringed by a beach. Caustic light shimmers on the
+     bottom, a palm frond's shadow sways across one corner, foam laps at the shore, and the water rings out wherever a die
+     lands, hits the rail or skids along (ripple() is called by the dice code). ---------- */
+  var RIP=[],TT=0,SH=null,SHk='',BC=null,cpat=null,spat=null;
+  function shore(){
+    var k=cw+'x'+ch;if(SHk===k)return SH;SHk=k;SH=[];
+    var I=Math.max(16,Math.min(34,Math.min(cw,ch)*.075)),R=I*1.9,x0=I,y0=I,x1=cw-I,y1=ch-I,s=0;
+    function push(x,y,nx,ny){var w=Math.sin(s*.045)*4+Math.sin(s*.11+1)*2.4+Math.sin(s*.023+2)*3;SH.push({x:x+nx*w,y:y+ny*w,nx:nx,ny:ny});s+=6}
+    function line(ax,ay,bx,by,nx,ny){var L=Math.hypot(bx-ax,by-ay),n=Math.max(1,Math.round(L/6));for(var i=0;i<n;i++)push(ax+(bx-ax)*i/n,ay+(by-ay)*i/n,nx,ny)}
+    function arc(cx,cy,a0,a1){var n=Math.max(2,Math.round(R*Math.abs(a1-a0)/6));for(var i=0;i<n;i++){var a=a0+(a1-a0)*i/n;push(cx+Math.cos(a)*R,cy+Math.sin(a)*R,-Math.cos(a),-Math.sin(a))}}
+    line(x0+R,y0,x1-R,y0,0,1);arc(x1-R,y0+R,-Math.PI/2,0);line(x1,y0+R,x1,y1-R,-1,0);arc(x1-R,y1-R,0,Math.PI/2);
+    line(x1-R,y1,x0+R,y1,0,-1);arc(x0+R,y1-R,Math.PI/2,Math.PI);line(x0,y1-R,x0,y0+R,1,0);arc(x0+R,y0+R,Math.PI,Math.PI*1.5);
+    BC=null;return SH}
+  function shorePath(c,off){c.beginPath();for(var i=0;i<SH.length;i++){var p=SH[i];c[i?'lineTo':'moveTo'](p.x+p.nx*off,p.y+p.ny*off)}c.closePath()}
+  function beach(){
+    if(BC)return BC;BC=document.createElement('canvas');BC.width=Math.round(cw*dpr);BC.height=Math.round(ch*dpr);var b=BC.getContext('2d');b.setTransform(dpr,0,0,dpr,0,0);
+    var sp=b.createPattern(A.sand,'repeat');sp.setTransform(new DOMMatrix().scale(.42));b.fillStyle=sp;b.fillRect(0,0,cw,ch);
+    var lg=b.createLinearGradient(0,0,cw,ch);lg.addColorStop(0,'rgba(255,248,225,.18)');lg.addColorStop(1,'rgba(120,90,40,.12)');b.fillStyle=lg;b.fillRect(0,0,cw,ch);
+    /* wet sand darkening toward the water */
+    [[18,'rgba(110,84,48,.16)'],[11,'rgba(100,76,44,.2)'],[6,'rgba(90,70,40,.24)']].forEach(function(w){b.lineWidth=w[0];b.strokeStyle=w[1];shorePath(b,0);b.stroke()});
+    b.globalCompositeOperation='destination-out';b.fillStyle='#000';shorePath(b,0);b.fill();
+    b.globalCompositeOperation='source-over';return BC}
+  function lagoon(t){
+    TT=t;shore();
+    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;cover(A.bed,1.02,Math.sin(t*.2)*3,Math.cos(t*.17)*2);
+    /* the water: deeper turquoise in the middle, clear green-blue in the shallows */
+    var g=ctx.createRadialGradient(cw*.52,ch*.5,Math.min(cw,ch)*.1,cw*.5,ch*.5,Math.hypot(cw,ch)*.55);
+    g.addColorStop(0,'rgba(4,124,168,.54)');g.addColorStop(.6,'rgba(14,172,196,.4)');g.addColorStop(1,'rgba(70,220,210,.26)');ctx.fillStyle=g;ctx.fillRect(0,0,cw,ch);
+    /* caustic light on the bottom: two nets drifting against each other */
+    if(!cpat)cpat=ctx.createPattern(A.caus,'repeat');
+    ctx.globalCompositeOperation='lighter';
+    var s1=.62,ts1=512*s1;ctx.globalAlpha=.3;cpat.setTransform(new DOMMatrix().translate((t*9)%ts1,(t*4)%ts1).scale(s1));ctx.fillStyle=cpat;ctx.fillRect(0,0,cw,ch);
+    var s2=.85,ts2=512*s2;ctx.globalAlpha=.22;cpat.setTransform(new DOMMatrix().translate(-(t*6)%ts2,(t*8)%ts2).rotate(23).scale(s2));ctx.fillRect(0,0,cw,ch);
+    ctx.globalAlpha=1;
+    /* sun glints dancing on the surface */
+    for(var k=0;k<18;k++){var per=1.4+rnd(k,1)*2.2,e=((t+rnd(k,2)*per)%per)/.5;if(e>=1)continue;var c=Math.floor((t+rnd(k,2)*per)/per),gx=(rnd(k,c+3)*.8+.1)*cw,gy=(rnd(k,c+5)*.8+.1)*ch,a=Math.sin(Math.PI*e),sz=2+rnd(k,4)*3;
+      var gg=ctx.createRadialGradient(gx,gy,0,gx,gy,sz*3);gg.addColorStop(0,'rgba(255,255,255,'+(a*.75)+')');gg.addColorStop(1,'rgba(220,255,255,0)');ctx.fillStyle=gg;ctx.beginPath();ctx.arc(gx,gy,sz*3,0,TAU);ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,'+(a*.7)+')';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(gx-sz*2.4,gy);ctx.lineTo(gx+sz*2.4,gy);ctx.moveTo(gx,gy-sz*1.6);ctx.lineTo(gx,gy+sz*1.6);ctx.stroke()}
+    /* ripples: rings of light and shade spreading out, plus a few drops thrown up by a hard landing */
+    for(var i=RIP.length-1;i>=0;i--){var q=RIP[i],ag=t-q.t0;if(ag<0)ag=0;var life=1.3+q.s*1.4;if(ag>life){RIP.splice(i,1);continue}
+      var f=1-ag/life,sp=55+75*q.s;
+      for(var j=0;j<3;j++){var r=(ag-j*.16)*sp;if(r<=1)continue;var al=Math.pow(f,1.4)*(.25+.6*q.s)*(1-j*.28);
+        ctx.globalCompositeOperation='source-over';ctx.strokeStyle='rgba(0,70,95,'+(al*.45)+')';ctx.lineWidth=2.6*f+1;ctx.beginPath();ctx.ellipse(q.x,q.y+1.5,r*.98,r*.9,0,0,TAU);ctx.stroke();
+        ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(225,255,255,'+(al*.8)+')';ctx.lineWidth=1.8*f+.6;ctx.beginPath();ctx.ellipse(q.x,q.y-1,r,r*.92,0,0,TAU);ctx.stroke()}
+      if(q.s>.55&&ag<.6){ctx.globalCompositeOperation='lighter';for(var d=0;d<10;d++){var an=rnd(d,q.k)*TAU,v=(40+rnd(d,q.k+1)*70)*q.s,dx=Math.cos(an)*v*ag,dy=Math.sin(an)*v*ag-(1-Math.pow(1-ag/.6,2))*6,al2=(1-ag/.6);
+        ctx.fillStyle='rgba(235,255,255,'+(al2*.85)+')';ctx.beginPath();ctx.arc(q.x+dx,q.y+dy,1.2+rnd(d,q.k+2)*1.6,0,TAU);ctx.fill()}}}
+    /* a palm frond's shadow, swaying over the top right */
+    ctx.globalCompositeOperation='source-over';var ps=Math.max(cw,ch)*.95;ctx.save();ctx.translate(cw+ps*.02,-ps*.06);ctx.rotate(Math.sin(t*.7)*.035+Math.sin(t*1.9)*.01);ctx.globalAlpha=.95;ctx.drawImage(A.palm,-ps*.96,0,ps,ps);ctx.restore();ctx.globalAlpha=1;
+    /* the beach, then foam lapping at the shoreline */
+    ctx.drawImage(beach(),0,0,cw,ch);
+    var lap=(1+Math.sin(t*1.25))*.5;
+    ctx.globalCompositeOperation='source-over';ctx.lineJoin='round';
+    ctx.strokeStyle='rgba(255,255,255,'+(.32+.25*lap)+')';ctx.lineWidth=2.6;shorePath(ctx,1+lap*4);ctx.stroke();
+    ctx.setLineDash([16,9,6,11]);ctx.lineDashOffset=-t*8;ctx.strokeStyle='rgba(255,255,255,'+(.28+.2*(1-lap))+')';ctx.lineWidth=1.8;shorePath(ctx,7+lap*5);ctx.stroke();
+    ctx.setLineDash([]);ctx.strokeStyle='rgba(255,255,255,.18)';ctx.lineWidth=5;shorePath(ctx,-1);ctx.stroke();
+    vignette(.16);
+  }
+  function ripple(x,y,s){if(RIP.length>40)RIP.shift();RIP.push({x:x,y:y,s:Math.max(.08,Math.min(1,s)),t0:TT,k:Math.floor(Math.random()*90)+3})}
   fit();window.addEventListener('resize',fit);
-  return {draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:space)(t)}};
+  return {ripple:kind==='lagoon'?ripple:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:space)(t)}};
 };
