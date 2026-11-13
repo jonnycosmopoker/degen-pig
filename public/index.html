@@ -763,7 +763,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 .lkseg button{min-height:40px;padding:0 clamp(8px,2.6vw,12px);border:1.5px solid rgba(242,194,48,.55);border-radius:10px;background:rgba(0,0,0,.25);color:#F6CF45;font:inherit;font-family:var(--display);font-size:clamp(11px,3.4vw,13px);letter-spacing:.3px;text-transform:uppercase;cursor:pointer}
 .lkseg button.on{color:#2A1702;border-color:transparent;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 65%,#F0D262 80%,#B97C12 100%)}
 .lkprev .mini{transform-origin:center}
-@media (max-width:380px){.lksize{flex-direction:column;align-items:stretch;gap:8px}.lksz-l{flex-direction:row;align-items:baseline;justify-content:space-between}.lkseg button{flex:1}}
+@media (max-width:600px){.lksize{flex-direction:column;align-items:stretch;gap:8px}.lksz-l{flex-direction:row;align-items:baseline;justify-content:space-between}.lkseg button{flex:1}}
 .lkcap{margin:-4px 0 0;text-align:center;font-size:13px;color:var(--muted)}
 .lkcap b{color:var(--ivory);font-weight:700}
 .lksec h2{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 8px;font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:1px;text-transform:uppercase}
@@ -1071,7 +1071,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
     <div class="lksign" id="lkSign" hidden><span>Sign in to keep your unlocked dice on every phone.</span><button type="button" class="acctbtn" id="lkSignBtn">Sign in</button></div>
     <div class="lkframe"><div class="lkprev" id="lkPrev"></div></div>
     <p class="lkcap" id="lkCap"></p>
-    <div class="lksize"><span class="lksz-l"><em>Dice size</em><small>Only on your screen</small></span><div class="lkseg" role="group" aria-label="Dice size"><button type="button" data-ds="1">Normal</button><button type="button" data-ds="0.9">90%</button><button type="button" data-ds="0.8">80%</button></div></div>
+    <div class="lksize"><span class="lksz-l"><em>Dice size</em><small>Only on your screen</small></span><div class="lkseg" role="group" aria-label="Dice size"><button type="button" data-ds="1">Large</button><button type="button" data-ds="0.9">Medium</button><button type="button" data-ds="0.8">Small</button></div></div>
     <div class="lksec" id="lkSecT"><h2><em>Tables</em><small id="lkNt"></small></h2><div class="lkrow" id="lkRowT"></div><p class="lknote" id="lkNoteT" role="status"></p></div>
     <div class="lksec" id="lkSecD"><h2><em>Dice</em><small id="lkNd"></small></h2><div class="lkrow" id="lkRowD"></div><p class="lknote" id="skinNote" role="status"></p></div>
     <div class="lksec" id="lkSecB"><h2><em>Name Tags</em><small id="lkNb"></small></h2><div class="lkrow" id="lkRowB"></div><p class="lknote" id="lkNoteB" role="status"></p></div>
