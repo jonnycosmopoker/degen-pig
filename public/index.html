@@ -538,6 +538,17 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .mrow.gold .coin{color:#F6CF45;background:radial-gradient(circle at 35% 30%,#2C4A3F 0%,#17302A 60%,#0C1A16 100%);box-shadow:inset 0 0 0 2px #F6CF45,inset 0 0 0 4px #17302A,0 2px 4px rgba(0,0,0,.4)}
 .mrow.gold:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 1px 0 #5A3A05,0 4px 8px rgba(0,0,0,.4)}
 .mrow:disabled{opacity:.55;cursor:default}
+/* main menu: Casino Marquee buttons. Dark plaques with gold-trimmed edges and gold lettering; the two ways to play sit on dark red */
+#menu .menu{gap:12px}
+#menu .mrow,#menu .mrow.gold{min-height:68px;justify-content:center;position:relative;padding:8px 58px;border:2px solid transparent;border-radius:14px;color:#F6CF45;text-shadow:none;
+  background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 6px 14px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.4)}
+#menu .mrow.gold{min-height:76px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box}
+#menu .mrow:active,#menu .mrow.gold:active{transform:translateY(2px);box-shadow:0 3px 8px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.4)}
+#menu .mrow .coin,#menu .mrow.gold .coin{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:46px;height:46px;color:#3B2305;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:inset 0 0 0 2px #8A5A0A,inset 0 0 0 4px #F6CF45}
+#menu .mrow .mtx{flex:none;align-items:center}
+#menu .mrow b{font-family:var(--display);font-weight:400;font-size:clamp(17px,5.2vw,20px);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+#menu .mrow .chev,#menu .mrow.gold .chev{position:absolute;right:16px;color:#F6CF45}
+@media (max-width:345px){#menu .mrow,#menu .mrow.gold{padding:8px 40px 8px 54px}#menu .mrow b{letter-spacing:0;font-size:16px}#menu .mrow .coin,#menu .mrow.gold .coin{width:40px;height:40px;left:9px}#menu .mrow .chev,#menu .mrow.gold .chev{right:10px}}
 .btn.big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:none;width:100%;min-height:66px}
 .btn.big small{font-size:13px;font-weight:600;opacity:.78}
 .screen-h{margin:0;font-family:var(--display);font-weight:400;font-size:24px;letter-spacing:.05em;color:var(--gold)}
