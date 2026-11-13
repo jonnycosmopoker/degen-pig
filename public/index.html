@@ -866,6 +866,60 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #online .emrow .btn{padding:0 12px;font-size:clamp(11px,3.3vw,13px)}
 @media (max-width:380px){#online .emrow{flex-direction:column}#online .emrow .btn{min-height:46px}
   #host .trackbtn{padding:6px 10px 6px 6px;gap:6px}#host .trackbtn .coin{width:32px;height:32px;font-size:17px}#host .trackbtn>span:last-child{font-size:13px;letter-spacing:.3px;white-space:nowrap}#host .countrow{gap:8px}#host .stepper{gap:8px}#host .stepper button{width:44px;height:44px}}
+/* ---- Achievements and the Shop: Casino Marquee ---- */
+#ach .headrow .screen-h,#shop .headrow .screen-h,#dice .headrow .screen-h{white-space:normal;overflow-wrap:anywhere;font-size:clamp(15px,5vw,26px);letter-spacing:1px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+#ach .headrow .back,#shop .headrow .back,#dice .headrow .back{min-height:44px;padding:0 14px;border:2px solid transparent;border-radius:12px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;font-size:clamp(11px,3.4vw,13px);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+#ach .sechead{display:flex;align-items:center;gap:10px;margin:14px 0 2px;font-family:var(--display);font-weight:400;font-size:15px;letter-spacing:1.2px;color:#F6CF45}
+#ach .sechead::before,#ach .sechead::after{content:"";flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,#C8901A 40%,#FBE58A)}
+#ach .sechead::after{background:linear-gradient(270deg,transparent,#C8901A 40%,#FBE58A)}
+#ach .signcard{border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.45)}
+#ach .signcard>p:first-child{text-align:center}
+#ach .gbtn{border-radius:14px;box-shadow:0 0 0 2px #F6CF45,0 4px 10px rgba(0,0,0,.4)}
+#ach .emrow .btn{font-family:var(--display);font-weight:400;letter-spacing:.5px;text-transform:uppercase;font-size:clamp(11px,3.3vw,13px);padding:0 12px}
+#ach .emrow .btn.ghost{border:2px solid transparent;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45}
+#ach .emrow .btn.primary{border:2px solid transparent;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#2A1702}
+#ach .ordiv{color:rgba(242,194,48,.75);font-family:var(--display);text-transform:uppercase;letter-spacing:1px}
+#ach .ordiv::before{background:linear-gradient(90deg,transparent,rgba(242,194,48,.6))}#ach .ordiv::after{background:linear-gradient(270deg,transparent,rgba(242,194,48,.6))}
+@media (max-width:380px){#ach .emrow{flex-direction:column}#ach .emrow .btn{min-height:46px}}
+/* the trophy-case scoreboard at the top */
+.achscore{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px 16px 16px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5);text-align:center}
+.achscore::before{content:"";position:absolute;left:18px;right:18px;top:9px;height:8px;background:radial-gradient(circle,#FFF4C4 0 2.4px,rgba(255,200,80,.7) 3px,transparent 4.2px) 0 0/16px 8px repeat-x;filter:drop-shadow(0 0 3px rgba(255,200,80,.9));animation:bulbs 1.2s steps(2) infinite}
+.achscore .big{font-family:var(--display);font-size:clamp(34px,11vw,46px);line-height:1;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+.achscore .big small{font-size:.5em}
+.achscore .lbl{font-family:var(--display);font-size:13px;letter-spacing:1.2px;text-transform:uppercase;color:#F6CF45}
+.achscore .bar{width:100%;height:10px;border-radius:5px;background:rgba(0,0,0,.5);box-shadow:inset 0 0 0 1px rgba(242,194,48,.35);overflow:hidden}
+.achscore .bar i{display:block;height:100%;border-radius:5px;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A);box-shadow:0 0 10px rgba(242,194,48,.6)}
+.achscore p{margin:2px 0 0;font-size:13px;line-height:1.4;color:rgba(246,241,228,.72)}
+@media (prefers-reduced-motion: reduce){.achscore::before{animation:none}}
+#ach>.cap{text-align:center}
+/* badge cards: locked ones sit on dark green, earned ones on red with full gold trim and a glow */
+#ach .acard{padding:12px;border:2px solid transparent;border-radius:16px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,rgba(255,246,194,.5),rgba(246,207,69,.4) 25%,rgba(138,90,10,.45) 50%,rgba(251,229,138,.45) 70%,rgba(185,124,18,.45)) border-box;box-shadow:0 4px 10px rgba(0,0,0,.35)}
+#ach .acard.done,#ach .acard:not(.locked){background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 6px 14px rgba(0,0,0,.45),0 0 14px rgba(242,194,48,.18)}
+#ach .acard .an{font-family:var(--display);font-weight:400;font-size:15px;letter-spacing:.6px;text-transform:uppercase;color:#F6CF45}
+#ach .acard.locked .an{color:rgba(242,194,48,.55)}
+#ach .acard .ar{color:rgba(246,241,228,.72)}
+#ach .acard.done .ar{color:#FBE58A;font-weight:600}
+#ach .acard .ab{filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}
+#ach .achip{font-family:var(--display);font-weight:400;letter-spacing:.5px}
+#ach .apb{height:7px;border-radius:4px;background:rgba(0,0,0,.5);box-shadow:inset 0 0 0 1px rgba(242,194,48,.3)}
+#ach .apb i{background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A);box-shadow:0 0 8px rgba(242,194,48,.5)}
+#ach .apips i{width:10px;height:10px;border-color:rgba(242,194,48,.45)}
+/* the Shop */
+#shop .shopnote{padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.22);border:1px solid rgba(242,194,48,.3);color:rgba(246,241,228,.78);text-align:center}
+#shop .shoplk{min-height:40px;border:2px solid transparent;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#2A1702;font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.5px;text-transform:uppercase;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+#shop .shoptabs{gap:8px}
+#shop .shoptabs button{min-height:46px;border:2px solid transparent;border-radius:12px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;font-size:clamp(12px,3.6vw,14px);letter-spacing:.5px;text-transform:uppercase;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+#shop .shoptabs button.on{color:#2A1702;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 0 14px rgba(242,194,48,.35),0 4px 10px rgba(0,0,0,.4)}
+#shop .shopitem{gap:8px;padding:10px 10px 14px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 6px 14px rgba(0,0,0,.45)}
+#shop .shopitem>b{font-family:var(--display);font-weight:400;font-size:clamp(12px,3.7vw,15px);letter-spacing:.5px;text-transform:uppercase;line-height:1.15;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#shop .shopthumb{border-radius:12px;box-shadow:0 0 0 2px #C8901A,0 0 0 3px rgba(0,0,0,.6),0 6px 12px rgba(0,0,0,.5)}
+#shop .shopthumb .anim{background:linear-gradient(180deg,#3A1A0E,#1E0B05);border:1px solid #F6CF45;color:#F6CF45;font-family:var(--display);font-weight:400}
+#shop .shopnb{border-radius:12px;background:radial-gradient(ellipse at 50% 40%,rgba(242,194,48,.14),rgba(0,0,0,.25) 70%)}
+#shop .shopbuy{min-height:40px;padding:0 24px;border:2px solid transparent;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.6px;text-transform:uppercase;box-shadow:0 3px 8px rgba(0,0,0,.45)}
+#shop .shopbuy.on{background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45}
+#shop .shopsoon.mq{position:relative;padding-top:34px}
+#shop .shopsoon.mq::before{content:"";position:absolute;left:18px;right:18px;top:10px;height:8px;background:radial-gradient(circle,#FFF4C4 0 2.4px,rgba(255,200,80,.7) 3px,transparent 4.2px) 0 0/16px 8px repeat-x;filter:drop-shadow(0 0 3px rgba(255,200,80,.9));animation:bulbs 1.2s steps(2) infinite}
+@media (prefers-reduced-motion: reduce){#shop .shopsoon.mq::before{animation:none}}
 #setup #startBtn{min-height:72px;border:2px solid transparent;border-radius:16px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 6px 14px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.4)}
 #setup #startBtn span{font-family:var(--display);font-weight:400;font-size:clamp(20px,6vw,24px);letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
 #settings .defrow .btn{border:2px solid transparent;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.5px;text-transform:uppercase}
@@ -1221,7 +1275,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
     <div class="headrow"><button type="button" class="link back" id="backAch">‹ Main menu</button><h1 class="screen-h">Achievements</h1></div>
     <div id="achSign"></div>
     <div class="achwho" id="achWho" role="group" aria-label="Whose achievements" hidden></div>
-    <p class="cap" id="achSum"></p>
+    <div class="cap" id="achSum"></div>
     <div class="achlist" id="achList"></div>
   </section>
 
@@ -1477,7 +1531,8 @@ function renderAch(){
   $('achWho').innerHTML='';
   var r=AUTH&&ON.rec?{name:myId().name||(ON.user&&ON.user.name)||'You',v:ON.rec.v||{}}:null;
   var tot=0,got=0;ACH.forEach(function(a){if(a.k==='one'){tot++;if(achLevel(a,r))got++}else a.L.forEach(function(x,i){if(x!=null){tot++;if(i<achLevel(a,r))got++}})});
-  $('achSum').textContent=!AUTH?'Here’s every badge you can earn. None are saved until you sign in.':!r?'Loading your achievements…':('You have unlocked '+got+' of '+tot+' badge levels. Badges from online games and from your seat in Pass & Play (the one marked You) are saved to your account.');
+  if(AUTH&&r){$('achSum').className='achscore';$('achSum').innerHTML='<span class="lbl">Badge levels unlocked</span><span class="big">'+got+' <small>/ '+tot+'</small></span><span class="bar"><i style="width:'+Math.round(got/Math.max(1,tot)*100)+'%"></i></span><p>Badges from online games and from your seat in Pass &amp; Play (the one marked You) are saved to your account.</p>'}
+  else{$('achSum').className='cap';$('achSum').textContent=!AUTH?'Here’s every badge you can earn. None are saved until you sign in.':'Loading your achievements…'}
   var h='';
   ACHCAT.forEach(function(c){
     h+='<h2 class="sechead">'+c[1]+'</h2>';
