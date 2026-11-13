@@ -209,6 +209,33 @@ input{-webkit-user-select:text;user-select:text}
 .callout{position:absolute;left:50%;top:18px;transform:translateX(-50%);padding:7px 16px;border-radius:999px;background:var(--felt);font-weight:800;font-size:15px;white-space:nowrap;pointer-events:none;box-shadow:0 6px 16px rgba(10,4,0,.5)}
 .callout.gold{background:var(--gold);color:var(--ink)}
 .callout.red{background:var(--red);color:var(--ivory);font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.1em;padding:6px 22px}
+#app[data-phase="menu"] .tray.tutting{min-height:360px}
+.tut{position:absolute;left:10px;bottom:10px;right:10px;top:10px;pointer-events:none;z-index:6}
+.tutpig{position:absolute;left:0;bottom:0;width:64px;height:64px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));transform-origin:50% 100%}
+.tutpig svg{width:100%;height:100%;display:block}
+.tut.tucked .tutpig{width:44px;height:44px;opacity:.9;animation:peek 4s ease-in-out infinite}
+.tut.on .tutpig{animation:pigpop .7s cubic-bezier(.3,1.6,.5,1) both}
+.tut.on.talk .tutpig{animation:pigpop .7s cubic-bezier(.3,1.6,.5,1) both,pigtalk .34s ease-in-out .7s infinite alternate}
+@keyframes pigpop{0%{transform:translateY(70px) scale(.3) rotate(-25deg);opacity:0}60%{opacity:1}100%{transform:none}}
+@keyframes pigtalk{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-4px) rotate(3deg) scale(1.03)}}
+@keyframes peek{0%,82%,100%{transform:rotate(0)}86%{transform:rotate(-12deg)}92%{transform:rotate(10deg)}}
+.tutbub{position:absolute;left:58px;bottom:44px;width:min(272px,calc(100% - 64px));padding:12px 14px 10px;border-radius:18px 18px 18px 6px;background:#FFF8E6;color:#2A1702;box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 0 2px #E7B53A;pointer-events:auto;transform-origin:0 100%;animation:bubpop .38s cubic-bezier(.3,1.5,.5,1) both}
+.tutbub::after{content:"";position:absolute;left:-9px;bottom:-1px;width:18px;height:18px;background:#FFF8E6;clip-path:polygon(0 100%,100% 30%,100% 100%);filter:drop-shadow(-1px 1px 0 #E7B53A)}
+.tutbub.swap{animation:bubswap .28s ease both}
+@keyframes bubpop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
+@keyframes bubswap{0%{transform:scale(.96)}60%{transform:scale(1.02)}100%{transform:none}}
+.tuttxt{font-size:14.5px;line-height:1.38;font-weight:600;min-height:3.9em}
+.tuttxt b{font-weight:800;color:#8A3A00}
+.tuttxt .gold{color:#A86C00}.tuttxt .red{color:#C21E1E}
+.tuttxt ul{margin:5px 0 0;padding-left:17px}.tuttxt li{margin:2px 0}
+.tuttxt .w{display:inline-block;opacity:0;transform:translateY(4px);animation:wpop .22s ease forwards}
+.tuttxt.done .w{animation:none;opacity:1;transform:none}
+@keyframes wpop{to{opacity:1;transform:none}}
+.tutnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.tutskip{border:0;background:none;padding:6px 2px;font:inherit;font-size:13px;font-weight:700;color:#8A6A3A;cursor:pointer}
+.tutnext{border:0;border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;font-weight:800;color:#2A1702;cursor:pointer;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#D49B1C);box-shadow:0 2px 0 #8A5A0A}
+.tutdots{display:flex;gap:4px}.tutdots i{width:6px;height:6px;border-radius:50%;background:rgba(42,23,2,.2)}.tutdots i.on{background:#D49B1C}
+@media (prefers-reduced-motion: reduce){.tutpig,.tutbub,.tut.on .tutpig,.tut.on.talk .tutpig,.tut.tucked .tutpig{animation:none!important}.tuttxt .w{animation:none;opacity:1;transform:none}}
 .hint{position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:13px;font-weight:700;color:rgba(255,232,200,.82);text-shadow:0 1px 2px rgba(10,4,0,.9);pointer-events:none}
 
 .dock{flex:none;display:flex;flex-direction:column;gap:10px}
@@ -638,6 +665,13 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
     <div class="die" id="die1"></div>
     <div class="callout" id="callout" aria-live="polite" hidden></div>
     <div class="hint" id="hint"><span id="hintTxt">Tap or flick the table to roll</span></div>
+    <div class="tut" id="tut" hidden>
+      <div class="tutbub" id="tutBub" role="dialog" aria-live="polite" aria-label="How to play" hidden>
+        <div class="tuttxt" id="tutTxt"></div>
+        <div class="tutnav"><button type="button" class="tutskip" id="tutSkip">Skip</button><span class="tutdots" id="tutDots" aria-hidden="true"></span><button type="button" class="tutnext" id="tutNext">Next</button></div>
+      </div>
+      <button type="button" class="tutpig" id="tutPig" aria-label="How to play: tap the pig for a quick tour"></button>
+    </div>
     <div class="clock" id="clock" role="timer" hidden></div>
     <div class="watchn" id="watchN" hidden></div>
   </div>
@@ -1224,7 +1258,9 @@ function draw(d){
 function showFaces(){dice.forEach(function(d,i){var f=FACE[S.dice[i]];d.rx=f[0];d.ry=f[1];d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')})}
 function layout(){
   var r=tray.getBoundingClientRect();if(r.width<10||r.height<10)return;
-  T={w:r.width,h:r.height};D=clamp(Math.min(T.w*0.25,T.h*0.44),44,124);
+  T={w:r.width,h:r.height};
+  if(tray.classList.contains('tutting')){var bb=$('tutBub');T.h=Math.max(120,r.height-(bb.hidden?0:bb.offsetHeight)-54)}   /* the pig's speech bubble owns the bottom of the table */
+  D=clamp(Math.min(T.w*0.25,T.h*0.44),44,124);
   tray.style.setProperty('--d',D+'px');
   var m=margin();
   if(!placed){placed=true;dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}
@@ -1757,7 +1793,7 @@ function chartPick(e){
 }
 function render(){
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
-  renderMain();achToast();chatUI();applySkin();if(S.phase==='dice')renderSkins();
+  renderMain();tutUI();achToast();chatUI();applySkin();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
   var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
@@ -1780,7 +1816,7 @@ function renderMain(){
   dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
   var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
   $('hintTxt').textContent=SHAKE.ok&&S.shake&&!SHAKE.denied?'Tap, flick or shake to roll':'Tap or flick the table to roll';
-  $('hint').hidden=!(canRoll()&&!(S.online&&inGame&&blocked())&&!S.callout&&(ph==='setup'||ph==='menu'||(inGame&&S.rolls.length===0)));
+  $('hint').hidden=TUT.on||!(canRoll()&&!(S.online&&inGame&&blocked())&&!S.callout&&(ph==='setup'||ph==='menu'||(inGame&&S.rolls.length===0)));
   $('rollBtn').disabled=false;
 
   if(nonGame){
@@ -2032,6 +2068,55 @@ $('exitBtn').addEventListener('click',askLeave);
 $('chatBtn').addEventListener('click',function(){ON.chatOpen=!ON.chatOpen;chatUI('open');if(ON.chatOpen&&!matchMedia('(pointer:coarse)').matches)$('chatIn').focus()});
 $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('chatIn'),v=i.value.trim();if(!v)return;onSend('chat',{text:v.slice(0,200)});i.value=''});
 function toMenu(){S.phase='menu';render()}
+/* ---------- the pig's tour of the rules, in the dice window on the main menu ---------- */
+var TUT={on:false,i:0,steps:[],seen:false,timer:0};
+try{TUT.seen=!!localStorage.getItem('degenpig-tut')}catch(e){}
+function tutSteps(){
+  var c=S.cfg||{},T=c.target||100,dbl=!c.noDbl,x=[];
+  x.push({t:'<b>Oink!</b> I’m the Degen Pig. Want to learn how to play? It takes 30 seconds.'});
+  x.push({t:'On your turn you roll two dice. <b>Every roll adds to your turn total.</b> 5 + 3 = 8.',roll:[5,3]});
+  x.push({t:'Keep rolling to build it up, or <b>Lock in</b> to bank it. Banked points are safe.'});
+  if(dbl)x.push({t:'<b class="gold">Doubles pay double!</b> Two 4s is 8, doubled to <b>16</b>. The dice turn gold.',roll:[4,4]});
+  x.push({t:'But roll a <b class="red">1</b> and your turn is gone. Everything you hadn’t banked is wiped.',roll:[5,1]});
+  x.push({t:'<b class="red">Snake eyes</b> (two 1s) is worse: your <b>whole score</b> burns to zero!',roll:[1,1]});
+  var hot=(c.power?1:0)+(dbl?3:0);
+  if(c.power)x.push({t:'Some turns are <b class="gold">×2: every roll counts double!</b> Every 1 you roll fills a dot under your score. <b>Fill all 5</b> and your next turn is ×2.',roll:[3,6]});
+  if(dbl)x.push({t:(c.power?'You also get a <b class="gold">×2 turn</b> when':'Some turns are <b class="gold">×2: every roll counts double</b>. You get one when')+' you’re <b>at 0</b> and someone’s past 75, you start your <b>last turn 75+ behind</b>, or you’ve rolled <b>snake eyes twice</b>.'});
+  if(c.triple&&hot>1)x.push({t:'Get <b>two of those at once</b> and it’s a <b class="gold">×3 turn</b>. Doubles on a ×3 turn pay ×6!'});
+  x.push({t:'<b>How to win:</b> the first player to bank '+T+' rings the bell. 🔔 Everyone else gets <b>one last turn</b> to pass them. Highest score wins!',bell:1,roll:[6,6]});
+  if(c.golden)x.push({t:'Points past '+T+' are <b class="gold">Golden Points</b>. Bragging rights for big finishes.'});
+  x.push({t:'That’s it! Tap <b>?</b> any time for the rules, or tap me to see this again. Now go get greedy.',last:1});
+  return x;
+}
+function tutPigSvg(){var src=document.querySelector('.top .pig');return src?src.outerHTML.replace('class="pig"','aria-hidden="true"').replace(/ role="img"/,'').replace(/ aria-label="[^"]*"/,'').replace(/pg-/g,'tp-'):''}
+function tutStart(){if(S.phase!=='menu')return;TUT.steps=tutSteps();TUT.i=0;TUT.on=true;tray.classList.add('tutting');var t=$('tut');t.classList.remove('tucked','on');void t.offsetWidth;t.classList.add('on');tutShow()}
+function tutWords(el){ /* each word pops in one after another, like the pig is talking */
+  var k=0,walk=function(n){Array.prototype.slice.call(n.childNodes).forEach(function(c){
+    if(c.nodeType===3){var f=document.createDocumentFragment();c.textContent.split(/(\s+)/).forEach(function(w){if(!w)return;if(/^\s+$/.test(w)){f.appendChild(document.createTextNode(w));return}var sp=document.createElement('span');sp.className='w';sp.textContent=w;sp.style.animationDelay=(k++*40)+'ms';f.appendChild(sp)});n.replaceChild(f,c)}
+    else if(c.nodeType===1)walk(c)})};
+  walk(el);return k*40+250;
+}
+function tutShow(){
+  var st=TUT.steps[TUT.i],b=$('tutBub'),tx=$('tutTxt'),t=$('tut');
+  b.hidden=false;b.classList.remove('swap');void b.offsetWidth;if(TUT.i>0)b.classList.add('swap');
+  tx.classList.remove('done');tx.innerHTML=st.t;var ms=tutWords(tx);
+  t.classList.add('talk');clearTimeout(TUT.timer);TUT.timer=setTimeout(function(){tx.classList.add('done');t.classList.remove('talk')},ms);
+  $('tutNext').textContent=st.last?'Let’s play':'Next';$('tutSkip').hidden=!!st.last;
+  $('tutDots').innerHTML=TUT.steps.map(function(_,i){return '<i'+(i===TUT.i?' class="on"':'')+'></i>'}).join('');
+  requestAnimationFrame(function(){layout()});
+  if(st.roll)setTimeout(function(){tutRoll(st.roll)},350);
+  if(st.bell)setTimeout(function(){if(S.sound)sfxBell()},500);
+  render();
+}
+/* the pig throws exactly the dice it is talking about */
+function tutRoll(vals){
+  if(S.phase!=='menu'||!TUT.on)return;
+  if(S.busy){setTimeout(function(){tutRoll(vals)},300);return}
+  S.busy=true;S.rolling=true;say(null);S.marks=['',''];render();ac();
+  throwDice(vals.slice(),null).then(function(){S.rolling=false;S.dice=vals.slice();after(rollResult(vals[0],vals[1])||{})});
+}
+function tutEnd(){TUT.on=false;tray.classList.remove('tutting');requestAnimationFrame(function(){layout()});clearTimeout(TUT.timer);try{localStorage.setItem('degenpig-tut','1')}catch(e){}TUT.seen=true;var t=$('tut');t.classList.remove('on','talk');t.classList.add('tucked');$('tutBub').hidden=true;render()}
+function tutUI(){var t=$('tut');t.hidden=S.phase!=='menu';if(S.phase!=='menu'&&TUT.on){TUT.on=false;tray.classList.remove('tutting');clearTimeout(TUT.timer);t.classList.remove('on','talk');t.classList.add('tucked');$('tutBub').hidden=true}if(!TUT.on&&!t.classList.contains('on'))t.classList.add('tucked')}
 $('mPass').addEventListener('click',function(){ac();S.phase='setup';render()});
 $('mOnline').addEventListener('click',function(){S.phase='online';$('onMsg').textContent='';onEnter();render()});
 $('setupSettings').addEventListener('click',function(){readSetup();S.phase='settings';$('settings').scrollTop=0;render()});
@@ -2063,7 +2148,15 @@ $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0){stopWatching();return}askLeave()});
 var pd=null;
-tray.addEventListener('pointerdown',function(e){pd={x:e.clientX,y:e.clientY,t:performance.now()}});
+tray.addEventListener('pointerdown',function(e){if(e.target.closest('.tut .tutpig,.tut .tutbub')){pd=null;return}pd={x:e.clientX,y:e.clientY,t:performance.now()}});
+$('tutPig').innerHTML=tutPigSvg();
+$('tutPig').addEventListener('click',function(e){e.stopPropagation();if(TUT.on)tutNext();else tutStart()});
+$('tutNext').addEventListener('click',function(e){e.stopPropagation();tutNext()});
+$('tutSkip').addEventListener('click',function(e){e.stopPropagation();tutEnd()});
+$('tutBub').addEventListener('click',function(e){e.stopPropagation();var tx=$('tutTxt');if(!tx.classList.contains('done')&&!e.target.closest('button')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk')}});
+function tutNext(){var tx=$('tutTxt');if(!tx.classList.contains('done')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk');return}if(TUT.i>=TUT.steps.length-1){tutEnd();return}TUT.i++;tutShow()}
+/* first visit: the pig pops up on its own a moment after the menu appears */
+setTimeout(function(){if(!TUT.seen&&S.phase==='menu'&&!TUT.on)tutStart()},1400);
 tray.addEventListener('pointerup',function(e){
   shakeAsk();
   if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
@@ -2448,7 +2541,7 @@ $('rShare').addEventListener('click',function(){
 
 /* ---------- start ---------- */
 function start(data){
-  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE,ON:ON,renderHist:renderHist};   /* test hook, local test server only */
+  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE,ON:ON,renderHist:renderHist,TUT:TUT};   /* test hook, local test server only */
   loadPrefs();
   /* once per phone: switch on the new defaults, Golden Points and Five Ones 2x */
   try{if(!localStorage.getItem('degenpig-def2')){localStorage.setItem('degenpig-def2','1');S.cfg.golden=true;S.cfg.power=true;savePrefs();var hc=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null');if(hc){hc.golden=true;hc.power=true;localStorage.setItem('degenpig-hostcfg',JSON.stringify(hc))}}}catch(e){}
