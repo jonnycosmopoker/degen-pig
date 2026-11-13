@@ -288,7 +288,6 @@ input{-webkit-user-select:text;user-select:text}
 .sk-bar{display:block;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:3px}
 .sk-bar i{display:block;height:100%;background:var(--gold);border-radius:3px}
 .sk-prog{font-size:12px;color:var(--muted)}
-#diceBtn .mini{flex:none;width:44px;height:44px;padding:7px;border-radius:10px}
 .skins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .skin{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border-radius:14px;background:var(--panel);border:2px solid transparent;cursor:pointer;color:var(--ivory);font-weight:800;font-size:14px;text-align:center}
 .skin small{font-weight:600;font-size:11px;color:var(--muted);line-height:1.25}
@@ -820,8 +819,6 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #settings .tog::after{background:rgba(246,241,228,.55)}
 #settings .tog[aria-checked="true"]{background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%);box-shadow:inset 0 0 0 1px #8A5A0A}
 #settings .tog[aria-checked="true"]::after{background:#1E0B05}
-#settings #diceBtn{border:2px solid transparent;border-radius:14px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 5px 12px rgba(0,0,0,.45)}
-#settings #diceBtn b{font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:.8px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 #settings .seg label{border:2px solid transparent;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;letter-spacing:.4px;text-transform:uppercase}
 #settings .seg label:has(input:checked){background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#2A1702}
 
@@ -1082,7 +1079,6 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
       <div class="opt"><span><b>Sound effects</b><small>Dice, oinks, coins and fire.</small></span><button class="tog" id="tSound" type="button" role="switch" aria-checked="true" aria-label="Sound effects"></button></div>
       <div class="opt" id="shakeOpt" hidden><span><b>Shake to roll</b><small id="shakeNote">Shake your phone to roll the dice. iPhones ask for motion access the first time.</small></span><button class="tog" id="tShake" type="button" role="switch" aria-checked="true" aria-label="Shake to roll"></button></div>
     </div>
-    <button class="mrow" id="diceBtn" type="button"><span class="mini classic" id="diceMini"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></span><span class="mtx"><b>Dice</b><small id="diceSub">Metallic Gold</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     <fieldset>
       <legend>Final turn starts when someone reaches</legend>
       <div class="seg seg4">
@@ -1125,7 +1121,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
         <button type="button" id="more" aria-label="More players">+</button>
       </div>
     </div>
-    <button type="button" class="setbtn" id="setupSettings"><span class="coin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></span><span>Settings<small>Rules, dice, sound</small></span></button>
+    <button type="button" class="setbtn" id="setupSettings"><span class="coin"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg></span><span>Settings<small>Rules and sound</small></span></button>
     </div>
     <fieldset aria-label="Who is playing">
       <div class="presets">
@@ -1518,8 +1514,7 @@ var HOUSE={d:'classic',t:'wood',b:'plain'};
 function seatLook(p){if(!p)return HOUSE;if(S.online)return p.look||HOUSE;return p.you&&!p.bot?myLook():HOUSE}
 function viewLook(){var ph=S.phase;if(ph==='order'||ph==='play'||ph==='final'){var i=activeIdx();if(i>=0)return seatLook(S.players[i])}return myLook()}
 function lookOk(k,id){if(k==='d')return SKINS.some(function(x){return x.id===id});return lkList(k).some(function(x){return x[0]===id})}
-function applySkin(){var lk=viewLook(),id=lookOk('d',lk.d)?lk.d:'classic';if(id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=id;
-  var sk=skinNow(),m=$('diceMini');if(m){m.className='mini '+sk.id;$('diceSub').textContent=sk.n}}
+function applySkin(){var lk=viewLook(),id=lookOk('d',lk.d)?lk.d:'classic';if(id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=id}
 var MINI='<i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i>';
 /* ---------- Locker: the table, dice and name tag you play with ---------- */
 var LK={from:'menu'},MINI3='<i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i>';
@@ -2526,7 +2521,6 @@ $('dice').addEventListener('click',function(e){
   if(!lkOwns(k,id)){note2.innerHTML='<b>'+esc(it[1])+'</b> is '+it[2]+' in the Shop. <button type="button" class="link inl" data-shop="'+(k==='t'?'tables':'borders')+'">See it in the Shop</button>';return}
   if(k==='t')S.table=id;else S.tag=id;savePrefs();note2.textContent=it[1]+(k==='t'?' table is set.':' name tag is set.');render()});
 $('backDice').addEventListener('click',function(){S.phase=LK.from==='dice'?'menu':LK.from;if(S.phase==='shop')renderShop();if(S.phase==='online')onEnter();if(S.phase==='ach')loadMe();render()});
-$('diceBtn').addEventListener('click',function(){openLocker('settings','D')});
 $('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
