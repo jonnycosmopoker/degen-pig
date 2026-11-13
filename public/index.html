@@ -210,11 +210,12 @@ input{-webkit-user-select:text;user-select:text}
 .callout.gold{background:var(--gold);color:var(--ink)}
 .callout.red{background:var(--red);color:var(--ivory);font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.1em;padding:6px 22px}
 #app[data-phase="menu"] .tray.tutting{min-height:360px}
-.tutcall{position:absolute;left:46px;bottom:80px;display:none;padding:6px 11px;border:0;border-radius:12px;background:#FFF8E6;color:#2A1702;font:inherit;font-size:13px;font-weight:800;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 6px 14px rgba(0,0,0,.45),0 0 0 2px #E7B53A;animation:callbob 1.6s ease-in-out infinite}
-.tutcall svg{position:absolute;left:-14px;bottom:-38px;width:40px;height:40px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.tutcall{position:absolute;left:94px;bottom:12px;display:none;padding:6px 11px;border:0;border-radius:12px;background:#FFF8E6;color:#2A1702;font:inherit;font-size:13px;font-weight:800;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 6px 14px rgba(0,0,0,.45),0 0 0 2px #E7B53A;animation:callbob 1.6s ease-in-out infinite}
+.tutcall svg{position:absolute;left:-44px;top:50%;width:38px;height:23px;margin-top:-11px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
 .tut.tucked .tutcall{display:block}
-@keyframes callbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes callbob{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
 @media (prefers-reduced-motion: reduce){.tutcall{animation:none}}
+#app[data-phase="menu"] .hint{top:16px;bottom:auto}
 .tut{position:absolute;left:10px;bottom:10px;right:10px;top:10px;pointer-events:none;z-index:6}
 .tutpig{position:absolute;left:0;bottom:0;width:64px;height:64px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));transform-origin:50% 100%}
 .tutpig svg{width:100%;height:100%;display:block}
@@ -675,7 +676,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
         <div class="tuttxt" id="tutTxt"></div>
         <div class="tutnav"><button type="button" class="tutskip" id="tutSkip">Skip</button><span class="tutdots" id="tutDots" aria-hidden="true"></span><button type="button" class="tutnext" id="tutNext">Next</button></div>
       </div>
-      <button type="button" class="tutcall" id="tutCall">Click here to learn how to play!<svg viewBox="0 0 44 44" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4C34 20 26 30 10 36M7 24l2 13 13-1" stroke="#2A1702" stroke-width="8"/><path d="M32 4C34 20 26 30 10 36M7 24l2 13 13-1" stroke="#FFD83A" stroke-width="4"/></g></svg></button>
+      <button type="button" class="tutcall" id="tutCall">Click here to learn how to play!<svg viewBox="0 0 40 24" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M36 12H6M14 4l-8 8 8 8" stroke="#2A1702" stroke-width="8"/><path d="M36 12H6M14 4l-8 8 8 8" stroke="#FFD83A" stroke-width="4"/></g></svg></button>
       <button type="button" class="tutpig" id="tutPig" aria-label="How to play: tap the pig for a quick tour"></button>
     </div>
     <div class="clock" id="clock" role="timer" hidden></div>
@@ -2162,8 +2163,7 @@ $('tutCall').addEventListener('click',function(e){e.stopPropagation();tutStart()
 $('tutSkip').addEventListener('click',function(e){e.stopPropagation();tutEnd()});
 $('tutBub').addEventListener('click',function(e){e.stopPropagation();var tx=$('tutTxt');if(!tx.classList.contains('done')&&!e.target.closest('button')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk')}});
 function tutNext(){var tx=$('tutTxt');if(!tx.classList.contains('done')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk');return}if(TUT.i>=TUT.steps.length-1){tutEnd();return}TUT.i++;tutShow()}
-/* first visit: the pig pops up on its own a moment after the menu appears */
-setTimeout(function(){if(!TUT.seen&&S.phase==='menu'&&!TUT.on)tutStart()},1400);
+
 tray.addEventListener('pointerup',function(e){
   shakeAsk();
   if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
