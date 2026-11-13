@@ -175,6 +175,59 @@ input{-webkit-user-select:text;user-select:text}
 .mini.original{background:var(--ivory)}.mini.original i{background:var(--ink);box-shadow:none}
 #dice>*{flex-shrink:0}
 .skinlist{display:flex;flex-direction:column;gap:10px}
+#shop>*{flex-shrink:0}
+.shopnote{margin:0}
+.shoptabs{display:flex;gap:8px}
+.shoptabs button{flex:1;min-height:42px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ivory);font:inherit;font-weight:800;font-size:15px;cursor:pointer}
+.shoptabs button.on{background:var(--ivory);color:var(--ink);border-color:var(--ivory)}
+.shopgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.shopgrid.one{grid-template-columns:1fr}
+.shopitem{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 10px 12px;border-radius:16px;background:var(--panel);border:1px solid rgba(242,194,48,.25);text-align:center}
+.shopitem>b{font-size:15px}
+.shopthumb{position:relative;width:100%;aspect-ratio:16/10;border-radius:12px;background:center/cover;box-shadow:inset 0 0 0 2px rgba(242,194,48,.35),0 4px 10px rgba(0,0,0,.4)}
+.shopthumb .anim{position:absolute;top:6px;right:6px;padding:2px 8px;border-radius:999px;background:rgba(0,0,0,.65);color:var(--gold);font-style:normal;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.shopnb{display:flex;justify-content:center;align-items:center;width:100%;aspect-ratio:16/10}
+.shopnb .tile{width:76px;flex:none}
+.shopprice{font-weight:800;color:var(--gold)}
+.shopbuy{min-height:38px;padding:0 22px;border-radius:999px;border:0;font:inherit;font-weight:800;font-size:14px;color:#2A1702;cursor:pointer;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#D49B1C);box-shadow:0 2px 0 #8A5A0A}
+.shopsoon{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 16px;border-radius:16px;background:var(--panel);text-align:center}
+.shopsoon p{margin:0;color:var(--muted);font-size:14px}
+/* shared: borders draw outside the player's colour so names stay readable */
+.tile[class*="nb-"]{overflow:visible}
+.tile[class*="nb-"]::before,.tile[class*="nb-"]::after{content:"";position:absolute;pointer-events:none}
+
+/* 1 Gold Rope: twisted gold braid */
+.nb-rope{border:4px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,repeating-linear-gradient(135deg,#FFF3B0 0 3px,#E7B53A 3px 6px,#8A5A0A 6px 8px) border-box!important}
+
+/* 2 Diamond: icy crystal edge with sparkles on the corners */
+.nb-diamond{border:3px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,linear-gradient(135deg,#FFFFFF,#9FD8F2 25%,#E6F7FF 45%,#7FC2E6 70%,#FFFFFF) border-box!important;box-shadow:0 0 8px rgba(160,220,255,.7)}
+.nb-diamond::before,.nb-diamond::after{width:12px;height:12px;background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);filter:drop-shadow(0 0 3px #9fe0ff)}
+.nb-diamond::before{top:-7px;left:-6px}.nb-diamond::after{bottom:-7px;right:-6px}
+
+/* 3 Inferno: fire gradient edge with flames licking off the top */
+.nb-fire{border:3px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,linear-gradient(0deg,#B81E0A,#F25C05 40%,#FFC93C 100%) border-box!important;box-shadow:0 0 10px rgba(255,110,20,.75)}
+.nb-fire::before{left:6%;right:6%;top:-11px;height:12px;background:radial-gradient(ellipse 7px 11px at 12% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 6px 13px at 32% 100%,#FFE27A 35%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 7px 9px at 52% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 6px 13px at 72% 100%,#FFE27A 35%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 7px 10px at 90% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%)}
+
+/* 4 Royal Crown: polished gold with a crown on top */
+.nb-crown{border:3px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,linear-gradient(180deg,#FFF6C2,#F6CF45 30%,#B97C12 55%,#FBE58A 70%,#8A5A0A) border-box!important}
+.nb-crown::before{width:26px;height:16px;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#B97C12);clip-path:polygon(0 100%,4% 20%,27% 60%,50% 0,73% 60%,96% 20%,100% 100%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+
+/* 5 Neon: glowing pink tube with a cyan halo */
+.nb-neon{border:2px solid #FF4FD8!important;box-shadow:0 0 6px #FF4FD8,0 0 14px rgba(255,79,216,.6),inset 0 0 8px rgba(255,79,216,.45),0 0 0 4px rgba(46,230,255,.35)}
+
+/* 6 Pig Ears: pink trim with two little ears */
+.nb-pig{border:3px solid #F49AB4!important;box-shadow:0 0 0 1px #B84F72}
+.nb-pig::before,.nb-pig::after{width:16px;height:14px;top:-11px;background:#F49AB4;border:2px solid #B84F72;border-bottom:0;border-radius:3px 12px 0 0}
+.nb-pig::before{left:6px;transform:rotate(-18deg)}.nb-pig::after{right:6px;transform:scaleX(-1) rotate(-18deg)}
+
+/* 7 Poker Chip: striped chip edge */
+.nb-chip{border:5px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,repeating-linear-gradient(90deg,#F6F1E4 0 7px,#C8202E 7px 14px) border-box!important;box-shadow:0 0 0 1px #5a0a10}
+
+/* 8 High Stakes: cash-green bill edge with $ corners */
+.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
+.tile.nb-cash::before,.tile.nb-cash::after{content:"$";font:900 12px/1 Figtree,sans-serif;color:#0E2C14;background:#7FD08A;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;border:1px solid #13361A}
+.nb-cash::before{top:-7px;left:-7px}.nb-cash::after{bottom:-7px;right:-7px}
+
 .skrow{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;background:var(--panel);border:2px solid transparent;text-align:left;cursor:pointer;color:var(--ivory)}
 .skrow.on{border-color:var(--gold)}
 .skrow .mini{flex:none;width:60px;height:60px;padding:10px}
@@ -503,7 +556,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .defrow .btn{flex:none;min-height:48px;padding:8px 16px;font-size:15px}
 .defrow span{font-size:13px;color:var(--muted)}
 /* online play: lobby, host form, waiting room */
-#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray,#app[data-phase="gh"] .tray,#app[data-phase="dice"] .tray{display:none}
+#app[data-phase="host"] .tray,#app[data-phase="room"] .tray,#app[data-phase="lb"] .tray,#app[data-phase="gh"] .tray,#app[data-phase="dice"] .tray,#app[data-phase="shop"] .tray{display:none}
 .joinrow{display:flex;gap:8px}
 .joinrow .txt{flex:1;min-width:0;text-transform:uppercase;letter-spacing:.12em}
 .joinrow .btn{flex:none;min-height:48px;padding:0 18px;font-size:16px}
@@ -685,13 +738,20 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 
   <section class="dock scroll" id="menu">
     <div class="menu">
-      <button class="mrow gold" id="mPass" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="3"/><path d="M15 9h3a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3v-3"/><circle cx="7" cy="7" r=".8" fill="currentColor"/><circle cx="11" cy="11" r=".8" fill="currentColor"/><circle cx="17" cy="17" r=".8" fill="currentColor"/></svg></span><span class="mtx"><b>Pass n Play</b><small>Share one phone around the table</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      <button class="mrow gold" id="mOnline" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span class="mtx"><b>Online Play</b><small>Everyone on their own phone</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      <button class="mrow" id="lbBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V10h6v11M3 21v-6h6M15 21v-8h6v8M2 21h20"/><path d="M12 3l1 2 2 .3-1.5 1.4.4 2.1L12 7.8l-1.9 1 .4-2.1L9 5.3l2-.3z"/></svg></span><span class="mtx"><b>Leaderboard</b><small>Top online players, all-time and weekly</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      <button class="mrow" id="mAch" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></span><span class="mtx"><b>Achievements</b><small>Badges each player has earned</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      <button class="mrow" id="mRules" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h13v14H6a2 2 0 0 0-2 2zM4 19a2 2 0 0 0 2 2h13"/></svg></span><span class="mtx"><b>Rules of the Game</b><small>How to play and every setting</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mrow gold" id="mPass" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="12" height="12" rx="3"/><path d="M15 9h3a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3v-3"/><circle cx="7" cy="7" r=".8" fill="currentColor"/><circle cx="11" cy="11" r=".8" fill="currentColor"/><circle cx="17" cy="17" r=".8" fill="currentColor"/></svg></span><span class="mtx"><b>Pass & Play</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mrow gold" id="mOnline" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span><span class="mtx"><b>Online Play</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mrow" id="lbBtn" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V10h6v11M3 21v-6h6M15 21v-8h6v8M2 21h20"/><path d="M12 3l1 2 2 .3-1.5 1.4.4 2.1L12 7.8l-1.9 1 .4-2.1L9 5.3l2-.3z"/></svg></span><span class="mtx"><b>Leaderboard</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mrow" id="mAch" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></span><span class="mtx"><b>Achievements</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="mrow" id="mShop" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16l-1.4 12.1a2 2 0 0 1-2 1.9H7.4a2 2 0 0 1-2-1.9z"/><path d="M8.5 9V6.5a3.5 3.5 0 0 1 7 0V9"/></svg></span><span class="mtx"><b>Degen Pig Shop</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
     <p class="cap" id="menuRules"></p>
+  </section>
+
+  <section class="dock scroll" id="shop" hidden>
+    <div class="headrow"><button type="button" class="link back" id="backShop">‹ Main menu</button><h1 class="screen-h">Degen Pig Shop</h1></div>
+    <p class="cap shopnote">Grand opening soon. Here’s a first look. Everything you buy will be saved to your account and shown to everyone at your table.</p>
+    <div class="shoptabs" role="tablist"><button type="button" class="on" data-tab="tables">Tables</button><button type="button" data-tab="borders">Name Tags</button><button type="button" data-tab="dice">Dice</button></div>
+    <div class="shopgrid" id="shopGrid"></div>
   </section>
 
   <section class="dock scroll" id="online" hidden>
@@ -801,7 +861,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <section class="dock scroll" id="settings" hidden>
-    <button type="button" class="link back" id="backSettings">‹ Pass n Play</button>
+    <button type="button" class="link back" id="backSettings">‹ Pass & Play</button>
     <h1 class="screen-h">Settings</h1>
     <div class="defrow"><button class="btn ghost" id="defaultsBtn" type="button">Use the default rules</button><span id="defNote"></span></div>
     <div class="opts">
@@ -997,7 +1057,7 @@ var S={phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic',youSeat:0};
 
 
-/* ---------- achievements: saved only to a signed-in account (online games, and the seat marked You in Pass n Play) ---------- */
+/* ---------- achievements: saved only to a signed-in account (online games, and the seat marked You in Pass & Play) ---------- */
 var TIER=['Piglet','Hog','Boar','Golden Pig'],TIERC=['#E8A774','#DCE4E9','#F09A45','#F2C230'];
 function fmt(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
 /* k: max = best single value, cnt = lifetime total, min = lowest value (fewer is better), one = a single badge of tier t */
@@ -1056,7 +1116,7 @@ function achSave(){try{if(AD)localStorage.setItem('degenpig-ach',JSON.stringify(
 function achPush(){if(!AUTH||!ON.rec)return;clearTimeout(achPush.t);achPush.t=setTimeout(function(){var r=ON.rec;if(!r)return;
   authed('/api/ach',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({v:r.v||{},opp:r.opp||{},pday:r.pday,pds:r.pds,pws:r.pws})}).then(function(d){if(d&&d.rec&&ON.rec){for(var k in d.rec)ON.rec[k]=d.rec[k]}}).catch(function(){})},700)}
 function achKey(n){return String(n||'').trim().toLowerCase()}
-/* Achievements are saved only to a signed-in account. In Pass n Play that means the one seat marked You; nobody else at the table earns them. */
+/* Achievements are saved only to a signed-in account. In Pass & Play that means the one seat marked You; nobody else at the table earns them. */
 function achRec(p){if(!p||p.bot||!p.you||!AUTH||!ON.rec)return null;var r=ON.rec;if(!r.v)r.v={};if(!r.opp)r.opp={};return r}
 /* how many levels are earned, counted as the highest level index + 1 (0 = none); a single badge is 0 or 1 */
 function achLevel(a,r){var v=r&&r.v?r.v[a.id]:null;if(a.k==='one')return v?1:0;if(v==null)return 0;var n=0;a.L.forEach(function(x,i){if(x!=null&&(a.k==='min'?v<=x:v>=x))n=i+1});return n}
@@ -1135,7 +1195,7 @@ function renderAch(){
   $('achWho').innerHTML='';
   var r=AUTH&&ON.rec?{name:myId().name||(ON.user&&ON.user.name)||'You',v:ON.rec.v||{}}:null;
   var tot=0,got=0;ACH.forEach(function(a){if(a.k==='one'){tot++;if(achLevel(a,r))got++}else a.L.forEach(function(x,i){if(x!=null){tot++;if(i<achLevel(a,r))got++}})});
-  $('achSum').textContent=!AUTH?'Here’s every badge you can earn. None are saved until you sign in.':!r?'Loading your achievements…':('You have unlocked '+got+' of '+tot+' badge levels. Badges from online games and from your seat in Pass n Play (the one marked You) are saved to your account.');
+  $('achSum').textContent=!AUTH?'Here’s every badge you can earn. None are saved until you sign in.':!r?'Loading your achievements…':('You have unlocked '+got+' of '+tot+' badge levels. Badges from online games and from your seat in Pass & Play (the one marked You) are saved to your account.');
   var h='';
   ACHCAT.forEach(function(c){
     h+='<h2 class="sechead">'+c[1]+'</h2>';
@@ -1212,7 +1272,7 @@ var SKINS=[
 /* the badge sets: the Golden Pig level of a badge, earned by anyone on this phone or by the signed-in online account */
 function achRecs(){var d=achLoad(),out=[],k;for(k in d.p)if(d.p[k]&&d.p[k].v)out.push(d.p[k]);if(ON.rec&&ON.rec.v)out.push(ON.rec);return out}
 function achBest(sk){var a=ACHBY[sk.ach],lv=0,val=0;achRecs().forEach(function(r){var l=achLevel(a,r);if(l>lv)lv=l;var v=r.v[sk.ach];if(typeof v==='number'&&v>val)val=v});return {lv:lv,val:val}}
-/* Pass n Play games finished on this phone (counted from when this went in, or the most any local player has played, whichever is more) */
+/* Pass & Play games finished on this phone (counted from when this went in, or the most any local player has played, whichever is more) */
 function pnpGames(){var n=0;try{n=+localStorage.getItem('degenpig-pnp')||0}catch(e){}var d=achLoad(),k;for(k in d.p){var v=d.p[k]&&d.p[k].v&&d.p[k].v.degen;if(v>n)n=v}return n}
 function pnpCount(){try{localStorage.setItem('degenpig-pnp',String(pnpGames()+1))}catch(e){}}
 function onlineGames(){return (ON.rec&&ON.rec.v&&ON.rec.v.degen)||0}
@@ -1231,7 +1291,7 @@ function renderSkins(){
     else if(open)st='<span class="sk-use">Tap to use</span>';
     else if(sk.ach){var a=ACHBY[sk.ach],goal=sk.lv?a.L[sk.lv-1]:null,bst=achBest(sk);
       st='<span class="sk-lock">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Golden Pig: '+esc(a.n)+'</span><span class="sk-prog">'+esc(sk.lv?a.d(goal):a.d)+'</span>'+(goal?'<span class="sk-bar"><i style="width:'+Math.min(100,Math.round(bst.val/goal*100))+'%"></i></span><span class="sk-prog">Best so far: '+fmt(bst.val)+'</span>':'')}
-    else{var where=sk.src==='pnp'?'Pass n Play games':'online games',pct=Math.min(100,Math.round(have/sk.need*100));
+    else{var where=sk.src==='pnp'?'Pass & Play games':'online games',pct=Math.min(100,Math.round(have/sk.need*100));
       st='<span class="sk-lock">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Play '+fmt(sk.need)+' '+where+'</span><span class="sk-bar"><i style="width:'+pct+'%"></i></span><span class="sk-prog">'+(sk.src==='online'&&!AUTH?'Sign in under Online Play to count your games':fmt(have)+' of '+fmt(sk.need))+'</span>'}
     return '<button type="button" class="skrow'+(on?' on':'')+(open?'':' locked')+'" data-skin="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="mini '+sk.id+'">'+MINI+'</span><span class="sktx"><b>'+sk.n+'</b><small>'+sk.d+'</small>'+st+'</span></button>'}).join('');
 }
@@ -1818,8 +1878,8 @@ function renderMain(){
   $('app').dataset.phase=ph;
   var hotNow=(ph==='play'||ph==='final')&&S.hotTurn&&!S.bust&&!S.finalDone;$('app').classList.toggle('hot',hotNow);$('seal').hidden=!hotNow;$('seal').textContent='×'+MX();$('seal').classList.toggle('x3',MX()>2);
   $('soundBtn').textContent='Sound: '+(S.sound?'on':'off');
-  var nonGame=['menu','setup','online','settings','ach','host','room','lb','gh','dice'].indexOf(ph)>=0;
-  ['menu','setup','online','settings','ach','host','room','lb','gh','dice'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
+  var nonGame=['menu','setup','online','settings','ach','host','room','lb','gh','dice','shop'].indexOf(ph)>=0;
+  ['menu','setup','online','settings','ach','host','room','lb','gh','dice','shop'].forEach(function(k){$(k).hidden=ph!==k});$('play').hidden=!inGame;$('over').hidden=ph!=='over';
   dice.forEach(function(d,i){if(!S.rolling)d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')});
   var c=$('callout');c.hidden=!S.callout||S.rolling;if(S.callout){c.textContent=S.callout.text;c.className='callout'+(S.callout.kind?' '+S.callout.kind:'')}
   $('hintTxt').textContent=SHAKE.ok&&S.shake&&!SHAKE.denied?'Tap, flick or shake to roll':'Tap or flick the table to roll';
@@ -1983,7 +2043,7 @@ function renderMain(){
 function renderScreens(ph){
   if(ph==='ach')renderAch();
   if(ph==='online')renderOnline();if(ph==='lb')renderLb();if(ph==='gh')renderHist();if(ph==='host')renderHost();if(ph==='room')renderRoom();
-  if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Pass n Play, under Settings.';
+  if(ph==='menu')$('menuRules').textContent='Rules: '+cfgSummary(S.cfg)+'. Change them in Pass & Play, under Settings.';
   if(ph==='setup'){var c=S.cfg;$('intro').textContent='Roll two dice as often as you dare. '+(c.noDbl?'Doubles score face value':'Doubles pay double')+', any 1 wipes the turn, and snake eyes burns your whole score. First to '+c.target+' sets the bar.'+(isDefault(c)?'':' Playing '+cfgSummary(c)+'.')}
   if(ph==='settings'){
     var c=S.cfg;
@@ -2075,6 +2135,20 @@ $('exitBtn').addEventListener('click',askLeave);
 $('chatBtn').addEventListener('click',function(){ON.chatOpen=!ON.chatOpen;chatUI('open');if(ON.chatOpen&&!matchMedia('(pointer:coarse)').matches)$('chatIn').focus()});
 $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('chatIn'),v=i.value.trim();if(!v)return;onSend('chat',{text:v.slice(0,200)});i.value=''});
 function toMenu(){S.phase='menu';render()}
+/* ---------- Degen Pig Shop (preview: nothing is for sale yet) ---------- */
+var SHOP={tab:'tables',items:{
+  tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated']],
+  borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99']]}};
+function renderShop(){
+  Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===SHOP.tab)});
+  var g=$('shopGrid'),cols=['--s1','--s2','--s3','--s4'];
+  if(SHOP.tab==='dice'){g.className='shopgrid one';g.innerHTML='<div class="shopsoon"><span class="mini classic">'+MINI+'</span><b>New dice sets are on the way</b><p>You can already unlock dice for free by playing. See Pass &amp; Play → Settings → Dice.</p></div>';return}
+  g.className='shopgrid';
+  g.innerHTML=SHOP.items[SHOP.tab].map(function(it,k){
+    var pv=SHOP.tab==='tables'?'<span class="shopthumb" style="background-image:url(shop/t-'+it[0]+'.jpg)">'+(it[3]?'<i class="anim">'+it[3]+'</i>':'')+'</span>'
+      :'<span class="shopnb"><span class="tile nb-'+it[0]+'" style="--pc:var('+cols[k%4]+')"><span class="nm">You</span><span class="sc">82</span></span></span>';
+    return '<div class="shopitem">'+pv+'<b>'+it[1]+'</b><span class="shopprice">'+it[2]+'</span><button type="button" class="shopbuy">Buy</button></div>'}).join('');
+}
 /* ---------- the pig's tour of the rules, in the dice window on the main menu ---------- */
 var TUT={on:false,i:0,steps:[],seen:false,timer:0};
 try{TUT.seen=!!localStorage.getItem('degenpig-tut')}catch(e){}
@@ -2092,7 +2166,7 @@ function tutSteps(){
   if(c.triple&&hot>1)x.push({t:'Get <b>two of those at once</b> and it’s a <b class="gold">×3 turn</b>. Doubles on a ×3 turn pay ×6!'});
   x.push({t:'<b>How to win:</b> the first player to bank '+T+' rings the bell. 🔔 Everyone else gets <b>one last turn</b> to pass them. Highest score wins!',bell:1,roll:[6,6]});
   if(c.golden)x.push({t:'Points past '+T+' are <b class="gold">Golden Points</b>. Bragging rights for big finishes.'});
-  x.push({t:'That’s it! Tap <b>?</b> any time for the rules, or tap me to see this again. Now go get greedy.',last:1});
+  x.push({t:'That’s it! Tap <b>?</b> during a game for the rules, or tap me to see this again. Now go get greedy.',last:1});
   return x;
 }
 function tutPigSvg(){var src=document.querySelector('.top .pig');return src?src.outerHTML.replace('class="pig"','aria-hidden="true"').replace(/ role="img"/,'').replace(/ aria-label="[^"]*"/,'').replace(/pg-/g,'tp-'):''}
@@ -2130,7 +2204,10 @@ $('setupSettings').addEventListener('click',function(){readSetup();S.phase='sett
 $('mAch').addEventListener('click',function(){S.phase='ach';$('ach').scrollTop=0;loadMe();render()});
 $('backAch').addEventListener('click',toMenu);
 $('achWho').addEventListener('click',function(e){var b=e.target.closest('button[data-k]');if(b){achSel=b.getAttribute('data-k');renderAch()}});
-$('mRules').addEventListener('click',openRules);
+$('mShop').addEventListener('click',function(){S.phase='shop';$('shop').scrollTop=0;renderShop();render()});
+$('backShop').addEventListener('click',toMenu);
+document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;SHOP.tab=b.getAttribute('data-tab');renderShop()});
+$('shopGrid').addEventListener('click',function(e){var b=e.target.closest('.shopbuy');if(b)b.textContent='Coming soon!'});
 $('backSetup').addEventListener('click',function(){readSetup();toMenu()});
 $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
 $('backSettings').addEventListener('click',function(){S.phase='setup';render()});
@@ -2138,7 +2215,7 @@ function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
 $('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('skins').addEventListener('click',function(e){var b=e.target.closest('.skrow');if(!b)return;var sk=skinById(b.getAttribute('data-skin'));
   if(!skinOpen(sk)&&sk.ach){var a=ACHBY[sk.ach];$('skinNote').textContent='Locked. Earn the Golden Pig level of '+a.n+' ('+(sk.lv?a.d(a.L[sk.lv-1]):a.d)+') to unlock '+sk.n+'.';return}
-  if(!skinOpen(sk)){$('skinNote').textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass n Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
+  if(!skinOpen(sk)){$('skinNote').textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass & Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
   S.skin=sk.id;savePrefs();$('skinNote').textContent=sk.n+' dice are on the table.';render()});
 $('diceBtn').addEventListener('click',function(){S.phase='dice';$('skinNote').textContent='';$('dice').scrollTop=0;if(AUTH)loadMe();render()});
 $('backDice').addEventListener('click',function(){S.phase='settings';render()});
@@ -2242,7 +2319,7 @@ function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!=
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
 function onEnter(){refreshLobby();loadMe();if(!ON.poll)ON.poll=setInterval(function(){if(S.phase==='online')refreshLobby();else{clearInterval(ON.poll);ON.poll=0}},4000)}
 function refreshLobby(){token().then(function(t){return api('/api/lobby',t?{headers:{Authorization:'Bearer '+t}}:undefined)}).then(function(d){ON.tables=d.tables||[];ON.live=d.live||[];ON.counts=d.counts||null;ON.offline=false;if(S.phase==='online')renderOnline()}).catch(function(){ON.offline=true;ON.tables=null;if(S.phase==='online')renderOnline()})}
-/* Before accounts held every badge, Pass n Play saved them on the phone under each player's name. The first time someone signs in here,
+/* Before accounts held every badge, Pass & Play saved them on the phone under each player's name. The first time someone signs in here,
    the phone's player with their name (their online name, or their Google first name) is added into the account, then removed from the phone. */
 function achMigrate(){
   if(!ON.rec||!ON.user||achMigrate.busy)return;var flag='degenpig-achmig:'+ON.user.id;try{if(localStorage.getItem(flag))return}catch(e){return}
@@ -2283,7 +2360,7 @@ function renderOnline(){
   var C=ON.counts,lc=$('lobbyCount');lc.hidden=!C||ON.offline;
   if(C&&!ON.offline){var n=C.lobby;lc.innerHTML='<i class="dot"></i><span><b>'+(n?n+' player'+(n===1?'':'s'):'Nobody')+'</b> in the lobby'+(AUTH&&n===1?' (just you)':'')+(C.playing?' · '+C.playing+' playing at '+C.tables+' table'+(C.tables===1?'':'s'):'')+'</span>'}
   var L=$('lobbyList');
-  if(ON.offline)L.innerHTML='<div class="empty">Online play runs on the Degen Pig website and can’t reach its server from here. Pass n Play works anywhere.</div>';
+  if(ON.offline)L.innerHTML='<div class="empty">Online play runs on the Degen Pig website and can’t reach its server from here. Pass & Play works anywhere.</div>';
   else if(!ON.tables)L.innerHTML='<div class="empty">Looking for tables…</div>';
   else if(!ON.tables.length)L.innerHTML='<div class="empty">No open tables right now. Host one and share the code with your friends.</div>';
   else L.innerHTML=ON.tables.map(function(t){return '<div class="lrow"><div class="lt"><b>'+(t.locked?LOCK:'')+esc(t.name)+'</b><span>'+esc(t.host)+' · '+t.filled+' of '+t.seats+' seats · '+esc(rulesLine(t.rules||{}))+'</span></div><button type="button" class="btn ghost" data-code="'+esc(t.code)+'" data-locked="'+(t.locked?1:0)+'" data-name="'+esc(t.name)+'">Join</button></div>'}).join('');
