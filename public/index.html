@@ -197,35 +197,36 @@ input{-webkit-user-select:text;user-select:text}
 .tile[class*="nb-"]::before,.tile[class*="nb-"]::after{content:"";position:absolute;pointer-events:none}
 
 /* 1 Gold Rope: twisted gold braid */
-.nb-rope{border:4px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,repeating-linear-gradient(135deg,#FFF3B0 0 3px,#E7B53A 3px 6px,#8A5A0A 6px 8px) border-box!important}
+.tile.nb-rope{border:4px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,repeating-linear-gradient(135deg,#FFF3B0 0 3px,#E7B53A 3px 6px,#8A5A0A 6px 8px) border-box!important}
 
 /* 2 Diamond: icy crystal edge with sparkles on the corners */
-.nb-diamond{border:3px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,linear-gradient(135deg,#FFFFFF,#9FD8F2 25%,#E6F7FF 45%,#7FC2E6 70%,#FFFFFF) border-box!important;box-shadow:0 0 8px rgba(160,220,255,.7)}
-.nb-diamond::before,.nb-diamond::after{width:12px;height:12px;background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);filter:drop-shadow(0 0 3px #9fe0ff)}
-.nb-diamond::before{top:-7px;left:-6px}.nb-diamond::after{bottom:-7px;right:-6px}
+.tile.nb-diamond{border:3px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,linear-gradient(135deg,#FFFFFF,#9FD8F2 25%,#E6F7FF 45%,#7FC2E6 70%,#FFFFFF) border-box!important;box-shadow:0 0 8px rgba(160,220,255,.7)}
+.tile.nb-diamond::before,.nb-diamond::after{width:12px;height:12px;background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);filter:drop-shadow(0 0 3px #9fe0ff)}
+.tile.nb-diamond::before{top:-7px;left:-6px}.nb-diamond::after{bottom:-7px;right:-6px}
 
 /* 3 Inferno: fire gradient edge with flames licking off the top */
-.nb-fire{border:3px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,linear-gradient(0deg,#B81E0A,#F25C05 40%,#FFC93C 100%) border-box!important;box-shadow:0 0 10px rgba(255,110,20,.75)}
-.nb-fire::before{left:6%;right:6%;top:-11px;height:12px;background:radial-gradient(ellipse 7px 11px at 12% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 6px 13px at 32% 100%,#FFE27A 35%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 7px 9px at 52% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 6px 13px at 72% 100%,#FFE27A 35%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 7px 10px at 90% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%)}
+.tile.nb-fire{border:3px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,linear-gradient(0deg,#B81E0A,#F25C05 40%,#FFC93C 100%) border-box!important;box-shadow:0 0 10px rgba(255,110,20,.75)}
+.tile.nb-fire::before{left:6%;right:6%;top:-11px;height:12px;background:radial-gradient(ellipse 7px 11px at 12% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 6px 13px at 32% 100%,#FFE27A 35%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 7px 9px at 52% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 6px 13px at 72% 100%,#FFE27A 35%,#F25C05 70%,transparent 72%),radial-gradient(ellipse 7px 10px at 90% 100%,#FFC93C 40%,#F25C05 70%,transparent 72%)}
 
 /* 4 Royal Crown: polished gold with a crown on top */
-.nb-crown{border:3px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,linear-gradient(180deg,#FFF6C2,#F6CF45 30%,#B97C12 55%,#FBE58A 70%,#8A5A0A) border-box!important}
-.nb-crown::before{width:26px;height:16px;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#B97C12);clip-path:polygon(0 100%,4% 20%,27% 60%,50% 0,73% 60%,96% 20%,100% 100%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
+.tile.nb-crown{border:3px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,linear-gradient(180deg,#FFF6C2,#F6CF45 30%,#B97C12 55%,#FBE58A 70%,#8A5A0A) border-box!important}
+.tile.nb-crown::before{width:26px;height:16px;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#B97C12);clip-path:polygon(0 100%,4% 20%,27% 60%,50% 0,73% 60%,96% 20%,100% 100%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
 
 /* 5 Neon: glowing pink tube with a cyan halo */
-.nb-neon{border:2px solid #FF4FD8!important;box-shadow:0 0 6px #FF4FD8,0 0 14px rgba(255,79,216,.6),inset 0 0 8px rgba(255,79,216,.45),0 0 0 4px rgba(46,230,255,.35)}
+.tile.nb-neon{border:2px solid #FF4FD8!important;box-shadow:0 0 6px #FF4FD8,0 0 14px rgba(255,79,216,.6),inset 0 0 8px rgba(255,79,216,.45),0 0 0 4px rgba(46,230,255,.35)}
 
 /* 6 Pig Ears: pink trim with two little ears */
-.nb-pig{border:3px solid #F49AB4!important;box-shadow:0 0 0 1px #B84F72}
-.nb-pig::before,.nb-pig::after{width:16px;height:14px;top:-11px;background:#F49AB4;border:2px solid #B84F72;border-bottom:0;border-radius:3px 12px 0 0}
-.nb-pig::before{left:6px;transform:rotate(-18deg)}.nb-pig::after{right:6px;transform:scaleX(-1) rotate(-18deg)}
+.tile.nb-pig{border:3px solid #F49AB4!important;box-shadow:0 0 0 1px #B84F72}
+.tile.nb-pig::before,.nb-pig::after{width:16px;height:14px;top:-11px;background:#F49AB4;border:2px solid #B84F72;border-bottom:0;border-radius:3px 12px 0 0}
+.tile.nb-pig::before{left:6px;transform:rotate(-18deg)}.nb-pig::after{right:6px;transform:scaleX(-1) rotate(-18deg)}
 
 /* 7 Poker Chip: striped chip edge */
-.nb-chip{border:5px solid transparent!important;background:linear-gradient(color-mix(in srgb,var(--pc) 34%,var(--felt)),color-mix(in srgb,var(--pc) 34%,var(--felt))) padding-box,repeating-linear-gradient(90deg,#F6F1E4 0 7px,#C8202E 7px 14px) border-box!important;box-shadow:0 0 0 1px #5a0a10}
+.tile.nb-chip{border:5px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,repeating-linear-gradient(90deg,#F6F1E4 0 7px,#C8202E 7px 14px) border-box!important;box-shadow:0 0 0 1px #5a0a10}
 
 /* 8 High Stakes: cash-green bill edge with $ corners */
-.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
+.tile.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
 .tile.nb-cash::before,.tile.nb-cash::after{content:"$";font:900 12px/1 Figtree,sans-serif;color:#0E2C14;background:#7FD08A;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;border:1px solid #13361A}
+.tile.active{--tbg:color-mix(in srgb,var(--pc) 58%,var(--felt))}
 .nb-cash::before{top:-7px;left:-7px}.nb-cash::after{bottom:-7px;right:-7px}
 
 .skrow{display:flex;align-items:center;gap:14px;width:100%;padding:14px;border-radius:16px;background:var(--panel);border:2px solid transparent;text-align:left;cursor:pointer;color:var(--ivory)}
@@ -731,6 +732,18 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 .lknote{margin:0;font-size:14px;line-height:1.4;color:var(--ivory)}
 .lknote:empty{display:none}
 .shoplk{align-self:flex-end;margin-top:-6px}
+/* ---- table skins: the felt under the dice ---- */
+#app[data-table="felt"] .tray{background:#22703F url(tables/felt.jpg) center/cover}#app[data-table="felt"] .brand{color:rgba(0,38,14,.5)!important}
+#app[data-table="velvet"] .tray{background:#80121E url(tables/velvet.jpg) center/cover}#app[data-table="velvet"] .brand{color:rgba(52,0,8,.55)!important}#app[data-table="velvet"] .inlay{border-color:rgba(242,194,48,.7)}
+#app[data-table="marble"] .tray{background:#111 url(tables/marble.jpg) center/cover}#app[data-table="marble"] .brand{color:rgba(222,186,112,.28)!important;text-shadow:0 1px 0 rgba(0,0,0,.6)!important}#app[data-table="marble"] .inlay{border:2px solid rgba(242,194,48,.85);box-shadow:0 0 0 1px rgba(0,0,0,.4),inset 0 0 0 1px rgba(0,0,0,.4)}
+#app[data-table="neon"] .tray{background:#0d0d18 url(tables/neon.jpg) center/cover;box-shadow:inset 0 8px 28px rgba(0,0,0,.7),0 0 0 2px #2EE6FF,0 0 18px rgba(46,230,255,.55)}#app[data-table="neon"] .brand{color:#FF6BE0!important;text-shadow:0 0 6px #FF4FD8,0 0 16px #FF4FD8,0 0 28px rgba(255,79,216,.6)!important;opacity:.55}#app[data-table="neon"] .inlay{border:2px solid #FF4FD8;box-shadow:0 0 10px #FF4FD8,inset 0 0 10px rgba(255,79,216,.6)}
+#app[data-table="purple"] .tray{background:#462268 url(tables/purple.jpg) center/cover}#app[data-table="purple"] .brand{color:rgba(20,0,40,.5)!important}#app[data-table="purple"] .inlay{border-color:rgba(242,194,48,.7)}
+#app[data-table="carbon"] .tray{background:#1a1a1d url(tables/carbon.jpg) center/cover}#app[data-table="carbon"] .brand{color:rgba(0,0,0,.6)!important;text-shadow:0 1px 1px rgba(255,255,255,.12)!important}#app[data-table="carbon"] .inlay{border:2px solid rgba(226,59,59,.85);box-shadow:0 0 8px rgba(226,59,59,.45)}
+#app[data-table="molten"] .tray{background:#1a0a04;box-shadow:0 0 0 2px rgba(20,8,0,.7),0 0 26px rgba(255,90,0,.38)}#app[data-table="molten"] .inlay{border:2px solid rgba(255,150,40,.9);box-shadow:0 0 10px rgba(255,95,0,.75),inset 0 0 12px rgba(255,95,0,.45)}#app[data-table="molten"] .brand{color:rgba(16,5,0,.6)!important;text-shadow:0 0 14px rgba(255,110,10,.55),0 1px 0 rgba(255,170,80,.22)!important}
+#app[data-table="space"] .tray{background:#04050e;box-shadow:0 0 0 2px rgba(10,14,40,.8),0 0 26px rgba(90,130,255,.4)}#app[data-table="space"] .inlay{border:1.5px solid rgba(175,215,255,.85);box-shadow:0 0 10px rgba(110,170,255,.8),inset 0 0 12px rgba(110,170,255,.35)}#app[data-table="space"] .brand{color:rgba(205,225,255,.2)!important;text-shadow:0 0 16px rgba(120,170,255,.6)!important}
+#app.hot .inlay{border-color:var(--gold)!important;box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)!important}
+#skinCv{position:absolute;inset:0;width:100%;height:100%;border-radius:22px;display:block;pointer-events:none}
+
 
 .lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
 .lcount b{color:var(--ivory)}
@@ -1392,7 +1405,7 @@ function pnpGames(){var n=0;try{n=+localStorage.getItem('degenpig-pnp')||0}catch
 function pnpCount(){try{localStorage.setItem('degenpig-pnp',String(pnpGames()+1))}catch(e){}}
 function onlineGames(){return (ON.rec&&ON.rec.v&&ON.rec.v.degen)||0}
 function skinHave(sk){return !sk.need?0:sk.src==='pnp'?pnpGames():onlineGames()}
-function skinOpen(sk){if(sk.ach)return achBest(sk).lv>=(sk.lv||1);return !sk.need||skinHave(sk)>=sk.need}
+function skinOpen(sk){if(ON.admin)return true;if(sk.ach)return achBest(sk).lv>=(sk.lv||1);return !sk.need||skinHave(sk)>=sk.need}
 function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0]}
 function skinNow(){var sk=skinById(S.skin);return skinOpen(sk)?sk:SKINS[0]}
 function applySkin(){var sk=skinNow();if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id;
@@ -1402,17 +1415,35 @@ var MINI='<i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="gr
 var LK={from:'menu'},MINI3='<i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i>';
 var LKDEF={t:'wood',b:'plain'};
 function lkList(k){return k==='t'?[['wood','Classic Wood',null]].concat(SHOP.items.tables):[['plain','Plain',null]].concat(SHOP.items.borders)}
-function lkOwns(k,id){return id===LKDEF[k]||!!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
+function lkOwns(k,id){return id===LKDEF[k]||!!ON.admin||!!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
 function lkNow(k){var id=k==='t'?S.table:S.tag,L=lkList(k);for(var i=0;i<L.length;i++)if(L[i][0]===id&&lkOwns(k,id))return L[i];return L[0]}
 function lkBg(id){return id==='wood'?'wood-table.jpg':'shop/t-'+id+'.jpg'}
 function lkTag(id,name){return '<span class="tile'+(id==='plain'?'':' nb-'+id)+'" style="--pc:var(--s1)"><span class="nm">'+esc(name)+'</span><span class="sc">82</span></span>'}
 function lkName(){return myId().name||(ON.user&&ON.user.name?ON.user.name.split(' ')[0].slice(0,10):'')||'You'}
 function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','skinNote','lkNoteB'].forEach(function(n){$(n).textContent=''});if(AUTH)loadMe();render();
   var sc=$('dice');sc.scrollTop=0;if(sec){var el=$('lkSec'+sec);if(el)sc.scrollTop=el.offsetTop-sc.offsetTop-8}}
+/* the equipped table goes under the dice; the two animated ones draw on a canvas, at most 30 frames a second, only while the table is on screen */
+var TBL={id:'wood',cv:null,skin:null,raf:0,last:0,load:null};
+function applyTable(){var id=lkNow('t')[0],app=$('app');if(TBL.id===id)return;TBL.id=id;
+  if(id==='wood')delete app.dataset.table;else app.dataset.table=id;
+  tblStop();if(id==='molten'||id==='space')tblStart(id)}
+function tblStop(){cancelAnimationFrame(TBL.raf);TBL.raf=0;if(TBL.cv){TBL.cv.remove();TBL.cv=null}TBL.skin=null}
+function tblLoad(src){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i)};i.onerror=rej;i.src=src})}
+function tblStart(id){
+  if(!TBL.load)TBL.load=new Promise(function(res,rej){if(window.DPTable)return res();var sc=document.createElement('script');sc.src='tables/tables.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)});
+  var kind=id==='molten'?'lava':'space',A={};
+  var assets=kind==='lava'?Promise.all([tblLoad('tables/lava.jpg'),tblLoad('tables/lava-wood.webp'),tblLoad('tables/lava-glow.jpg'),fetch('tables/lava-points.json').then(function(r){return r.json()})]).then(function(x){A.lava=x[0];A.wood=x[1];A.glow=x[2];A.points=x[3]})
+    :Promise.all([tblLoad('tables/space.jpg'),fetch('tables/space-stars.json').then(function(r){return r.json()})]).then(function(x){A.space=x[0];A.stars=x[1]});
+  Promise.all([TBL.load,assets]).then(function(){if(TBL.id!==id)return;
+    var cv=document.createElement('canvas');cv.id='skinCv';tray.insertBefore(cv,tray.firstChild);TBL.cv=cv;TBL.skin=window.DPTable(cv,kind,A);
+    var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var loop=function(ts){TBL.raf=requestAnimationFrame(loop);if(document.hidden||tray.offsetParent===null)return;if(still&&TBL.last)return;if(ts-TBL.last<32)return;TBL.last=ts;TBL.skin.draw(ts/1000)};
+    TBL.last=0;TBL.raf=requestAnimationFrame(loop)}).catch(function(){});
+}
 function renderSkins(){
   var cur=skinNow(),tb=lkNow('t'),tg=lkNow('b'),nm=lkName(),lockI=LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"');
   $('backDice').textContent='‹ '+({menu:'Main menu',settings:'Settings',shop:'Shop',ach:'Achievements'}[LK.from]||'Back');
-  $('lkSign').hidden=!!AUTH;
+  $('lkSign').hidden=!!AUTH&&!ON.admin;$('lkSign').querySelector('span').textContent=ON.admin?'Owner mode: every table, dice set and name tag is unlocked on your account for testing.':'Sign in to buy skins and keep them on every phone.';$('lkSignBtn').hidden=!!AUTH;
   $('lkPrev').style.backgroundImage='url('+lkBg(tb[0])+')';
   $('lkPrev').innerHTML=lkTag(tg[0],nm)+'<span class="lkd"><span class="mini '+cur.id+'">'+MINI+'</span><span class="mini '+cur.id+'">'+MINI3+'</span></span>';
   $('lkCap').innerHTML='<b>'+esc(tb[1])+'</b> table · <b>'+esc(cur.n)+'</b> dice · <b>'+esc(tg[1])+'</b> tag';
@@ -1997,7 +2028,7 @@ function chartPick(e){
 }
 function render(){
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
-  renderMain();tutUI();achToast();chatUI();applySkin();acctUI();if(S.phase==='dice')renderSkins();
+  renderMain();tutUI();achToast();chatUI();applySkin();applyTable();acctUI();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
   var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
@@ -2043,6 +2074,7 @@ function renderMain(){
   b.innerHTML=list.map(function(i){
     var p=P(i),cls='tile',val,foot;
     if(i===act)cls+=' active';
+    var tg=lkNow('b')[0];if(tg!=='plain'&&(S.online?i===S.me:p.you))cls+=' nb-'+tg;
     if(lead.indexOf(i)>=0)cls+=' lead';
     if(ph==='order'){var ks=S.ord.keys[i];val=ks.length?ks[ks.length-1]:'–';foot='<span class="tag">'+(S.ord.done?(S.order.indexOf(i)+1)+ordinal(S.order.indexOf(i)+1):'')+'</span>'}
     else{
@@ -2424,7 +2456,7 @@ function myId(){
 }
 /* ---------- sign-in (Supabase with Google) ---------- */
 var SB={url:'https://fdaysgypgzyexilqfyrx.supabase.co',key:'sb_publishable_GAe1m_PFF3WV_Cp2vv5h-A_ca3ANUms'},AUTH=null;
-function authLoad(){try{AUTH=JSON.parse(localStorage.getItem('degenpig-auth')||'null')}catch(e){AUTH=null}}
+function authLoad(){try{AUTH=JSON.parse(localStorage.getItem('degenpig-auth')||'null');ON.admin=!!AUTH&&!!localStorage.getItem('degenpig-owner')}catch(e){AUTH=null}}
 function authSave(){try{if(AUTH)localStorage.setItem('degenpig-auth',JSON.stringify(AUTH));else localStorage.removeItem('degenpig-auth')}catch(e){}}
 /* Google sends the player back here with the sign-in tokens after the # */
 function authFromHash(){
@@ -2476,7 +2508,7 @@ function acctFill(){var out=!AUTH,card=$('signCard'),slot=$('acctSlot');$('acctO
     if(card.parentNode!==slot){ON.cardHome=ON.cardHome||card.parentNode;ON.cardNext=ON.cardNext||card.nextSibling;slot.appendChild(card)}card.hidden=false;return}
   var u=ON.user||{},nm=u.name||myId().name||'Player';$('acctAv').textContent=(nm.trim().charAt(0)||'?').toUpperCase();$('acctName').textContent=nm;$('acctMail').textContent=u.email||'';if(!ON.user)loadMe()}
 function signIn(){var ph=S.phase,ret=ph==='ach'?'/?ach=1':GO.indexOf(ph)>=0?'/?go='+ph:'/?online=1';location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+ret)}
-function signOut(){var t=AUTH&&AUTH.at;if(t)fetch(SB.url+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+t}}).catch(function(){});AUTH=null;authSave();ON.user=null;ON.rec=null;if($('acctDlg').open)$('acctDlg').close();render()}
+function signOut(){var t=AUTH&&AUTH.at;if(t)fetch(SB.url+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+t}}).catch(function(){});AUTH=null;authSave();ON.user=null;ON.rec=null;ON.admin=false;try{localStorage.removeItem('degenpig-owner')}catch(e){}if($('acctDlg').open)$('acctDlg').close();render()}
 function authed(path,opt){return token().then(function(t){if(!t)throw new Error('signin');opt=opt||{};var h={};for(var k in (opt.headers||{}))h[k]=opt.headers[k];h.Authorization='Bearer '+t;opt.headers=h;return api(path,opt)})}
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
@@ -2503,7 +2535,7 @@ function achMigrate(){
 function loadMe(){
   if(!AUTH){ON.user=null;ON.rec=null;return}
   authed('/api/me').then(function(d){
-    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;achMigrate();
+    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;try{if(ON.admin)localStorage.setItem('degenpig-owner','1');else localStorage.removeItem('degenpig-owner')}catch(e){}applySkin();applyTable();if(S.phase==='play'||S.phase==='final'||S.phase==='order')render();achMigrate();
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
