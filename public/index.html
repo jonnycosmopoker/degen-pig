@@ -249,6 +249,10 @@ input{-webkit-user-select:text;user-select:text}
 /* 7 Poker Chip: striped chip edge */
 .tile.nb-chip{border:5px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,repeating-linear-gradient(90deg,#F6F1E4 0 7px,#C8202E 7px 14px) border-box!important;box-shadow:0 0 0 1px #5a0a10}
 
+/* 9 Candy Cane: peppermint-striped edge with a candy cane hooked on each side */
+.tile.nb-candy{border:4px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,repeating-linear-gradient(135deg,#FBF8F2 0 3px,#D3122B 3px 6px,#FBF8F2 6px 7px,#1E8A44 7px 8.5px) border-box!important;box-shadow:0 0 0 1px #6E0A14}
+.tile.nb-candy::before,.tile.nb-candy::after{width:14px;height:27px;top:50%;margin-top:-16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 52'%3E%3Cpath d='M9 49V16a7 7 0 0 1 14 0v4' fill='none' stroke='%236E0A14' stroke-width='8.4' stroke-linecap='round'/%3E%3Cpath d='M9 49V16a7 7 0 0 1 14 0v4' fill='none' stroke='%23FBF8F2' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M9 49V16a7 7 0 0 1 14 0v4' fill='none' stroke='%23D3122B' stroke-width='6' stroke-dasharray='3.2 3.2' transform='rotate(0)'/%3E%3Cpath d='M7.6 47V17' stroke='%23fff' stroke-opacity='.55' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.tile.nb-candy::before{left:-9px;transform:rotate(-8deg)}.tile.nb-candy::after{right:-9px;transform:scaleX(-1) rotate(-8deg)}
 /* 8 High Stakes: cash-green bill edge with $ corners */
 .tile.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
 .tile.nb-cash::before,.tile.nb-cash::after{content:"$";font:900 12px/1 Figtree,sans-serif;color:#0E2C14;background:#7FD08A;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;border:1px solid #13361A}
@@ -2347,7 +2351,7 @@ function toMenu(){S.phase='menu';render()}
 /* ---------- Degen Pig Shop (preview: nothing is for sale yet) ---------- */
 var SHOP={tab:'tables',items:{
   tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated']],
-  borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99']]}};
+  borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99'],['candy','Candy Cane','$2.99']]}};
 function renderShop(){
   Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===SHOP.tab)});
   var g=$('shopGrid'),cols=['--s1','--s2','--s3','--s4'];
