@@ -120,6 +120,48 @@ window.DPTable=function(cv,kind,A){
       var bg=ctx.createRadialGradient(5.2,-.8,0,5,0,4.6);bg.addColorStop(0,'rgba(255,255,255,'+(.55+.45*b)+')');bg.addColorStop(.35,'rgba('+c+','+(.75+.25*b)+')');bg.addColorStop(1,'rgba('+c+','+(.45+.3*b)+')');
       ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(5.4,0,4.4,3.1,0,0,TAU);ctx.fill();ctx.restore()}
   }
+
+  /* ---------- Gold Vault: quilted black leather, stacked 24K bars in the corners, a gold chain round the rim, glints and a slow light sweep ---------- */
+  var GP=null,GPk='';
+  function chainPoints(){
+    var k=cw+'x'+ch;if(GPk===k)return GP;GPk=k;GP=[];
+    var I=15,R=14,x0=I,y0=I,x1=cw-I,y1=ch-I,path=[];
+    function line(ax,ay,bx,by){path.push({t:'l',ax:ax,ay:ay,bx:bx,by:by,len:Math.hypot(bx-ax,by-ay)})}
+    function arc(cx,cy,a0,a1){path.push({t:'a',cx:cx,cy:cy,a0:a0,a1:a1,len:Math.abs(a1-a0)*R})}
+    line(x0+R,y0,x1-R,y0);arc(x1-R,y0+R,-Math.PI/2,0);line(x1,y0+R,x1,y1-R);arc(x1-R,y1-R,0,Math.PI/2);
+    line(x1-R,y1,x0+R,y1);arc(x0+R,y1-R,Math.PI/2,Math.PI);line(x0,y1-R,x0,y0+R);arc(x0+R,y0+R,Math.PI,Math.PI*1.5);
+    var tot=0;path.forEach(function(p){tot+=p.len});var n=Math.round(tot/15);if(n%2)n++;var gap=tot/n;
+    for(var i=0;i<n;i++){var d=i*gap,j=0;while(d>path[j].len){d-=path[j].len;j++}var p=path[j],x,y,a;
+      if(p.t==='l'){var f=d/p.len;x=p.ax+(p.bx-p.ax)*f;y=p.ay+(p.by-p.ay)*f;a=Math.atan2(p.by-p.ay,p.bx-p.ax)}
+      else{var an=p.a0+(p.a1-p.a0)*(d/p.len);x=p.cx+Math.cos(an)*R;y=p.cy+Math.sin(an)*R;a=an+Math.PI/2}
+      GP.push({x:x,y:y,a:a})}
+    return GP;
+  }
+  function glint(x,y,s,a){if(a<=0)return;ctx.save();ctx.translate(x,y);ctx.globalAlpha=a;
+    var g=ctx.createRadialGradient(0,0,0,0,0,s*.9);g.addColorStop(0,'rgba(255,255,240,.9)');g.addColorStop(1,'rgba(255,220,120,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,s*.9,0,TAU);ctx.fill();
+    ctx.fillStyle='#FFFFF4';ctx.beginPath();ctx.moveTo(0,-s);ctx.quadraticCurveTo(0,0,s,0);ctx.quadraticCurveTo(0,0,0,s);ctx.quadraticCurveTo(0,0,-s,0);ctx.quadraticCurveTo(0,0,0,-s);ctx.fill();ctx.restore()}
+  function goldv(t){
+    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;cover(A.bg);
+    /* stacked bars in the two bottom corners */
+    var bw=Math.min(cw*.4,170),bh=bw*280/450,pad=24,spots=[];
+    ctx.drawImage(A.bars,pad,ch-bh-pad,bw,bh);ctx.drawImage(A.bars,cw-bw-pad,ch-bh-pad,bw,bh);
+    [[.5,.4],[.27,.69],[.74,.7]].forEach(function(q){spots.push([pad+q[0]*bw,ch-bh-pad+q[1]*bh]);spots.push([cw-bw-pad+q[0]*bw,ch-bh-pad+q[1]*bh])});
+    /* the chain: links alternate face-on and edge-on, each turned along the rim */
+    var P=chainPoints(),L=23;
+    for(var i=0;i<P.length;i++){var p=P[i],im=i%2?A.lb:A.la,h=i%2?L*.3:L*56/96;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);
+      if(!(i%2)){ctx.globalAlpha=.55;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(1,2,L/2,h/2,0,0,TAU);ctx.fill();ctx.globalAlpha=1}
+      ctx.drawImage(im,-L/2,-h/2,L,h);ctx.restore();if(i%7===3)spots.push([p.x,p.y])}
+    /* a slow band of light sweeps across every five seconds */
+    var u=(t%5)/5,sx=-cw*.6+u*cw*2.2;
+    ctx.globalCompositeOperation='overlay';
+    var g=ctx.createLinearGradient(sx-90,0,sx+90,ch*.3);g.addColorStop(0,'rgba(255,240,200,0)');g.addColorStop(.5,'rgba(255,240,200,.35)');g.addColorStop(1,'rgba(255,240,200,0)');
+    ctx.fillStyle=g;ctx.fillRect(0,0,cw,ch);
+    ctx.globalCompositeOperation='lighter';
+    /* glints popping on the bars and the chain */
+    for(var k=0;k<spots.length;k++){var per=2.2+rnd(k,1)*2.6,e=((t+rnd(k,2)*per)%per)/.55;if(e<1)glint(spots[k][0],spots[k][1],4+rnd(k,3)*5,Math.sin(Math.PI*e))}
+    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';vignette(.3);
+  }
   fit();window.addEventListener('resize',fit);
-  return {draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:space)(t)}};
+  return {draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:space)(t)}};
 };
