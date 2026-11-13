@@ -456,23 +456,24 @@ input{-webkit-user-select:text;user-select:text}
 .callout.gold{background:var(--gold);color:var(--ink)}
 .callout.red{background:var(--red);color:var(--ivory);font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.1em;padding:6px 22px}
 #app[data-phase="menu"] .tray.tutting{min-height:360px}
-.tutcall{position:absolute;left:108px;bottom:17px;display:none;padding:6px 11px;border:0;border-radius:12px;background:#FFF8E6;color:#2A1702;font:inherit;font-size:13px;font-weight:800;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 6px 14px rgba(0,0,0,.45),0 0 0 2px #E7B53A;animation:callbob 1.6s ease-in-out infinite}
+.tutcall{position:absolute;left:116px;bottom:20px;display:none;padding:6px 11px;border:0;border-radius:12px;background:#FFF8E6;color:#2A1702;font:inherit;font-size:13px;font-weight:800;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 6px 14px rgba(0,0,0,.45),0 0 0 2px #E7B53A;animation:callbob 1.6s ease-in-out infinite}
 .tutcall svg{position:absolute;left:-44px;top:50%;width:38px;height:23px;margin-top:-11px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
 .tut.tucked .tutcall{display:block}
-@media (max-width:380px){.tutcall{white-space:normal;max-width:calc(100% - 112px);line-height:1.25;font-size:12.5px}}
+@media (max-width:380px){.tutcall{white-space:normal;max-width:calc(100% - 120px);line-height:1.25;font-size:12.5px}}
 @keyframes callbob{0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}}
 @media (prefers-reduced-motion: reduce){.tutcall{animation:none}}
 #app[data-phase="menu"] .hint{top:16px;bottom:auto}
 .tut{position:absolute;left:10px;bottom:10px;right:10px;top:10px;pointer-events:none;z-index:6}
-.tutpig{position:absolute;left:0;bottom:0;width:80px;height:80px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));transform-origin:50% 100%}
+.tutpig{position:absolute;left:0;bottom:0;width:96px;height:96px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));transform-origin:50% 100%}
 .tutpig svg{width:100%;height:100%;display:block}
-.tut.tucked .tutpig{width:58px;height:58px;opacity:.9;animation:peek 4s ease-in-out infinite}
+.tut.tucked .tutpig{width:70px;height:70px;opacity:.9;animation:peek 4s ease-in-out infinite}
 .tut.on .tutpig{animation:pigpop .7s cubic-bezier(.3,1.6,.5,1) both}
 .tut.on.talk .tutpig{animation:pigpop .7s cubic-bezier(.3,1.6,.5,1) both,pigtalk .34s ease-in-out .7s infinite alternate}
 @keyframes pigpop{0%{transform:translateY(70px) scale(.3) rotate(-25deg);opacity:0}60%{opacity:1}100%{transform:none}}
 @keyframes pigtalk{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-4px) rotate(3deg) scale(1.03)}}
 @keyframes peek{0%,82%,100%{transform:rotate(0)}86%{transform:rotate(-12deg)}92%{transform:rotate(10deg)}}
-.tutbub{position:absolute;left:72px;bottom:56px;width:min(272px,calc(100% - 78px));padding:12px 14px 10px;border-radius:18px 18px 18px 6px;background:#FFF8E6;color:#2A1702;box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 0 2px #E7B53A;pointer-events:auto;transform-origin:0 100%;animation:bubpop .38s cubic-bezier(.3,1.5,.5,1) both}
+.tutbub{position:absolute;left:86px;bottom:66px;width:min(272px,calc(100% - 92px));padding:12px 14px 10px;border-radius:18px 18px 18px 6px;background:#FFF8E6;color:#2A1702;box-shadow:0 10px 24px rgba(0,0,0,.5),0 0 0 2px #E7B53A;pointer-events:auto;transform-origin:0 100%;animation:bubpop .38s cubic-bezier(.3,1.5,.5,1) both}
+@media (max-width:360px){.tutpig{width:84px;height:84px}.tutbub{left:72px;bottom:58px;width:calc(100% - 76px)}}
 .tutbub::after{content:"";position:absolute;left:-9px;bottom:-1px;width:18px;height:18px;background:#FFF8E6;clip-path:polygon(0 100%,100% 30%,100% 100%);filter:drop-shadow(-1px 1px 0 #E7B53A)}
 .tutbub.swap{animation:bubswap .28s ease both}
 @keyframes bubpop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
@@ -487,7 +488,7 @@ input{-webkit-user-select:text;user-select:text}
 .tutnav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
 .tutskip{border:0;background:none;padding:6px 2px;font:inherit;font-size:13px;font-weight:700;color:#8A6A3A;cursor:pointer}
 .tutnext{border:0;border-radius:999px;padding:7px 16px;font:inherit;font-size:14px;font-weight:800;color:#2A1702;cursor:pointer;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#D49B1C);box-shadow:0 2px 0 #8A5A0A}
-.tutdots{display:flex;gap:4px}.tutdots i{width:6px;height:6px;border-radius:50%;background:rgba(42,23,2,.2)}.tutdots i.on{background:#D49B1C}
+.tutdots{display:flex;gap:4px;min-width:0;flex-wrap:wrap;justify-content:center}@media (max-width:360px){.tutdots{gap:3px}.tutdots i{width:5px;height:5px}}.tutdots i{width:6px;height:6px;border-radius:50%;background:rgba(42,23,2,.2)}.tutdots i.on{background:#D49B1C}
 @media (prefers-reduced-motion: reduce){.tutpig,.tutbub,.tut.on .tutpig,.tut.on.talk .tutpig,.tut.tucked .tutpig{animation:none!important}.tuttxt .w{animation:none;opacity:1;transform:none}}
 .hint{position:absolute;left:0;right:0;bottom:18px;text-align:center;font-size:13px;font-weight:700;color:rgba(255,232,200,.82);text-shadow:0 1px 2px rgba(10,4,0,.9);pointer-events:none}
 
