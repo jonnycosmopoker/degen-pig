@@ -121,7 +121,7 @@ window.DPTable=function(cv,kind,A){
       ctx.fillStyle=bg;ctx.beginPath();ctx.ellipse(5.4,0,4.4,3.1,0,0,TAU);ctx.fill();ctx.restore()}
   }
 
-  /* ---------- Gold Vault: quilted black leather, stacked 24K bars in the corners, a gold chain round the rim, glints and a slow light sweep ---------- */
+  /* ---------- Gold Vault: quilted black leather, a gold chain round the rim, glints and a slow light sweep ---------- */
   var GP=null,GPk='';
   function chainPoints(){
     var k=cw+'x'+ch;if(GPk===k)return GP;GPk=k;GP=[];
@@ -142,16 +142,13 @@ window.DPTable=function(cv,kind,A){
     ctx.fillStyle='#FFFFF4';ctx.beginPath();ctx.moveTo(0,-s);ctx.quadraticCurveTo(0,0,s,0);ctx.quadraticCurveTo(0,0,0,s);ctx.quadraticCurveTo(0,0,-s,0);ctx.quadraticCurveTo(0,0,0,-s);ctx.fill();ctx.restore()}
   function goldv(t){
     ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;cover(A.bg);
-    /* stacked bars in the two bottom corners */
-    var bw=Math.min(cw*.4,170),bh=bw*280/450,pad=24,spots=[];
-    ctx.drawImage(A.bars,pad,ch-bh-pad,bw,bh);ctx.drawImage(A.bars,cw-bw-pad,ch-bh-pad,bw,bh);
-    [[.5,.4],[.27,.69],[.74,.7]].forEach(function(q){spots.push([pad+q[0]*bw,ch-bh-pad+q[1]*bh]);spots.push([cw-bw-pad+q[0]*bw,ch-bh-pad+q[1]*bh])});
+        var spots=[];
     /* the chain: links alternate face-on and edge-on, each turned along the rim */
     var P=chainPoints(),L=23;
     for(var i=0;i<P.length;i++){var p=P[i],im=i%2?A.lb:A.la,h=i%2?L*.3:L*56/96;
       ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);
       if(!(i%2)){ctx.globalAlpha=.55;ctx.fillStyle='#000';ctx.beginPath();ctx.ellipse(1,2,L/2,h/2,0,0,TAU);ctx.fill();ctx.globalAlpha=1}
-      ctx.drawImage(im,-L/2,-h/2,L,h);ctx.restore();if(i%7===3)spots.push([p.x,p.y])}
+      ctx.drawImage(im,-L/2,-h/2,L,h);ctx.restore();if(i%4===1)spots.push([p.x,p.y])}
     /* a slow band of light sweeps across every five seconds */
     var u=(t%5)/5,sx=-cw*.6+u*cw*2.2;
     ctx.globalCompositeOperation='overlay';
