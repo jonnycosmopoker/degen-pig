@@ -172,6 +172,25 @@ input{-webkit-user-select:text;user-select:text}
 #app[data-skin="original"] .pip{background:var(--ink)}
 #app[data-skin="original"] .die.gold .f1 .one{background:var(--ink)}
 #app[data-skin="original"] .die.bust .pip{background:var(--ivory)}
+/* Ruby: see-through casino craps dice. Sharp corners, clear ruby faces you can see the far pips through, white flush pips,
+   a frosted-white pig stamped on the 1, and a red shadow where the light comes through the die. */
+#app[data-skin="ruby"] .core{display:none}
+#app[data-skin="ruby"] .face{border-radius:5%;backface-visibility:visible;padding:16%;
+  background:radial-gradient(circle at 28% 22%,rgba(255,150,160,.55) 0%,rgba(236,24,52,.5) 32%,rgba(178,4,30,.56) 70%,rgba(110,0,18,.66) 100%);
+  box-shadow:inset 0 0 0 calc(var(--d)*.012) rgba(255,190,200,.75),inset 0 0 calc(var(--d)*.16) rgba(90,0,14,.55),inset calc(var(--d)*.05) calc(var(--d)*.05) calc(var(--d)*.12) rgba(255,120,140,.25)}
+#app[data-skin="ruby"] .face::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.42) 0%,rgba(255,255,255,.08) 28%,transparent 46%,transparent 78%,rgba(255,200,210,.14) 100%)}
+#app[data-skin="ruby"] .pip{width:66%;height:66%;background:radial-gradient(circle at 40% 35%,#FFFFFF 0%,#F4F0F0 55%,#D9CDCF 100%);box-shadow:0 0 0 calc(var(--d)*.008) rgba(120,0,20,.35),0 0 calc(var(--d)*.03) rgba(255,255,255,.35)}
+#app[data-skin="ruby"] .f1 .dlogo{filter:grayscale(1) brightness(2.6) contrast(.9);opacity:.92}
+#app[data-skin="ruby"] .shadow{border-radius:8%;background:radial-gradient(circle at 46% 44%,rgba(255,70,95,.85) 0%,rgba(215,8,44,.75) 30%,rgba(130,0,24,.62) 66%,rgba(70,0,12,.45) 100%)}
+#app[data-skin="ruby"] .die.gold .face{background:radial-gradient(circle at 28% 22%,rgba(255,170,150,.6) 0%,rgba(240,40,52,.52) 32%,rgba(178,4,30,.58) 70%,rgba(110,0,18,.68) 100%);box-shadow:inset 0 0 0 calc(var(--d)*.018) rgba(255,214,90,.95),inset 0 0 calc(var(--d)*.16) rgba(90,0,14,.5)}
+#app[data-skin="ruby"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,200,60,.8))}
+#app[data-skin="ruby"] .die.gold .pip{background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:0 0 calc(var(--d)*.04) rgba(255,214,90,.7)}
+#app[data-skin="ruby"] .die.gold .f1 .dlogo{filter:none;opacity:1}
+#app[data-skin="ruby"] .die.bust .face{background:radial-gradient(circle at 28% 22%,rgba(120,120,120,.5),rgba(30,30,30,.65) 50%,rgba(0,0,0,.8));box-shadow:inset 0 0 0 calc(var(--d)*.012) rgba(255,90,90,.6)}
+#app[data-skin="ruby"] .die.bust .pip{background:#FF3B4E;box-shadow:0 0 calc(var(--d)*.05) rgba(255,60,80,.8)}
+.mini.ruby{border-radius:6px;background:radial-gradient(circle at 28% 22%,#FF96A0 0%,#EC1834 34%,#B2041E 72%,#6E0012 100%);box-shadow:inset 0 0 0 1.5px rgba(255,190,200,.7),inset 0 0 10px rgba(90,0,14,.5),0 4px 8px rgba(0,0,0,.4)}
+.mini.ruby i{background:radial-gradient(circle at 40% 35%,#FFFFFF 0%,#F4F0F0 55%,#D9CDCF 100%)}
+
 .mini.original{background:var(--ivory)}.mini.original i{background:var(--ink);box-shadow:none}
 #dice>*{flex-shrink:0}
 .skinlist{display:flex;flex-direction:column;gap:10px}
@@ -1396,7 +1415,8 @@ var SKINS=[
   {id:'casino',n:'Boxcars',d:'Glossy casino red with crisp white pips.',ach:'doubleboxcars'},
   {id:'snake',n:'Snakeskin',d:'Green scales with venom-yellow pips.',ach:'snakecharmer'},
   {id:'diamond',n:'Diamond',d:'Icy crystal with polished silver pips.',ach:'hogwild',lv:4},
-  {id:'neon',n:'Neon',d:'Midnight purple with glowing pink pips.',ach:'suckout',lv:4}];
+  {id:'neon',n:'Neon',d:'Midnight purple with glowing pink pips.',ach:'suckout',lv:4},
+  {id:'ruby',n:'Ruby Craps',d:'See-through casino ruby with white pips and a red glow underneath.',shop:'$4.99'}];
 /* the badge sets: the Golden Pig level of a badge, earned by anyone on this phone or by the signed-in online account */
 function achRecs(){var d=achLoad(),out=[],k;for(k in d.p)if(d.p[k]&&d.p[k].v)out.push(d.p[k]);if(ON.rec&&ON.rec.v)out.push(ON.rec);return out}
 function achBest(sk){var a=ACHBY[sk.ach],lv=0,val=0;achRecs().forEach(function(r){var l=achLevel(a,r);if(l>lv)lv=l;var v=r.v[sk.ach];if(typeof v==='number'&&v>val)val=v});return {lv:lv,val:val}}
@@ -1405,7 +1425,7 @@ function pnpGames(){var n=0;try{n=+localStorage.getItem('degenpig-pnp')||0}catch
 function pnpCount(){try{localStorage.setItem('degenpig-pnp',String(pnpGames()+1))}catch(e){}}
 function onlineGames(){return (ON.rec&&ON.rec.v&&ON.rec.v.degen)||0}
 function skinHave(sk){return !sk.need?0:sk.src==='pnp'?pnpGames():onlineGames()}
-function skinOpen(sk){if(ON.admin)return true;if(sk.ach)return achBest(sk).lv>=(sk.lv||1);return !sk.need||skinHave(sk)>=sk.need}
+function skinOpen(sk){if(ON.admin)return true;if(sk.shop)return !!(ON.rec&&ON.rec.own&&ON.rec.own['d:'+sk.id]);if(sk.ach)return achBest(sk).lv>=(sk.lv||1);return !sk.need||skinHave(sk)>=sk.need}
 function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0]}
 function skinNow(){var sk=skinById(S.skin);return skinOpen(sk)?sk:SKINS[0]}
 function applySkin(){var sk=skinNow();if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id;
@@ -1459,6 +1479,7 @@ function renderSkins(){
     if(on)st='<span class="st">Equipped</span>';
     else if(open)st='<span class="st use">Tap to equip</span>';
     else if(sk.ach){var a=ACHBY[sk.ach],goal=sk.lv?a.L[sk.lv-1]:null;st='<span class="st">'+lockI+'Golden Pig: '+esc(a.n)+'</span>';if(goal)bar='<span class="lkbar"><i style="width:'+Math.min(100,Math.round(achBest(sk).val/goal*100))+'%"></i></span>'}
+    else if(sk.shop)st='<span class="st">'+lockI+sk.shop+' in the Shop</span>';
     else{st='<span class="st">'+lockI+'Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass &amp; Play':'online')+' games</span>';bar='<span class="lkbar"><i style="width:'+Math.min(100,Math.round(skinHave(sk)/sk.need*100))+'%"></i></span>'}
     return '<button type="button" class="lkit'+(on?' on':'')+(open?'':' locked')+'" data-k="d" data-id="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="th"><span class="mini '+sk.id+'">'+MINI+'</span></span><b>'+esc(sk.n)+'</b>'+st+bar+'</button>'}).join('');
   $('lkNd').textContent=nd+' of '+SKINS.length+' unlocked';
@@ -2319,7 +2340,8 @@ var SHOP={tab:'tables',items:{
 function renderShop(){
   Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===SHOP.tab)});
   var g=$('shopGrid'),cols=['--s1','--s2','--s3','--s4'];
-  if(SHOP.tab==='dice'){g.className='shopgrid one';g.innerHTML='<div class="shopsoon"><span class="mini classic">'+MINI+'</span><b>New dice sets are on the way</b><p>You can already unlock dice for free by playing.</p><button type="button" class="shopbuy" id="shopDiceLk">Open my Locker</button></div>';return}
+  if(SHOP.tab==='dice'){g.className='shopgrid';g.innerHTML=SKINS.filter(function(sk){return sk.shop}).map(function(sk){
+      return '<div class="shopitem"><span class="shopnb"><span class="mini '+sk.id+'" style="width:64px;height:64px;padding:12px">'+MINI+'</span></span><b>'+esc(sk.n)+'</b><span class="shopprice">'+sk.shop+'</span><button type="button" class="shopbuy">Buy</button></div>'}).join('')+'<div class="shopitem shopfree"><span class="shopnb"><span class="mini classic" style="width:64px;height:64px;padding:12px">'+MINI+'</span></span><b>Free dice</b><span class="shopprice">Unlock by playing</span><button type="button" class="shopbuy" id="shopDiceLk">Open my Locker</button></div>';return}
   g.className='shopgrid';
   g.innerHTML=SHOP.items[SHOP.tab].map(function(it,k){
     var pv=SHOP.tab==='tables'?'<span class="shopthumb" style="background-image:url(shop/t-'+it[0]+'.jpg)">'+(it[3]?'<i class="anim">'+it[3]+'</i>':'')+'</span>'
@@ -2396,6 +2418,7 @@ $('dice').addEventListener('click',function(e){
   var sh=e.target.closest('[data-shop]');if(sh){SHOP.tab=sh.getAttribute('data-shop');S.phase='shop';$('shop').scrollTop=0;renderShop();render();return}
   var b=e.target.closest('.lkit');if(!b)return;var k=b.getAttribute('data-k'),id=b.getAttribute('data-id');
   if(k==='d'){var sk=skinById(id),note=$('skinNote');
+    if(!skinOpen(sk)&&sk.shop){note.innerHTML='<b>'+esc(sk.n)+'</b> dice are '+sk.shop+' in the Shop. <button type="button" class="link inl" data-shop="dice">See them in the Shop</button>';return}
     if(!skinOpen(sk)&&sk.ach){var a=ACHBY[sk.ach];note.textContent='Locked. Earn the Golden Pig level of '+a.n+' ('+(sk.lv?a.d(a.L[sk.lv-1]):a.d)+') to unlock '+sk.n+'.';return}
     if(!skinOpen(sk)){note.textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass & Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
     S.skin=sk.id;savePrefs();note.textContent=sk.n+' dice are on the table.';render();return}
