@@ -188,6 +188,13 @@ input{-webkit-user-select:text;user-select:text}
 #app[data-skin="ruby"] .die.gold .f1 .dlogo{filter:none;opacity:1}
 #app[data-skin="ruby"] .die.bust .face{background:radial-gradient(circle at 28% 22%,rgba(120,120,120,.5),rgba(30,30,30,.65) 50%,rgba(0,0,0,.8));box-shadow:inset 0 0 0 calc(var(--d)*.012) rgba(255,90,90,.6)}
 #app[data-skin="ruby"] .die.bust .pip{background:#FF3B4E;box-shadow:0 0 calc(var(--d)*.05) rgba(255,60,80,.8)}
+/* Candy Cane: peppermint stripes, a thin evergreen pinstripe, glossy candy shine and gold pips ringed in white */
+#app[data-skin="candy"] .face{background:linear-gradient(135deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 40%),repeating-linear-gradient(135deg,#FBF8F2 0 calc(var(--d)*.085),#D3122B calc(var(--d)*.085) calc(var(--d)*.165),#FBF8F2 calc(var(--d)*.165) calc(var(--d)*.19),#1E8A44 calc(var(--d)*.19) calc(var(--d)*.212),#FBF8F2 calc(var(--d)*.212) calc(var(--d)*.235));box-shadow:inset 0 0 0 calc(var(--d)*.016) rgba(255,255,255,.8),inset 0 0 calc(var(--d)*.14) rgba(120,0,10,.28)}
+#app[data-skin="candy"] .core{background:#F2EEE6}
+#app[data-skin="candy"] .pip{background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:0 0 0 calc(var(--d)*.012) #6A3A06,0 0 0 calc(var(--d)*.032) #FFFFFF,0 calc(var(--d)*.01) calc(var(--d)*.03) calc(var(--d)*.03) rgba(0,0,0,.25)}
+#app[data-skin="candy"] .f1 .dlogo{filter:drop-shadow(0 0 calc(var(--d)*.025) #fff) drop-shadow(0 0 calc(var(--d)*.02) #fff)}
+.mini.candy{background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,0) 40%),repeating-linear-gradient(135deg,#FBF8F2 0 5px,#D3122B 5px 9px,#FBF8F2 9px 10.5px,#1E8A44 10.5px 12px,#FBF8F2 12px 13px)}
+.mini.candy i{box-shadow:0 0 0 1px #6A3A06,0 0 0 2.5px #fff}
 .mini.ruby{border-radius:6px;background:radial-gradient(circle at 28% 22%,#FF96A0 0%,#EC1834 34%,#B2041E 72%,#6E0012 100%);box-shadow:inset 0 0 0 1.5px rgba(255,190,200,.7),inset 0 0 10px rgba(90,0,14,.5),0 4px 8px rgba(0,0,0,.4)}
 .mini.ruby i{background:radial-gradient(circle at 40% 35%,#FFFFFF 0%,#F4F0F0 55%,#D9CDCF 100%)}
 
@@ -762,6 +769,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #app[data-table="molten"] .tray{background:#1a0a04;box-shadow:0 0 0 2px rgba(20,8,0,.7),0 0 26px rgba(255,90,0,.38)}#app[data-table="molten"] .inlay{border:2px solid rgba(255,150,40,.9);box-shadow:0 0 10px rgba(255,95,0,.75),inset 0 0 12px rgba(255,95,0,.45)}#app[data-table="molten"] .brand{color:rgba(16,5,0,.6)!important;text-shadow:0 0 14px rgba(255,110,10,.55),0 1px 0 rgba(255,170,80,.22)!important}
 #app[data-table="space"] .tray{background:#04050e;box-shadow:0 0 0 2px rgba(10,14,40,.8),0 0 26px rgba(90,130,255,.4)}#app[data-table="space"] .inlay{border:1.5px solid rgba(175,215,255,.85);box-shadow:0 0 10px rgba(110,170,255,.8),inset 0 0 12px rgba(110,170,255,.35)}#app[data-table="space"] .brand{color:rgba(205,225,255,.2)!important;text-shadow:0 0 16px rgba(120,170,255,.6)!important}
 #app.hot .inlay{border-color:var(--gold)!important;box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)!important}
+#app[data-table="xmas"] .tray{background:#0B3A22;box-shadow:inset 0 8px 28px rgba(0,0,0,.55),0 0 0 2px #7E1020,0 0 0 4px #E9C46A,0 0 22px rgba(255,200,120,.35)}#app[data-table="xmas"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="xmas"] .brand{color:rgba(235,245,255,.18)!important;text-shadow:0 0 12px rgba(255,255,255,.35),0 1px 0 rgba(0,0,0,.3)!important}
 #skinCv{position:absolute;inset:0;width:100%;height:100%;border-radius:22px;display:block;pointer-events:none}
 
 
@@ -1417,7 +1425,8 @@ var SKINS=[
   {id:'snake',n:'Snakeskin',d:'Green scales with venom-yellow pips.',ach:'snakecharmer'},
   {id:'diamond',n:'Diamond',d:'Icy crystal with polished silver pips.',ach:'hogwild',lv:4},
   {id:'neon',n:'Neon',d:'Midnight purple with glowing pink pips.',ach:'suckout',lv:4},
-  {id:'ruby',n:'Ruby Craps',d:'See-through casino ruby with white pips and a red glow underneath.',shop:'$4.99'}];
+  {id:'ruby',n:'Ruby Craps',d:'See-through casino ruby with white pips and a red glow underneath.',shop:'$4.99'},
+  {id:'candy',n:'Candy Cane',d:'Peppermint stripes with gold pips. Made for the Christmas Eve table.',shop:'$3.99'}];
 /* the badge sets: the Golden Pig level of a badge, earned by anyone on this phone or by the signed-in online account */
 function achRecs(){var d=achLoad(),out=[],k;for(k in d.p)if(d.p[k]&&d.p[k].v)out.push(d.p[k]);if(ON.rec&&ON.rec.v)out.push(ON.rec);return out}
 function achBest(sk){var a=ACHBY[sk.ach],lv=0,val=0;achRecs().forEach(function(r){var l=achLevel(a,r);if(l>lv)lv=l;var v=r.v[sk.ach];if(typeof v==='number'&&v>val)val=v});return {lv:lv,val:val}}
@@ -1447,13 +1456,14 @@ function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','sk
 var TBL={id:'wood',cv:null,skin:null,raf:0,last:0,load:null};
 function applyTable(){var id=lkNow('t')[0],app=$('app');if(TBL.id===id)return;TBL.id=id;
   if(id==='wood')delete app.dataset.table;else app.dataset.table=id;
-  tblStop();if(id==='molten'||id==='space')tblStart(id)}
+  tblStop();if(id==='molten'||id==='space'||id==='xmas')tblStart(id)}
 function tblStop(){cancelAnimationFrame(TBL.raf);TBL.raf=0;if(TBL.cv){TBL.cv.remove();TBL.cv=null}TBL.skin=null}
 function tblLoad(src){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i)};i.onerror=rej;i.src=src})}
 function tblStart(id){
   if(!TBL.load)TBL.load=new Promise(function(res,rej){if(window.DPTable)return res();var sc=document.createElement('script');sc.src='tables/tables.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)});
-  var kind=id==='molten'?'lava':'space',A={};
+  var kind=id==='molten'?'lava':id==='xmas'?'xmas':'space',A={};
   var assets=kind==='lava'?Promise.all([tblLoad('tables/lava.jpg'),tblLoad('tables/lava-wood.webp'),tblLoad('tables/lava-glow.jpg'),fetch('tables/lava-points.json').then(function(r){return r.json()})]).then(function(x){A.lava=x[0];A.wood=x[1];A.glow=x[2];A.points=x[3]})
+    :kind==='xmas'?Promise.all([tblLoad('tables/xmas.jpg'),tblLoad('tables/xmas-drift.png')]).then(function(x){A.bg=x[0];A.drift=x[1]})
     :Promise.all([tblLoad('tables/space.jpg'),fetch('tables/space-stars.json').then(function(r){return r.json()})]).then(function(x){A.space=x[0];A.stars=x[1]});
   Promise.all([TBL.load,assets]).then(function(){if(TBL.id!==id)return;
     var cv=document.createElement('canvas');cv.id='skinCv';tray.insertBefore(cv,tray.firstChild);TBL.cv=cv;TBL.skin=window.DPTable(cv,kind,A);
@@ -2336,7 +2346,7 @@ $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('
 function toMenu(){S.phase='menu';render()}
 /* ---------- Degen Pig Shop (preview: nothing is for sale yet) ---------- */
 var SHOP={tab:'tables',items:{
-  tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated']],
+  tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated']],
   borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99']]}};
 function renderShop(){
   Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===SHOP.tab)});
