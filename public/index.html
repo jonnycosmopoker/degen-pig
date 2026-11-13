@@ -210,6 +210,11 @@ input{-webkit-user-select:text;user-select:text}
 .callout.gold{background:var(--gold);color:var(--ink)}
 .callout.red{background:var(--red);color:var(--ivory);font-family:var(--display);font-weight:400;font-size:22px;letter-spacing:.1em;padding:6px 22px}
 #app[data-phase="menu"] .tray.tutting{min-height:360px}
+.tutcall{position:absolute;left:46px;bottom:80px;display:none;padding:6px 11px;border:0;border-radius:12px;background:#FFF8E6;color:#2A1702;font:inherit;font-size:13px;font-weight:800;white-space:nowrap;cursor:pointer;pointer-events:auto;box-shadow:0 6px 14px rgba(0,0,0,.45),0 0 0 2px #E7B53A;animation:callbob 1.6s ease-in-out infinite}
+.tutcall svg{position:absolute;left:-14px;bottom:-38px;width:40px;height:40px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+.tut.tucked .tutcall{display:block}
+@keyframes callbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion: reduce){.tutcall{animation:none}}
 .tut{position:absolute;left:10px;bottom:10px;right:10px;top:10px;pointer-events:none;z-index:6}
 .tutpig{position:absolute;left:0;bottom:0;width:64px;height:64px;padding:0;border:0;background:none;cursor:pointer;pointer-events:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));transform-origin:50% 100%}
 .tutpig svg{width:100%;height:100%;display:block}
@@ -670,6 +675,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
         <div class="tuttxt" id="tutTxt"></div>
         <div class="tutnav"><button type="button" class="tutskip" id="tutSkip">Skip</button><span class="tutdots" id="tutDots" aria-hidden="true"></span><button type="button" class="tutnext" id="tutNext">Next</button></div>
       </div>
+      <button type="button" class="tutcall" id="tutCall">Click here to learn how to play!<svg viewBox="0 0 44 44" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M32 4C34 20 26 30 10 36M7 24l2 13 13-1" stroke="#2A1702" stroke-width="8"/><path d="M32 4C34 20 26 30 10 36M7 24l2 13 13-1" stroke="#FFD83A" stroke-width="4"/></g></svg></button>
       <button type="button" class="tutpig" id="tutPig" aria-label="How to play: tap the pig for a quick tour"></button>
     </div>
     <div class="clock" id="clock" role="timer" hidden></div>
@@ -2148,10 +2154,11 @@ $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0){stopWatching();return}askLeave()});
 var pd=null;
-tray.addEventListener('pointerdown',function(e){if(e.target.closest('.tut .tutpig,.tut .tutbub')){pd=null;return}pd={x:e.clientX,y:e.clientY,t:performance.now()}});
+tray.addEventListener('pointerdown',function(e){if(e.target.closest('.tut .tutpig,.tut .tutbub,.tut .tutcall')){pd=null;return}pd={x:e.clientX,y:e.clientY,t:performance.now()}});
 $('tutPig').innerHTML=tutPigSvg();
 $('tutPig').addEventListener('click',function(e){e.stopPropagation();if(TUT.on)tutNext();else tutStart()});
 $('tutNext').addEventListener('click',function(e){e.stopPropagation();tutNext()});
+$('tutCall').addEventListener('click',function(e){e.stopPropagation();tutStart()});
 $('tutSkip').addEventListener('click',function(e){e.stopPropagation();tutEnd()});
 $('tutBub').addEventListener('click',function(e){e.stopPropagation();var tx=$('tutTxt');if(!tx.classList.contains('done')&&!e.target.closest('button')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk')}});
 function tutNext(){var tx=$('tutTxt');if(!tx.classList.contains('done')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk');return}if(TUT.i>=TUT.steps.length-1){tutEnd();return}TUT.i++;tutShow()}
