@@ -514,7 +514,6 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 @media (prefers-reduced-motion:reduce){.achtoast{animation:none}}
 /* main menu: a bigger, centered logo and wordmark */
 #app[data-phase="menu"] .top{justify-content:center;padding:4px 0 2px}
-#app[data-phase="menu"] .top-right{display:none}
 #app[data-phase="menu"] .title{gap:12px}
 #app[data-phase="menu"] .pig{width:54px;height:54px}
 #app[data-phase="menu"] .logo{font-size:clamp(26px,8.6vw,38px)}
@@ -672,6 +671,67 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 #lb .lbrow.me .nm{color:#FFE27A}
 #lb .lbrow.gap{border-top:1px dashed rgba(242,194,48,.35)}
 #lb .lbcard .empty{border-color:rgba(242,194,48,.3);color:rgba(246,241,228,.7)}
+/* ---- account button in the top bar, and the sign-in / account sheet ---- */
+.top{position:relative}
+.acctbtn{flex:none;display:flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border:2px solid transparent;border-radius:999px;cursor:pointer;font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;color:#2A1702;
+  background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 3px 8px rgba(0,0,0,.45)}
+.acctbtn.in{width:42px;height:42px;min-height:0;padding:0;border:0;font-size:19px;color:#3B2305;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:inset 0 0 0 2px #8A5A0A,inset 0 0 0 4px #F6CF45,0 3px 8px rgba(0,0,0,.45)}
+/* on the main menu the logo moves left to make room for the account button on the right */
+#app[data-phase="menu"] .top{justify-content:space-between}
+#app[data-phase="menu"] .top-right>:not(#acctBtn){display:none}
+#app[data-phase="menu"] .title{gap:10px}
+#app[data-phase="menu"] .pig{width:clamp(40px,12vw,54px);height:clamp(40px,12vw,54px)}
+#app[data-phase="menu"] .logo{font-size:clamp(17px,6vw,32px)}
+@media (max-width:360px){.acctbtn:not(.in){min-height:36px;padding:0 10px;font-size:11px}}
+dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid transparent;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.acctdlg h2{margin:0 0 10px;text-align:center;font-size:24px;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+.acctdlg .dlgx{position:absolute;z-index:2;top:8px;right:8px;width:40px;min-height:40px;padding:0;border:0;font-size:26px;line-height:1;color:var(--muted)}
+.acctwhy{margin:0 0 14px;text-align:center;font-size:15px;line-height:1.4;color:var(--ivory)}
+#acctSlot .signcard{background:none;padding:0}
+#acctSlot #signIntro{display:none}
+.acctme{display:flex;align-items:center;gap:12px;margin:4px 0 6px;min-width:0}
+.acctav{flex:none;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;font-family:var(--display);font-size:24px;color:#3B2305;background:radial-gradient(circle at 35% 30%,#FFF6C2 0%,#F6CF45 35%,#C8901A 70%,#8A5A0A 100%);box-shadow:inset 0 0 0 2px #8A5A0A,inset 0 0 0 4px #F6CF45}
+.acctme span{min-width:0}
+.acctme b{display:block;font-size:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acctme small{display:block;font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mqbtn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin-top:10px;border:2px solid transparent;border-radius:14px;cursor:pointer;font-family:var(--display);font-weight:400;font-size:18px;letter-spacing:1px;text-transform:uppercase;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 5px 12px rgba(0,0,0,.45)}
+.mqbtn span{background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+.acctout{display:block;margin:14px auto 0}
+/* ---- Locker: pick the table, dice and name tag you play with ---- */
+#app[data-phase="dice"] .tray{display:none}
+.lksign{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(90deg,rgba(217,58,58,.3),rgba(217,58,58,.1));border:1px solid rgba(242,194,48,.45);font-size:14px;line-height:1.35}
+.lksign span{flex:1}
+.lkframe{padding:2px;border-radius:18px;background:linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12);box-shadow:0 8px 18px rgba(0,0,0,.5)}
+.lkprev{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(12px,5vw,24px);aspect-ratio:16/8.5;border-radius:16px;background:#3a2414 center/cover;box-shadow:inset 0 8px 28px rgba(10,4,0,.65),inset 0 0 0 1px rgba(0,0,0,.4);overflow:hidden}
+.lkprev .tile{width:clamp(78px,24vw,96px);flex:none;box-shadow:0 6px 14px rgba(0,0,0,.5)}
+.lkprev .tile .nm{font-size:14px}.lkprev .tile .sc{font-size:24px}
+.lkprev .lkd{display:flex;gap:12px}
+.lkprev .mini{width:clamp(50px,15vw,60px);height:clamp(50px,15vw,60px);padding:clamp(9px,2.8vw,11px);box-shadow:0 8px 14px rgba(0,0,0,.55)}
+.lkprev .mini:first-child{transform:rotate(-9deg)}.lkprev .mini:last-child{transform:rotate(12deg) translateY(6px)}
+.lkcap{margin:-4px 0 0;text-align:center;font-size:13px;color:var(--muted)}
+.lkcap b{color:var(--ivory);font-weight:700}
+.lksec h2{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 8px;font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:1px;text-transform:uppercase}
+.lksec h2 em{font-style:normal;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+.lksec h2 small{font-family:inherit;font-size:12px;letter-spacing:.5px;color:var(--muted)}
+.lkrow{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 8px;scroll-padding-inline:16px;scrollbar-width:none}
+.lkrow::-webkit-scrollbar{display:none}
+.lkit{flex:0 0 122px;scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 8px 10px;border-radius:14px;border:2px solid rgba(242,194,48,.22);background:linear-gradient(180deg,#1B3A31,#0D1F19);color:var(--ivory);font:inherit;text-align:center;cursor:pointer}
+.lkit.on{border-color:transparent;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 0 14px rgba(242,194,48,.35)}
+.lkit .th{display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:16/10;border-radius:9px;background:rgba(0,0,0,.25) center/cover}
+.lkit .th .mini{width:50px;height:50px;padding:9px}
+.lkit .th .tile{width:72px;flex:none}
+.lkit.locked .th{opacity:.45;filter:grayscale(.55)}
+.lkit b{font-size:13px;font-weight:800;line-height:1.15}
+.lkit .st{font-size:11px;font-weight:700;line-height:1.25;color:var(--muted)}
+.lkit .st.use{color:#F6CF45}
+.lkit.on .st{padding:2px 9px;border-radius:999px;font-family:var(--display);font-weight:400;letter-spacing:.5px;text-transform:uppercase;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 45%,#C8901A)}
+.lkit .st .lock{width:10px;height:11px;vertical-align:-1px;margin-right:3px}
+.lkit .lkbar{width:100%;height:4px;border-radius:2px;background:rgba(0,0,0,.45);overflow:hidden}
+.lkit .lkbar i{display:block;height:100%;background:linear-gradient(90deg,#C8901A,#F6CF45)}
+.lknote{margin:0;font-size:14px;line-height:1.4;color:var(--ivory)}
+.lknote:empty{display:none}
+.shoplk{align-self:flex-end;margin-top:-6px}
+
 .lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
 .lcount b{color:var(--ivory)}
 .lcount .dot{flex:none;width:9px;height:9px;border-radius:50%;background:#3FCF8E;box-shadow:0 0 0 3px rgba(63,207,142,.2)}
@@ -740,6 +800,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
       <button class="link chatbtn" id="chatBtn" type="button" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z"/></svg><span id="chatLbl">Chat</span><span class="badge" id="chatBadge" hidden></span></button>
       <button class="link chatbtn" id="exitBtn" type="button" hidden aria-label="Back to the main menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Menu</span></button>
       <button class="link qbtn" id="rulesBtn" type="button" aria-label="Rules of the Game" title="Rules of the Game">?</button>
+      <button class="acctbtn" id="acctBtn" type="button" hidden>Sign in</button>
     </div>
   </header>
 
@@ -788,6 +849,7 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   <section class="dock scroll" id="shop" hidden>
     <div class="headrow"><button type="button" class="link back" id="backShop">‹ Main menu</button><h1 class="screen-h">Degen Pig Shop</h1></div>
     <p class="cap shopnote">Grand opening soon. Here’s a first look. Everything you buy will be saved to your account and shown to everyone at your table.</p>
+    <button type="button" class="link shoplk" id="shopLocker">My Locker ›</button>
     <div class="shoptabs" role="tablist"><button type="button" class="on" data-tab="tables">Tables</button><button type="button" data-tab="borders">Name Tags</button><button type="button" data-tab="dice">Dice</button></div>
     <div class="shopgrid" id="shopGrid"></div>
   </section>
@@ -927,11 +989,13 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <section class="dock scroll" id="dice" hidden>
-    <button type="button" class="link back" id="backDice">‹ Settings</button>
-    <h1 class="screen-h">Dice</h1>
-    <p class="cap">Pick the dice you roll with. Play more to unlock the others.</p>
-    <div class="skinlist" id="skins"></div>
-    <p class="skinnote" id="skinNote" role="status"></p>
+    <div class="headrow"><button type="button" class="link back" id="backDice">‹ Main menu</button><h1 class="screen-h">Locker</h1></div>
+    <div class="lksign" id="lkSign" hidden><span>Sign in to buy skins and keep them on every phone.</span><button type="button" class="acctbtn" id="lkSignBtn">Sign in</button></div>
+    <div class="lkframe"><div class="lkprev" id="lkPrev"></div></div>
+    <p class="lkcap" id="lkCap"></p>
+    <div class="lksec" id="lkSecT"><h2><em>Tables</em><small id="lkNt"></small></h2><div class="lkrow" id="lkRowT"></div><p class="lknote" id="lkNoteT" role="status"></p></div>
+    <div class="lksec" id="lkSecD"><h2><em>Dice</em><small id="lkNd"></small></h2><div class="lkrow" id="lkRowD"></div><p class="lknote" id="skinNote" role="status"></p></div>
+    <div class="lksec" id="lkSecB"><h2><em>Name Tags</em><small id="lkNb"></small></h2><div class="lkrow" id="lkRowB"></div><p class="lknote" id="lkNoteB" role="status"></p></div>
   </section>
 
   <section class="dock scroll" id="setup" hidden>
@@ -1031,6 +1095,19 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
   </section>
 
   <div class="achtoast" id="achToast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="acctDlg" class="acctdlg" aria-labelledby="acctTitle">
+    <button type="button" class="link dlgx" id="acctX" aria-label="Close">×</button>
+    <h2 id="acctTitle">Sign in</h2>
+    <div id="acctOut"><p class="acctwhy" id="acctWhy"></p><div id="acctSlot"></div></div>
+    <div id="acctIn" hidden>
+      <div class="acctme"><span class="acctav" id="acctAv" aria-hidden="true"></span><span><b id="acctName"></b><small id="acctMail"></small></span></div>
+      <button type="button" class="mqbtn" id="acctLocker"><span>My Locker</span></button>
+      <button type="button" class="mqbtn" id="acctAch"><span>Achievements</span></button>
+      <button type="button" class="mqbtn" id="acctShop"><span>Degen Pig Shop</span></button>
+      <button type="button" class="link acctout" id="acctSignOut">Sign out</button>
+    </div>
+  </dialog>
 
   <dialog id="rules" aria-labelledby="rulesTitle">
     <h2 id="rulesTitle">How to play</h2>
@@ -1321,24 +1398,46 @@ function skinNow(){var sk=skinById(S.skin);return skinOpen(sk)?sk:SKINS[0]}
 function applySkin(){var sk=skinNow();if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id;
   var m=$('diceMini');if(m){m.className='mini '+sk.id;$('diceSub').textContent=sk.n}}
 var MINI='<i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i>';
+/* ---------- Locker: the table, dice and name tag you play with ---------- */
+var LK={from:'menu'},MINI3='<i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i>';
+var LKDEF={t:'wood',b:'plain'};
+function lkList(k){return k==='t'?[['wood','Classic Wood',null]].concat(SHOP.items.tables):[['plain','Plain',null]].concat(SHOP.items.borders)}
+function lkOwns(k,id){return id===LKDEF[k]||!!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
+function lkNow(k){var id=k==='t'?S.table:S.tag,L=lkList(k);for(var i=0;i<L.length;i++)if(L[i][0]===id&&lkOwns(k,id))return L[i];return L[0]}
+function lkBg(id){return id==='wood'?'wood-table.jpg':'shop/t-'+id+'.jpg'}
+function lkTag(id,name){return '<span class="tile'+(id==='plain'?'':' nb-'+id)+'" style="--pc:var(--s1)"><span class="nm">'+esc(name)+'</span><span class="sc">82</span></span>'}
+function lkName(){return myId().name||(ON.user&&ON.user.name?ON.user.name.split(' ')[0].slice(0,10):'')||'You'}
+function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','skinNote','lkNoteB'].forEach(function(n){$(n).textContent=''});if(AUTH)loadMe();render();
+  var sc=$('dice');sc.scrollTop=0;if(sec){var el=$('lkSec'+sec);if(el)sc.scrollTop=el.offsetTop-sc.offsetTop-8}}
 function renderSkins(){
-  var cur=skinNow();
-  $('skins').innerHTML=SKINS.map(function(sk){
-    var open=skinOpen(sk),on=cur.id===sk.id,have=skinHave(sk),st;
-    if(on)st='<span class="sk-on">In use</span>';
-    else if(open)st='<span class="sk-use">Tap to use</span>';
-    else if(sk.ach){var a=ACHBY[sk.ach],goal=sk.lv?a.L[sk.lv-1]:null,bst=achBest(sk);
-      st='<span class="sk-lock">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Golden Pig: '+esc(a.n)+'</span><span class="sk-prog">'+esc(sk.lv?a.d(goal):a.d)+'</span>'+(goal?'<span class="sk-bar"><i style="width:'+Math.min(100,Math.round(bst.val/goal*100))+'%"></i></span><span class="sk-prog">Best so far: '+fmt(bst.val)+'</span>':'')}
-    else{var where=sk.src==='pnp'?'Pass & Play games':'online games',pct=Math.min(100,Math.round(have/sk.need*100));
-      st='<span class="sk-lock">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'Play '+fmt(sk.need)+' '+where+'</span><span class="sk-bar"><i style="width:'+pct+'%"></i></span><span class="sk-prog">'+(sk.src==='online'&&!AUTH?'Sign in under Online Play to count your games':fmt(have)+' of '+fmt(sk.need))+'</span>'}
-    return '<button type="button" class="skrow'+(on?' on':'')+(open?'':' locked')+'" data-skin="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="mini '+sk.id+'">'+MINI+'</span><span class="sktx"><b>'+sk.n+'</b><small>'+sk.d+'</small>'+st+'</span></button>'}).join('');
+  var cur=skinNow(),tb=lkNow('t'),tg=lkNow('b'),nm=lkName(),lockI=LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"');
+  $('backDice').textContent='‹ '+({menu:'Main menu',settings:'Settings',shop:'Shop',ach:'Achievements'}[LK.from]||'Back');
+  $('lkSign').hidden=!!AUTH;
+  $('lkPrev').style.backgroundImage='url('+lkBg(tb[0])+')';
+  $('lkPrev').innerHTML=lkTag(tg[0],nm)+'<span class="lkd"><span class="mini '+cur.id+'">'+MINI+'</span><span class="mini '+cur.id+'">'+MINI3+'</span></span>';
+  $('lkCap').innerHTML='<b>'+esc(tb[1])+'</b> table · <b>'+esc(cur.n)+'</b> dice · <b>'+esc(tg[1])+'</b> tag';
+  function shopItems(k,on){var L=lkList(k),n=0;var h=L.map(function(it){var own=lkOwns(k,it[0]),is=on[0]===it[0];if(own)n++;
+      var th=k==='t'?'<span class="th" style="background-image:url('+lkBg(it[0])+')"></span>':'<span class="th">'+lkTag(it[0],nm)+'</span>';
+      var st=is?'<span class="st">Equipped</span>':own?'<span class="st use">Tap to equip</span>':'<span class="st">'+lockI+it[2]+' in the Shop</span>';
+      return '<button type="button" class="lkit'+(is?' on':'')+(own?'':' locked')+'" data-k="'+k+'" data-id="'+it[0]+'" aria-pressed="'+(is?'true':'false')+'">'+th+'<b>'+esc(it[1])+'</b>'+st+'</button>'}).join('');
+    $('lkN'+k).textContent=n+' of '+L.length+' owned';return h}
+  $('lkRowT').innerHTML=shopItems('t',tb);$('lkRowB').innerHTML=shopItems('b',tg);
+  var nd=0;
+  $('lkRowD').innerHTML=SKINS.map(function(sk){
+    var open=skinOpen(sk),on=cur.id===sk.id,st,bar='';if(open)nd++;
+    if(on)st='<span class="st">Equipped</span>';
+    else if(open)st='<span class="st use">Tap to equip</span>';
+    else if(sk.ach){var a=ACHBY[sk.ach],goal=sk.lv?a.L[sk.lv-1]:null;st='<span class="st">'+lockI+'Golden Pig: '+esc(a.n)+'</span>';if(goal)bar='<span class="lkbar"><i style="width:'+Math.min(100,Math.round(achBest(sk).val/goal*100))+'%"></i></span>'}
+    else{st='<span class="st">'+lockI+'Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass &amp; Play':'online')+' games</span>';bar='<span class="lkbar"><i style="width:'+Math.min(100,Math.round(skinHave(sk)/sk.need*100))+'%"></i></span>'}
+    return '<button type="button" class="lkit'+(on?' on':'')+(open?'':' locked')+'" data-k="d" data-id="'+sk.id+'" aria-pressed="'+(on?'true':'false')+'"><span class="th"><span class="mini '+sk.id+'">'+MINI+'</span></span><b>'+esc(sk.n)+'</b>'+st+bar+'</button>'}).join('');
+  $('lkNd').textContent=nd+' of '+SKINS.length+' unlocked';
 }
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
-  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
+  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,triple:!!c.triple,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -1898,7 +1997,7 @@ function chartPick(e){
 }
 function render(){
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
-  renderMain();tutUI();achToast();chatUI();applySkin();if(S.phase==='dice')renderSkins();
+  renderMain();tutUI();achToast();chatUI();applySkin();acctUI();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
   var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
@@ -2169,6 +2268,14 @@ $('stayBtn').addEventListener('click',function(){leave.close()});
 $('leaveBtn').addEventListener('click',function(){leave.close();if(S.online){onLeave();return}goToMenu()});
 var dlg=$('rules');
 $('rulesBtn').addEventListener('click',openRules);
+$('acctBtn').addEventListener('click',function(){acctOpen()});
+$('acctX').addEventListener('click',function(){$('acctDlg').close()});
+$('acctDlg').addEventListener('close',function(){signCardHome();render()});
+$('acctDlg').addEventListener('click',function(e){if(e.target===this)this.close()});
+$('acctLocker').addEventListener('click',function(){var f=S.phase;$('acctDlg').close();openLocker(f==='dice'?LK.from:f)});
+$('acctAch').addEventListener('click',function(){$('acctDlg').close();S.phase='ach';$('ach').scrollTop=0;loadMe();render()});
+$('acctShop').addEventListener('click',function(){$('acctDlg').close();S.phase='shop';$('shop').scrollTop=0;renderShop();render()});
+$('acctSignOut').addEventListener('click',signOut);
 $('exitBtn').addEventListener('click',askLeave);
 $('chatBtn').addEventListener('click',function(){ON.chatOpen=!ON.chatOpen;chatUI('open');if(ON.chatOpen&&!matchMedia('(pointer:coarse)').matches)$('chatIn').focus()});
 $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('chatIn'),v=i.value.trim();if(!v)return;onSend('chat',{text:v.slice(0,200)});i.value=''});
@@ -2180,7 +2287,7 @@ var SHOP={tab:'tables',items:{
 function renderShop(){
   Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===SHOP.tab)});
   var g=$('shopGrid'),cols=['--s1','--s2','--s3','--s4'];
-  if(SHOP.tab==='dice'){g.className='shopgrid one';g.innerHTML='<div class="shopsoon"><span class="mini classic">'+MINI+'</span><b>New dice sets are on the way</b><p>You can already unlock dice for free by playing. See Pass &amp; Play → Settings → Dice.</p></div>';return}
+  if(SHOP.tab==='dice'){g.className='shopgrid one';g.innerHTML='<div class="shopsoon"><span class="mini classic">'+MINI+'</span><b>New dice sets are on the way</b><p>You can already unlock dice for free by playing.</p><button type="button" class="shopbuy" id="shopDiceLk">Open my Locker</button></div>';return}
   g.className='shopgrid';
   g.innerHTML=SHOP.items[SHOP.tab].map(function(it,k){
     var pv=SHOP.tab==='tables'?'<span class="shopthumb" style="background-image:url(shop/t-'+it[0]+'.jpg)">'+(it[3]?'<i class="anim">'+it[3]+'</i>':'')+'</span>'
@@ -2245,18 +2352,26 @@ $('achWho').addEventListener('click',function(e){var b=e.target.closest('button[
 $('mShop').addEventListener('click',function(){S.phase='shop';$('shop').scrollTop=0;renderShop();render()});
 $('backShop').addEventListener('click',toMenu);
 document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;SHOP.tab=b.getAttribute('data-tab');renderShop()});
-$('shopGrid').addEventListener('click',function(e){var b=e.target.closest('.shopbuy');if(b)b.textContent='Coming soon!'});
+$('shopGrid').addEventListener('click',function(e){if(e.target.closest('#shopDiceLk')){openLocker('shop','D');return}var b=e.target.closest('.shopbuy');if(!b)return;if(!AUTH){acctOpen('Sign in to buy skins. Everything you buy is saved to your account and works on any phone.');return}b.textContent='Coming soon!'});
+$('shopLocker').addEventListener('click',function(){openLocker('shop')});
 $('backSetup').addEventListener('click',function(){readSetup();toMenu()});
 $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
 $('backSettings').addEventListener('click',function(){S.phase='setup';render()});
 function setCfg(k,v){S.cfg[k]=v;savePrefs();render()}
 $('tSound').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
-$('skins').addEventListener('click',function(e){var b=e.target.closest('.skrow');if(!b)return;var sk=skinById(b.getAttribute('data-skin'));
-  if(!skinOpen(sk)&&sk.ach){var a=ACHBY[sk.ach];$('skinNote').textContent='Locked. Earn the Golden Pig level of '+a.n+' ('+(sk.lv?a.d(a.L[sk.lv-1]):a.d)+') to unlock '+sk.n+'.';return}
-  if(!skinOpen(sk)){$('skinNote').textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass & Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
-  S.skin=sk.id;savePrefs();$('skinNote').textContent=sk.n+' dice are on the table.';render()});
-$('diceBtn').addEventListener('click',function(){S.phase='dice';$('skinNote').textContent='';$('dice').scrollTop=0;if(AUTH)loadMe();render()});
-$('backDice').addEventListener('click',function(){S.phase='settings';render()});
+$('dice').addEventListener('click',function(e){
+  if(e.target.closest('#lkSignBtn')){acctOpen('Sign in to buy skins and keep everything you unlock on every phone.');return}
+  var sh=e.target.closest('[data-shop]');if(sh){SHOP.tab=sh.getAttribute('data-shop');S.phase='shop';$('shop').scrollTop=0;renderShop();render();return}
+  var b=e.target.closest('.lkit');if(!b)return;var k=b.getAttribute('data-k'),id=b.getAttribute('data-id');
+  if(k==='d'){var sk=skinById(id),note=$('skinNote');
+    if(!skinOpen(sk)&&sk.ach){var a=ACHBY[sk.ach];note.textContent='Locked. Earn the Golden Pig level of '+a.n+' ('+(sk.lv?a.d(a.L[sk.lv-1]):a.d)+') to unlock '+sk.n+'.';return}
+    if(!skinOpen(sk)){note.textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass & Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
+    S.skin=sk.id;savePrefs();note.textContent=sk.n+' dice are on the table.';render();return}
+  var it=lkList(k).filter(function(x){return x[0]===id})[0],note2=$(k==='t'?'lkNoteT':'lkNoteB');if(!it)return;
+  if(!lkOwns(k,id)){note2.innerHTML='<b>'+esc(it[1])+'</b> is '+it[2]+' in the Shop. <button type="button" class="link inl" data-shop="'+(k==='t'?'tables':'borders')+'">See it in the Shop</button>';return}
+  if(k==='t')S.table=id;else S.tag=id;savePrefs();note2.textContent=it[1]+(k==='t'?' table is set.':' name tag is set.');render()});
+$('backDice').addEventListener('click',function(){S.phase=LK.from==='dice'?'menu':LK.from;if(S.phase==='shop')renderShop();if(S.phase==='online')onEnter();if(S.phase==='ach')loadMe();render()});
+$('diceBtn').addEventListener('click',function(){openLocker('settings','D')});
 $('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
@@ -2347,11 +2462,21 @@ function checkCode(){
       AUTH={at:x.j.access_token,rt:x.j.refresh_token||'',exp:Date.now()/1000+(x.j.expires_in||3600)};authSave();
       $('codeIn').value='';$('emStep2').hidden=true;emNote('');
       var pend=null;try{pend=JSON.parse(localStorage.getItem('degenpig-pending')||'null');localStorage.removeItem('degenpig-pending')}catch(e){}
-      loadMe();render();if(pend&&pend.code)setTimeout(function(){onJoin(pend.code,pend.pw||'')},300)})
+      loadMe();if($('acctDlg').open){$('acctDlg').close();netNote('You’re signed in',2500)}render();if(pend&&pend.code)setTimeout(function(){onJoin(pend.code,pend.pw||'')},300)})
     .catch(function(){b.disabled=false;emNote('Could not reach the sign-in server. Check your connection.',true)});
 }
-function signIn(){location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+(S.phase==='ach'?'/?ach=1':'/?online=1'))}
-function signOut(){var t=AUTH&&AUTH.at;if(t)fetch(SB.url+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+t}}).catch(function(){});AUTH=null;authSave();ON.user=null;ON.rec=null;render()}
+/* the account button in the top bar: "Sign in" when signed out, a gold coin with your initial when signed in */
+var ACC={why:''},GO=['menu','setup','settings','shop','dice','lb','gh'];
+function acctUI(){var b=$('acctBtn');b.hidden=['menu','setup','online','settings','ach','host','lb','gh','dice','shop'].indexOf(S.phase)<0;
+  if(AUTH){var n=(ON.user&&ON.user.name)||myId().name||(ON.user&&ON.user.email)||'';b.classList.add('in');b.textContent=(n.trim().charAt(0)||'★').toUpperCase();b.setAttribute('aria-label','Your account')}
+  else{b.classList.remove('in');b.textContent='Sign in';b.removeAttribute('aria-label')}}
+function acctOpen(why){ACC.why=why||'';acctFill();var d=$('acctDlg');if(!d.open)d.showModal()}
+function acctFill(){var out=!AUTH,card=$('signCard'),slot=$('acctSlot');$('acctOut').hidden=!out;$('acctIn').hidden=out;$('acctTitle').textContent=out?'Sign in':'Your account';
+  if(out){$('acctWhy').textContent=ACC.why||'Sign in with Google or your email. Your skins, achievements and table history are saved to your account, on any phone.';
+    if(card.parentNode!==slot){ON.cardHome=ON.cardHome||card.parentNode;ON.cardNext=ON.cardNext||card.nextSibling;slot.appendChild(card)}card.hidden=false;return}
+  var u=ON.user||{},nm=u.name||myId().name||'Player';$('acctAv').textContent=(nm.trim().charAt(0)||'?').toUpperCase();$('acctName').textContent=nm;$('acctMail').textContent=u.email||'';if(!ON.user)loadMe()}
+function signIn(){var ph=S.phase,ret=ph==='ach'?'/?ach=1':GO.indexOf(ph)>=0?'/?go='+ph:'/?online=1';location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+ret)}
+function signOut(){var t=AUTH&&AUTH.at;if(t)fetch(SB.url+'/auth/v1/logout',{method:'POST',headers:{apikey:SB.key,Authorization:'Bearer '+t}}).catch(function(){});AUTH=null;authSave();ON.user=null;ON.rec=null;if($('acctDlg').open)$('acctDlg').close();render()}
 function authed(path,opt){return token().then(function(t){if(!t)throw new Error('signin');opt=opt||{};var h={};for(var k in (opt.headers||{}))h[k]=opt.headers[k];h.Authorization='Bearer '+t;opt.headers=h;return api(path,opt)})}
 function readOnName(){var o=myId(),v=$('onName').value.trim().slice(0,10);if(v!==o.name){o.name=v;try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}return v}
 function api(path,opt){return fetch(path,opt).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})}
@@ -2382,7 +2507,7 @@ function loadMe(){
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
-    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();
+    if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();acctUI();if($('acctDlg').open)acctFill();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
 function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
@@ -2671,11 +2796,12 @@ function start(data){
   /* Android and others need no permission for the motion sensor; iPhones wait for the first tap */
   if(!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))shakeAsk();
   showFaces();render();layout();
-  authLoad();var back=authFromHash();
+  authLoad();var back=authFromHash();acctUI();if(AUTH&&S.phase==='menu')loadMe();
   /* an invite link opens straight into the table: /?t=CODE&p=password */
   try{var q=new URLSearchParams(location.search),tc=q.get('t');
     if(!tc&&AUTH){var pend=JSON.parse(localStorage.getItem('degenpig-pending')||'null');if(pend&&pend.code){localStorage.removeItem('degenpig-pending');tc=pend.code;q.set('p',pend.pw||'')}}
     if(!tc&&q.get('ach')){history.replaceState(null,'',location.pathname);S.phase='ach';loadMe();render()}
+    else if(!tc&&GO.indexOf(q.get('go'))>=0){history.replaceState(null,'',location.pathname);S.phase=q.get('go');if(S.phase==='shop')renderShop();loadMe();render();if(ON.authErr){acctOpen();emNote('Sign-in problem: '+ON.authErr,true);ON.authErr=null}else if(back&&AUTH)netNote('You’re signed in',2500)}
     else if(!tc&&(back||q.get('online'))){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render()}if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
     if(myId().name||!AUTH)onJoin(tc,q.get('p')||'');else{$('onMsg').className='onmsg ok';$('onMsg').textContent='Type your name, then tap Join to sit at table '+tc.toUpperCase()+'.';$('joinCode').value=tc.toUpperCase();ON.pw=q.get('p')||''}}
     /* back at a table you were sitting at (the page was closed or reloaded): take your seat again */
