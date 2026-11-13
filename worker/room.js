@@ -21,7 +21,7 @@ const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.tex
 const LOOKS = {
   d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24', 'nebula', 'magma'] },
   t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault'] },
-  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold'] }
+  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold', 'magma', 'nebula'] }
 };
 export function cleanLook(l, admin, own) {
   l = l && typeof l === 'object' ? l : {}; own = own || {}; const out = {};
