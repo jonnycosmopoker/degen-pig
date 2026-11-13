@@ -2341,7 +2341,7 @@ function renderShop(){
   Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){b.classList.toggle('on',b.getAttribute('data-tab')===SHOP.tab)});
   var g=$('shopGrid'),cols=['--s1','--s2','--s3','--s4'];
   if(SHOP.tab==='dice'){g.className='shopgrid';g.innerHTML=SKINS.filter(function(sk){return sk.shop}).map(function(sk){
-      return '<div class="shopitem"><span class="shopnb"><span class="mini '+sk.id+'" style="width:64px;height:64px;padding:12px">'+MINI+'</span></span><b>'+esc(sk.n)+'</b><span class="shopprice">'+sk.shop+'</span><button type="button" class="shopbuy">Buy</button></div>'}).join('')+'<div class="shopitem shopfree"><span class="shopnb"><span class="mini classic" style="width:64px;height:64px;padding:12px">'+MINI+'</span></span><b>Free dice</b><span class="shopprice">Unlock by playing</span><button type="button" class="shopbuy" id="shopDiceLk">Open my Locker</button></div>';return}
+      return '<div class="shopitem"><span class="shopnb"><span class="mini '+sk.id+'" style="width:64px;height:64px;padding:12px">'+MINI+'</span></span><b>'+esc(sk.n)+'</b><span class="shopprice">'+sk.shop+'</span><button type="button" class="shopbuy">Buy</button></div>'}).join('')+'<div class="shopitem shopfree"><span class="shopnb"><span class="mini classic" style="width:64px;height:64px;padding:12px">'+MINI+'</span></span><b>Free dice</b><span class="shopprice">Unlock by playing</span><button type="button" class="shopbuy" id="shopDiceLk">My Locker</button></div>';return}
   g.className='shopgrid';
   g.innerHTML=SHOP.items[SHOP.tab].map(function(it,k){
     var pv=SHOP.tab==='tables'?'<span class="shopthumb" style="background-image:url(shop/t-'+it[0]+'.jpg)">'+(it[3]?'<i class="anim">'+it[3]+'</i>':'')+'</span>'
