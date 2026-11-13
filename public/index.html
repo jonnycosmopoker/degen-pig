@@ -261,6 +261,29 @@ input{-webkit-user-select:text;user-select:text}
 .embc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;border-radius:inherit}
 .mini.magma{background:linear-gradient(135deg,rgba(255,220,180,.16) 0%,rgba(255,220,180,0) 32%),url(dice/magma-veins.webp) 30% 20%/170% 170%,url(dice/magma-glow.webp) 30% 20%/170% 170%,url(dice/magma-rock.jpg) 30% 20%/170% 170%,#1A0E0B;box-shadow:inset 0 0 0 1.5px rgba(255,140,40,.6),inset 0 0 8px rgba(255,90,10,.4),0 4px 12px rgba(255,90,10,.4)}
 .mini.magma i{background:radial-gradient(circle at 44% 38%,#FFFDE8 0%,#FFE47A 22%,#FFA42A 48%,#E8500C 72%,#8A1A04 100%);box-shadow:0 0 0 1px #2A0D05,0 0 6px rgba(255,120,20,.9)}
+/* Seven Mile: casino clay chips. A yellow $10 chip rim with red-and-black edge spots round a black inlay, white pips and the
+   pig on the 1. Doubles turn into the orange $1000 chip (lavender and white spots); a bust turns into the black $100 chip
+   (pastel spots, coral pips). */
+#app[data-skin="seven"] .face{--y1:#FFE65E;--y2:#F3CB1E;--y3:#C99A08;--ia:#E2385C;--ib:#1C1C1E;--dk:#18181B;--rg:#D9B21A}
+#app[data-skin="seven"] .die.gold .face{--y1:#FFA866;--y2:#EE7A2E;--y3:#B44E18;--ia:#8C6FCF;--ib:#F6F2FB;--dk:#1A1416;--rg:#F2A06A}
+#app[data-skin="seven"] .die.bust .face{--y1:#45454A;--y2:#202024;--y3:#0E0E10;--ia:#9BD8A0;--ib:#F39A6B;--dk:#2A2A30;--rg:#7FC3E0}
+#app[data-skin="seven"] .face,#app[data-skin="seven"] .die.gold .face,#app[data-skin="seven"] .die.bust .face{
+  background:linear-gradient(150deg,rgba(255,255,255,.3) 0%,rgba(255,255,255,0) 38%),
+    linear-gradient(90deg,var(--ia) 0 50%,var(--ib) 50%) 50% 0/32% 7.5% no-repeat,linear-gradient(90deg,var(--ib) 0 50%,var(--ia) 50%) 50% 100%/32% 7.5% no-repeat,
+    linear-gradient(180deg,var(--ib) 0 50%,var(--ia) 50%) 0 50%/7.5% 32% no-repeat,linear-gradient(180deg,var(--ia) 0 50%,var(--ib) 50%) 100% 50%/7.5% 32% no-repeat,
+    repeating-linear-gradient(45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),repeating-linear-gradient(-45deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px),
+    radial-gradient(circle at 50% 50%,var(--dk) 0 59%,var(--rg) 59.6% 61.4%,transparent 62%),
+    linear-gradient(160deg,var(--y1),var(--y2) 55%,var(--y3));
+  box-shadow:inset 0 0 0 calc(var(--d)*.012) rgba(255,255,255,.35),inset 0 0 calc(var(--d)*.12) rgba(60,35,0,.35)}
+#app[data-skin="seven"] .face{padding:19%}
+#app[data-skin="seven"] .core{background:#E2B414}
+#app[data-skin="seven"] .die.gold .core{background:#D9661F}
+#app[data-skin="seven"] .die.bust .core{background:#1A1A1D}
+#app[data-skin="seven"] .pip,#app[data-skin="seven"] .die.gold .pip{width:64%;height:64%;background:radial-gradient(circle at 40% 34%,#FFFFFF 0%,#F2F2F2 55%,#C9C9C9 100%);box-shadow:0 calc(var(--d)*.006) calc(var(--d)*.012) rgba(0,0,0,.5)}
+#app[data-skin="seven"] .die.bust .pip{background:radial-gradient(circle at 40% 34%,#FFB3AE 0%,#F0555E 55%,#B3283A 100%);box-shadow:0 0 calc(var(--d)*.03) rgba(240,85,94,.6)}
+#app[data-skin="seven"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,150,70,.85))}
+.mini.seven{background:linear-gradient(150deg,rgba(255,255,255,.3),rgba(255,255,255,0) 38%),linear-gradient(90deg,#E2385C 0 50%,#1C1C1E 50%) 50% 0/32% 7.5% no-repeat,linear-gradient(90deg,#1C1C1E 0 50%,#E2385C 50%) 50% 100%/32% 7.5% no-repeat,linear-gradient(180deg,#1C1C1E 0 50%,#E2385C 50%) 0 50%/7.5% 32% no-repeat,linear-gradient(180deg,#E2385C 0 50%,#1C1C1E 50%) 100% 50%/7.5% 32% no-repeat,radial-gradient(circle at 50% 50%,#18181B 0 59%,#D9B21A 59.6% 61.4%,transparent 62%),linear-gradient(160deg,#FFE65E,#F3CB1E 55%,#C99A08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35),0 4px 8px rgba(0,0,0,.4)}
+.mini.seven i{background:radial-gradient(circle at 40% 34%,#FFFFFF 0%,#F2F2F2 55%,#C9C9C9 100%);transform:scale(.85)}
 /* the dice picker in Settings */
 .f1 .one{display:none}
 #app[data-skin="original"] .f1 .dlogo{display:none}
@@ -388,6 +411,11 @@ input{-webkit-user-select:text;user-select:text}
 .tile.nb-nebula::after{top:-14px;right:-15px;width:34px;height:25px;filter:drop-shadow(0 0 4px rgba(150,130,255,.7));
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 22'%3E%3Cdefs%3E%3CradialGradient id='p' cx='38%25' cy='32%25' r='75%25'%3E%3Cstop offset='0' stop-color='%23FFE7C2'/%3E%3Cstop offset='.45' stop-color='%23D8925A'/%3E%3Cstop offset='1' stop-color='%234A2410'/%3E%3C/radialGradient%3E%3ClinearGradient id='r' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23C9B08A' stop-opacity='.3'/%3E%3Cstop offset='.5' stop-color='%23F3E2C0'/%3E%3Cstop offset='1' stop-color='%23C9B08A' stop-opacity='.3'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M3 13.5C3 10 27 6.5 27 9.8' fill='none' stroke='url(%23r)' stroke-width='2.2' transform='rotate(-14 15 11)'/%3E%3Ccircle cx='15' cy='11' r='6.6' fill='url(%23p)'/%3E%3Cpath d='M9.6 10.2c1.8-.6 8.6-.9 10.9-.2M9.7 12.6c2.4.4 8.4.3 10.6-.3' stroke='%23874A22' stroke-width='.8' fill='none' opacity='.55'/%3E%3Cpath d='M3 13.5C4 16.6 26 13 27 9.8' fill='none' stroke='url(%23r)' stroke-width='2.2' transform='rotate(-14 15 11)'/%3E%3C/svg%3E") center/contain no-repeat}
 @media (prefers-reduced-motion:reduce){.tile.nb-magma::before,.tile.nb-magma::after,.tile.nb-nebula::before{animation:none}.tile.nb-magma::before{opacity:.5}}
+/* 13 Seven Mile: the card-room rail (suits, slashes and dots on charcoal) as the border, the orange pinstripe on the inside
+   edge, and a little plaque of the four suits on top */
+.tile.nb-seven{border:7px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,url(tables/seven-rail.jpg) 0 0/80px 80px border-box,#38353E border-box!important;
+  box-shadow:0 0 0 1px #16141A,inset 0 0 0 2px #E2793A,inset 0 0 0 3px rgba(0,0,0,.35),0 3px 6px rgba(0,0,0,.5)}
+.tile.nb-seven::after{content:"\2663\FE0E \2666\FE0E \2665\FE0E \2660\FE0E";top:-10px;left:50%;transform:translateX(-50%);padding:0 6px;border-radius:999px;background:#2E2B35;border:1.5px solid #E2793A;color:#B5ABBA;font:700 9px/14px Figtree,sans-serif;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 4px rgba(0,0,0,.5)}
 /* 8 High Stakes: cash-green bill edge with $ corners */
 .tile.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
 .tile.nb-cash::before,.tile.nb-cash::after{content:"$";font:900 12px/1 Figtree,sans-serif;color:#0E2C14;background:#7FD08A;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;border:1px solid #13361A}
@@ -1070,6 +1098,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #app[data-table="carbon"] .tray{background:#1a1a1d url(tables/carbon.jpg) center/cover}#app[data-table="carbon"] .brand{color:rgba(0,0,0,.6)!important;text-shadow:0 1px 1px rgba(255,255,255,.12)!important}#app[data-table="carbon"] .inlay{border:2px solid rgba(226,59,59,.85);box-shadow:0 0 8px rgba(226,59,59,.45)}
 #app[data-table="molten"] .tray{background:#1a0a04;box-shadow:0 0 0 2px rgba(20,8,0,.7),0 0 26px rgba(255,90,0,.38)}#app[data-table="molten"] .inlay{border:2px solid rgba(255,150,40,.9);box-shadow:0 0 10px rgba(255,95,0,.75),inset 0 0 12px rgba(255,95,0,.45)}#app[data-table="molten"] .brand{color:rgba(16,5,0,.6)!important;text-shadow:0 0 14px rgba(255,110,10,.55),0 1px 0 rgba(255,170,80,.22)!important}
 #app[data-table="space"] .tray{background:#04050e;box-shadow:0 0 0 2px rgba(10,14,40,.8),0 0 26px rgba(90,130,255,.4)}#app[data-table="space"] .inlay{border:1.5px solid rgba(175,215,255,.85);box-shadow:0 0 10px rgba(110,170,255,.8),inset 0 0 12px rgba(110,170,255,.35)}#app[data-table="space"] .brand{color:rgba(205,225,255,.2)!important;text-shadow:0 0 16px rgba(120,170,255,.6)!important}
+#app[data-table="seven"] .tray{--sp:clamp(22px,7.5vw,34px);padding:var(--sp);background:url(tables/seven-felt.jpg) center/512px 512px content-box,url(tables/seven-rail.jpg) -20px -18px/190px 190px border-box,#38353E;box-shadow:inset 0 6px 22px rgba(0,0,0,.5),0 0 0 2px #16141A}#app[data-table="seven"] .inlay{inset:calc(var(--sp) - 3px);border:3px solid #E2793A;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.2),inset 0 0 26px rgba(24,18,46,.5)}#app[data-table="seven"] .brand{color:rgba(34,30,58,.5)!important;text-shadow:0 1px 0 rgba(255,255,255,.06)!important}
 #app.hot .inlay{border-color:var(--gold)!important;box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)!important}
 #app[data-table="xmas"] .tray{background:#0B3A22;box-shadow:inset 0 8px 28px rgba(0,0,0,.55),0 0 0 2px #7E1020,0 0 0 4px #E9C46A,0 0 22px rgba(255,200,120,.35)}#app[data-table="xmas"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="xmas"] .brand{color:rgba(235,245,255,.18)!important;text-shadow:0 0 12px rgba(255,255,255,.35),0 1px 0 rgba(0,0,0,.3)!important}
 #app[data-table="vault"] .tray{background:#141210;box-shadow:inset 0 8px 28px rgba(0,0,0,.7),0 0 0 2px #8A5A0A,0 0 0 4px #F6CF45,0 0 0 5px #5A3A06,0 0 24px rgba(242,194,48,.35)}#app[data-table="vault"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="vault"] .brand{color:rgba(242,194,48,.16)!important;text-shadow:0 1px 0 rgba(0,0,0,.8),0 -1px 0 rgba(255,230,150,.12)!important}
@@ -1730,7 +1759,8 @@ var SKINS=[
   {id:'candy',n:'Candy Cane',d:'Peppermint stripes with gold pips. Made for the Christmas Eve table.',shop:'$3.99'},
   {id:'gold24',n:'24K Gold',d:'Polished solid-gold dice with black onyx pips and the pig outlined in black.',shop:'$4.99'},
   {id:'nebula',n:'Nebula',d:'Deep-space glass full of swirling nebula, with glinting star pips. Made for the Deep Space table.',shop:'$4.99'},
-  {id:'magma',n:'Magma',d:'Black basalt split by glowing lava cracks, with molten pips. Sparks fly when it rolls. Made for the Molten Core table.',shop:'$4.99'}];
+  {id:'magma',n:'Magma',d:'Black basalt split by glowing lava cracks, with molten pips. Sparks fly when it rolls. Made for the Molten Core table.',shop:'$4.99'},
+  {id:'seven',n:'Seven Mile',d:'Casino clay chips: a yellow chip rim with red and black edge spots round a black inlay. Made for the Seven Mile table.',shop:'$4.99'}];
 /* the badge sets: the Golden Pig level of a badge, earned by anyone on this phone or by the signed-in online account */
 function achRecs(){var d=achLoad(),out=[],k;for(k in d.p)if(d.p[k]&&d.p[k].v)out.push(d.p[k]);if(ON.rec&&ON.rec.v)out.push(ON.rec);return out}
 function achBest(sk){var a=ACHBY[sk.ach],lv=0,val=0;achRecs().forEach(function(r){var l=achLevel(a,r);if(l>lv)lv=l;var v=r.v[sk.ach];if(typeof v==='number'&&v>val)val=v});return {lv:lv,val:val}}
@@ -2707,8 +2737,8 @@ $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('
 function toMenu(){S.phase='menu';render()}
 /* ---------- Degen Pig Shop (preview: nothing is for sale yet) ---------- */
 var SHOP={tab:'tables',items:{
-  tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated'],['vault','Gold Vault','$4.99','Animated']],
-  borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99'],['candy','Candy Cane','$2.99'],['gold','Gold Plated','$3.99'],['magma','Magma','$3.99'],['nebula','Nebula','$3.99']]}};
+  tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated'],['vault','Gold Vault','$4.99','Animated'],['seven','Seven Mile','$3.99']],
+  borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99'],['candy','Candy Cane','$2.99'],['gold','Gold Plated','$3.99'],['magma','Magma','$3.99'],['nebula','Nebula','$3.99'],['seven','Seven Mile','$3.99']]}};
 /* Until launch the Shop is a "coming soon" card for everyone except the owner, who sees every item (no prices) and can equip it to try it out */
 function renderShop(){
   var own=!!ON.admin,g=$('shopGrid'),cols=['--s1','--s2','--s3','--s4'];

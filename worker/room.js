@@ -19,9 +19,9 @@ const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.tex
 /* what each player shows off at the table: dice, table and name tag. Free ones anyone can use; Shop items only the owner
    (until the Shop opens, then whoever bought them). Anything else falls back to the house look. */
 const LOOKS = {
-  d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24', 'nebula', 'magma'] },
-  t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault'] },
-  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold', 'magma', 'nebula'] }
+  d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24', 'nebula', 'magma', 'seven'] },
+  t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault', 'seven'] },
+  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold', 'magma', 'nebula', 'seven'] }
 };
 export function cleanLook(l, admin, own) {
   l = l && typeof l === 'object' ? l : {}; own = own || {}; const out = {};
