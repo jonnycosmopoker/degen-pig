@@ -645,6 +645,33 @@ dialog .btn{flex:none;min-height:52px;font-size:16px}
 .lbrow.me{background:rgba(242,194,48,.1);border-radius:10px;border-top-color:transparent}
 .lbrow.me .nm{color:var(--gold)}
 .lbrow.gap{border-top:1px dashed var(--line)}
+/* ---- Leaderboard: Casino Marquee ---- */
+#lb .tabs{gap:8px}
+#lb .tab{flex:1;min-height:44px;padding:0 6px;border:2px solid transparent;border-radius:12px;color:#F6CF45;font-family:var(--display);font-weight:400;font-size:clamp(11px,3.4vw,14px);letter-spacing:.3px;white-space:nowrap;text-transform:uppercase;
+  background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+#lb .tab.on{color:#2A1702;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 25%,#C8901A 55%,#F0D262 65%,#D49B1C 85%,#8A5A0A 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 0 14px rgba(242,194,48,.35),0 4px 10px rgba(0,0,0,.4)}
+#lb .lbcards{gap:18px}
+#lb .lbcard{position:relative;padding:26px 14px 12px;border:2px solid transparent;border-radius:18px;
+  background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5),inset 0 0 0 1px rgba(0,0,0,.4)}
+#lb .lbcard:nth-child(2){background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box}
+/* a row of marquee bulbs along the top, twinkling in turn */
+#lb .lbcard::before{content:"";position:absolute;left:16px;right:16px;top:9px;height:8px;border-radius:4px;
+  background:radial-gradient(circle,#FFF4C4 0 2.4px,rgba(255,200,80,.7) 3px,transparent 4.2px) 0 0/16px 8px repeat-x;filter:drop-shadow(0 0 3px rgba(255,200,80,.9));animation:bulbs 1.2s steps(2) infinite}
+@keyframes bulbs{50%{background-position:8px 0;opacity:.85}}
+@media (prefers-reduced-motion: reduce){#lb .lbcard::before{animation:none}}
+#lb .lbcard h2{margin:2px 0 2px;text-align:center;font-family:var(--display);font-weight:400;font-size:clamp(16px,4.9vw,21px);letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+#lb .lbcard>p{text-align:center;margin:0 0 10px;color:rgba(246,241,228,.7)}
+#lb .lbrow{padding:9px 6px;border-top:1px solid rgba(242,194,48,.18)}
+#lb .lbrow .rk{width:30px;height:30px;font-size:14px;color:rgba(246,241,228,.65)}
+#lb .lbrow .rk.r1,#lb .lbrow .rk.r2,#lb .lbrow .rk.r3{color:#3B2305;font-family:var(--display);box-shadow:inset 0 0 0 2px rgba(0,0,0,.25),0 2px 4px rgba(0,0,0,.5)}
+#lb .lbrow:has(.r1){background:linear-gradient(90deg,rgba(242,194,48,.22),rgba(242,194,48,.04));border-radius:12px;border-top-color:transparent}
+#lb .lbrow:has(.r1) .nm{font-size:17px}
+#lb .lbrow .nm{font-size:16px;color:#F6F1E4}
+#lb .lbrow .v{font-size:20px;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+#lb .lbrow.me{background:linear-gradient(90deg,rgba(217,58,58,.35),rgba(217,58,58,.08));border-radius:12px;box-shadow:inset 0 0 0 1px rgba(242,194,48,.55);border-top-color:transparent}
+#lb .lbrow.me .nm{color:#FFE27A}
+#lb .lbrow.gap{border-top:1px dashed rgba(242,194,48,.35)}
+#lb .lbcard .empty{border-color:rgba(242,194,48,.3);color:rgba(246,241,228,.7)}
 .lcount{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:var(--panel);font-size:14px;color:var(--muted)}
 .lcount b{color:var(--ivory)}
 .lcount .dot{flex:none;width:9px;height:9px;border-radius:50%;background:#3FCF8E;box-shadow:0 0 0 3px rgba(63,207,142,.2)}
@@ -2636,7 +2663,7 @@ $('rShare').addEventListener('click',function(){
 
 /* ---------- start ---------- */
 function start(data){
-  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE,ON:ON,renderHist:renderHist,TUT:TUT};   /* test hook, local test server only */
+  if(location.hostname==='localhost')window.__dp={S:S,SHAKE:SHAKE,ON:ON,renderHist:renderHist,TUT:TUT,renderLb:renderLb};   /* test hook, local test server only */
   loadPrefs();
   /* once per phone: switch on the new defaults, Golden Points and Five Ones 2x */
   try{if(!localStorage.getItem('degenpig-def2')){localStorage.setItem('degenpig-def2','1');S.cfg.golden=true;S.cfg.power=true;savePrefs();var hc=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null');if(hc){hc.golden=true;hc.power=true;localStorage.setItem('degenpig-hostcfg',JSON.stringify(hc))}}}catch(e){}
