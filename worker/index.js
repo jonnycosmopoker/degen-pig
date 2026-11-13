@@ -70,7 +70,7 @@ export class Table {
   constructor(state, env) {
     const lobby = rpc(env.LOBBY), accounts = rpc(env.ACCOUNTS), st = state.storage;
     const storage = { get: k => st.get(k), put: (k, v) => st.put(k, v), delete: k => st.delete(k) };
-    this.room = new TableRoom({ verify: token => verifyToken(env, token), lobby, accounts, storage });
+    this.room = new TableRoom({ verify: token => verifyToken(env, token), lobby, accounts, storage, admins: String(env.ADMIN_EMAILS || '').toLowerCase().split(',').map(x => x.trim()).filter(Boolean) });
     /* after an update restarts this table, load the saved game before anyone reconnects */
     state.blockConcurrencyWhile(async () => { const saved = await st.get('room'); if (saved) await this.room.restore(saved) });
   }

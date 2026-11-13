@@ -16,7 +16,7 @@ const port = +(process.argv[2] || 8787), speed = +(process.env.DP_SPEED || 1);
 const lobby = new LobbyLogic(new MemStorage()), accounts = new AccountsLogic(new MemStorage()), tables = new Map(), stores = new Map(), socks = new Set();
 const verify = async t => (typeof t === 'string' && /^dev-[a-z0-9]{1,20}$/.test(t)) ? { id: 'sb:' + t.slice(4), sbid: t.slice(4), email: t.slice(4) + '@example.com', name: t.slice(4)[0].toUpperCase() + t.slice(5) + ' Tester' } : null;
 const store = code => { if (!stores.has(code)) stores.set(code, new MemStorage()); return stores.get(code) };
-const newRoom = code => new TableRoom({ lobby, accounts, verify, speed, storage: store(code) });
+const newRoom = code => new TableRoom({ lobby, accounts, verify, speed, storage: store(code), admins: String(process.env.ADMIN_EMAILS || 'ace@example.com').toLowerCase().split(',') });
 const deps = {
   verify, lobby, accounts, admins: String(process.env.ADMIN_EMAILS || 'ace@example.com').toLowerCase().split(','),
   createTable: async b => { const code = newCode(), room = newRoom(code); tables.set(code, room); await room.init(Object.assign({}, b, { code })); return code }

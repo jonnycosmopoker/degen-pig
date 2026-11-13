@@ -16,6 +16,18 @@ const BEAT_MS = 60000;       /* tables check in with the lobby this often, so de
 const CHAT_KEEP = 60, CHAT_LEN = 200;
 /* player ids stay on the server: each phone just learns which messages are its own */
 const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.text, at: m.at, me: m.uid === uid });
+/* what each player shows off at the table: dice, table and name tag. Free ones anyone can use; Shop items only the owner
+   (until the Shop opens, then whoever bought them). Anything else falls back to the house look. */
+const LOOKS = {
+  d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24'] },
+  t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault'] },
+  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold'] }
+};
+export function cleanLook(l, admin, own) {
+  l = l && typeof l === 'object' ? l : {}; own = own || {}; const out = {};
+  for (const k in LOOKS) { const L = LOOKS[k], v = String(l[k] || ''); out[k] = L.free.includes(v) || (L.shop.includes(v) && (admin || own[k + ':' + v])) ? v : L.def }
+  return out;
+}
 function clean(s, n) { return String(s == null ? '' : s).replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, n) }
 export async function hashPw(code, pw) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('degenpig:' + code + ':' + pw));
@@ -35,7 +47,7 @@ export function cleanRules(r) {
 
 export class TableRoom {
   constructor(deps) {
-    this.k = deps.speed || 1; this.verify = deps.verify; this.lobby = deps.lobby; this.storage = deps.storage || null; this.beat = null; this.accounts = deps.accounts; this.now = deps.now || (() => Date.now());
+    this.k = deps.speed || 1; this.verify = deps.verify; this.lobby = deps.lobby; this.storage = deps.storage || null; this.beat = null; this.accounts = deps.accounts; this.admins = deps.admins || []; this.now = deps.now || (() => Date.now());
     this.meta = null; this.seats = []; this.conns = new Map(); this.G = null; this.E = null;
     this.timer = null; this.busyUntil = 0; this.deadline = 0; this.graces = new Map(); this.emptyTimer = null; this.votes = new Set();
     this.chat = []; this.chatSeq = 0;
@@ -64,7 +76,7 @@ export class TableRoom {
     if (this.meta.status === 'ended') data = { meta: this.meta };
     else data = {
       meta: this.meta,
-      seats: this.seats.map(s => ({ uid: s.uid, name: s.name, cpu: s.cpu || null, host: !!s.host })),
+      seats: this.seats.map(s => ({ uid: s.uid, name: s.name, cpu: s.cpu || null, host: !!s.host, admin: !!s.admin, look: s.look || null })),
       G: this.G ? Object.assign({}, this.G, { players: this.G.players.map(p => { const q = Object.assign({}, p); delete q.acc; return q }) }) : null,
       votes: [...this.votes], busyLeft: Math.max(0, this.busyUntil - this.now()), chat: this.chat
     };
@@ -143,6 +155,7 @@ export class TableRoom {
     const seatIdx = this.seats.findIndex(s => s.uid === c.uid); if (seatIdx < 0) return;
     switch (m.t) {
       case 'start': return this.hostStart(c.uid);
+      case 'look': this.setLook(this.seats[seatIdx], m.look); return this.broadcast();
       case 'leave': return this.leave(seatIdx);
       case 'again': return this.voteAgain(c.uid);
       case 'roll': case 'lock': case 'reroll': case 'take': case 'pass': return this.act(seatIdx, m);
@@ -188,6 +201,7 @@ export class TableRoom {
       if (seat.host) this.seats.unshift(seat); else this.seats.push(seat);
       seat.acc = { v: {}, opp: {}, history: [] }; this.loadAcc(seat);
     }
+    seat.admin = this.admins.includes(String(user.email || '').toLowerCase()); this.setLook(seat, m.look);
     c.uid = uid; seat.away = false; seat.rc = false; this.send(sock, { t: 'chatlog', list: this.chat.map(x => chatOut(x, uid)) });
     const g = this.graces.get(uid); if (g) { clearTimeout(g); this.graces.delete(uid) }
     if (this.emptyTimer) { clearTimeout(this.emptyTimer); this.emptyTimer = null }
@@ -196,6 +210,10 @@ export class TableRoom {
     if (this.meta.status === 'waiting' && this.seats.length >= this.meta.seats && this.seats.every(s => !s.away)) return this.startGame();
     this.broadcast(this.G ? { note: seat.name + ' is back.' } : null);
     if (this.G) this.tick();
+  }
+  setLook(seat, l) {
+    seat.look = cleanLook(l, seat.admin, seat.acc && seat.acc.own);
+    const i = this.seats.indexOf(seat); if (this.G && this.G.players[i]) this.G.players[i].look = seat.look;
   }
   async loadAcc(seat) {
     /* fill the seat's record in place, so a game that already started keeps writing to the same object */
@@ -221,7 +239,7 @@ export class TableRoom {
   startGame() {
     this.meta.status = 'playing'; this.pushLobby();
     const S = this.G = { rules: Object.assign({}, this.meta.rules), online: true };
-    S.players = this.seats.map(s => ({ name: s.name, uid: s.uid, bot: s.cpu || null, host: !!s.host, away: !!s.away, acc: s.cpu ? null : s.acc }));
+    S.players = this.seats.map(s => ({ name: s.name, uid: s.uid, bot: s.cpu || null, host: !!s.host, away: !!s.away, acc: s.cpu ? null : s.acc, look: s.cpu ? null : (s.look || null) }));
     this.E = Engine(S); this.E.newSession(); this.votes.clear();
     this.after({ start: true });
   }
@@ -356,7 +374,7 @@ export class TableRoom {
     const m = this.meta;
     return {
       code: m.code, name: m.name, public: m.public, locked: !!m.pw, seats: m.seats, rules: m.rules, status: m.status, hostName: m.hostName, watchers: this.watchers(),
-      players: this.seats.map(s => ({ name: s.name, cpu: s.cpu || null, away: !!s.away, host: !!s.host, again: !!(s.uid && this.votes.has(s.uid)) }))
+      players: this.seats.map(s => ({ name: s.name, cpu: s.cpu || null, away: !!s.away, host: !!s.host, again: !!(s.uid && this.votes.has(s.uid)), look: s.look || null }))
     };
   }
   snapshot() {

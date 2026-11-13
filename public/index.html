@@ -1468,8 +1468,14 @@ function skinHave(sk){return !sk.need?0:sk.src==='pnp'?pnpGames():onlineGames()}
 function skinOpen(sk){if(ON.admin)return true;if(sk.shop)return !!(ON.rec&&ON.rec.own&&ON.rec.own['d:'+sk.id]);if(sk.ach)return achBest(sk).lv>=(sk.lv||1);return !sk.need||skinHave(sk)>=sk.need}
 function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0]}
 function skinNow(){var sk=skinById(S.skin);return skinOpen(sk)?sk:SKINS[0]}
-function applySkin(){var sk=skinNow();if(sk.id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=sk.id;
-  var m=$('diceMini');if(m){m.className='mini '+sk.id;$('diceSub').textContent=sk.n}}
+function myLook(){return {d:skinNow().id,t:lkNow('t')[0],b:lkNow('b')[0]}}
+/* the look on show: in a game the dice and table belong to whoever is rolling (a computer or guest seat gets the house look); otherwise your own */
+var HOUSE={d:'classic',t:'wood',b:'plain'};
+function seatLook(p){if(!p)return HOUSE;if(S.online)return p.look||HOUSE;return p.you&&!p.bot?myLook():HOUSE}
+function viewLook(){var ph=S.phase;if(ph==='order'||ph==='play'||ph==='final'){var i=activeIdx();if(i>=0)return seatLook(S.players[i])}return myLook()}
+function lookOk(k,id){if(k==='d')return SKINS.some(function(x){return x.id===id});return lkList(k).some(function(x){return x[0]===id})}
+function applySkin(){var lk=viewLook(),id=lookOk('d',lk.d)?lk.d:'classic';if(id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=id;
+  var sk=skinNow(),m=$('diceMini');if(m){m.className='mini '+sk.id;$('diceSub').textContent=sk.n}}
 var MINI='<i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i>';
 /* ---------- Locker: the table, dice and name tag you play with ---------- */
 var LK={from:'menu'},MINI3='<i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i>';
@@ -1485,7 +1491,7 @@ function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','sk
   var sc=$('dice');sc.scrollTop=0;if(sec){var el=$('lkSec'+sec);if(el)sc.scrollTop=el.offsetTop-sc.offsetTop-8}}
 /* the equipped table goes under the dice; the two animated ones draw on a canvas, at most 30 frames a second, only while the table is on screen */
 var TBL={id:'wood',cv:null,skin:null,raf:0,last:0,load:null};
-function applyTable(){var id=lkNow('t')[0],app=$('app');if(TBL.id===id)return;TBL.id=id;
+function applyTable(){var lt=viewLook().t,id=lookOk('t',lt)?lt:'wood',app=$('app');if(TBL.id===id)return;TBL.id=id;
   if(id==='wood')delete app.dataset.table;else app.dataset.table=id;
   tblStop();if(id==='molten'||id==='space'||id==='xmas'||id==='vault')tblStart(id)}
 function tblStop(){cancelAnimationFrame(TBL.raf);TBL.raf=0;if(TBL.cv){TBL.cv.remove();TBL.cv=null}TBL.skin=null}
@@ -1532,7 +1538,7 @@ function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
   if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,triple:!!c.triple,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -2138,7 +2144,7 @@ function renderMain(){
   b.innerHTML=list.map(function(i){
     var p=P(i),cls='tile',val,foot;
     if(i===act)cls+=' active';
-    var tg=lkNow('b')[0];if(tg!=='plain'&&(S.online?i===S.me:p.you))cls+=' nb-'+tg;
+    var tg=seatLook(p).b;if(tg&&tg!=='plain'&&lookOk('b',tg))cls+=' nb-'+tg;
     if(lead.indexOf(i)>=0)cls+=' lead';
     if(ph==='order'){var ks=S.ord.keys[i];val=ks.length?ks[ks.length-1]:'–';foot='<span class="tag">'+(S.ord.done?(S.order.indexOf(i)+1)+ordinal(S.order.indexOf(i)+1):'')+'</span>'}
     else{
@@ -2708,7 +2714,7 @@ function connect(){
   if(ON.ws){try{ON.ws.onclose=null;ON.ws.close()}catch(e){}}
   var ws;try{ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/table/'+ON.code)}catch(e){netNote('Could not reach the table.',3000);return}
   ON.ws=ws;
-  ws.onopen=function(){ON.retry=0;netNote(null);token().then(function(t){if(ws.readyState===1)ws.send(JSON.stringify({t:'hello',watch:!!ON.watch,token:t,name:myId().name||'',pw:ON.pw}))})};
+  ws.onopen=function(){ON.retry=0;netNote(null);token().then(function(t){if(ws.readyState===1)ws.send(JSON.stringify({t:'hello',watch:!!ON.watch,token:t,name:myId().name||'',pw:ON.pw,look:myLook()}))})};
   ws.onmessage=function(e){var m;try{m=JSON.parse(e.data)}catch(x){return}onMsg(m)};
   ws.onclose=function(){if(ON.ws!==ws)return;ON.ws=null;if(ON.closing||!ON.code)return;
     netNote('Connection lost. Reconnecting…');ON.retry++;setTimeout(function(){if(!ON.closing&&ON.code&&!ON.ws)connect()},Math.min(8000,700*Math.pow(2,ON.retry)))};
