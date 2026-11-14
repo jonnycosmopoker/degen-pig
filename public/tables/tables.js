@@ -218,6 +218,40 @@ window.DPTable=function(cv,kind,A){
     vignette(.16);
   }
   function ripple(x,y,s){if(RIP.length>40)RIP.shift();RIP.push({x:x,y:y,s:Math.max(.08,Math.min(1,s)),t0:TT,k:Math.floor(Math.random()*90)+3})}
+
+  /* ---------- Neon Pink / Neon Green: black glass under a buzzing neon tube that hums and now and then flickers, a faint
+     lit grid, a light that sweeps across the glass, and a ring of neon that flashes out wherever a die lands. ---------- */
+  var NC=kind==='neong'?['57,255,136','190,255,60']:['255,46,170','170,70,255'],NB=null,NBk='',NR=[];
+  function nbase(){var k=cw+'x'+ch;if(NBk===k&&NB)return NB;NBk=k;NB=document.createElement('canvas');NB.width=Math.round(cw*dpr);NB.height=Math.round(ch*dpr);
+    var b=NB.getContext('2d');b.setTransform(dpr,0,0,dpr,0,0);var g=b.createLinearGradient(0,0,cw*.3,ch);g.addColorStop(0,'#0C0912');g.addColorStop(.5,'#06050A');g.addColorStop(1,'#0A0810');b.fillStyle=g;b.fillRect(0,0,cw,ch);
+    var sp=26;b.strokeStyle='rgba('+NC[0]+',.07)';b.lineWidth=1;b.beginPath();for(var x=(cw%sp)/2;x<cw;x+=sp){b.moveTo(x+.5,0);b.lineTo(x+.5,ch)}for(var y=(ch%sp)/2;y<ch;y+=sp){b.moveTo(0,y+.5);b.lineTo(cw,y+.5)}b.stroke();
+    b.fillStyle='rgba('+NC[0]+',.16)';for(x=(cw%sp)/2;x<cw;x+=sp)for(y=(ch%sp)/2;y<ch;y+=sp){b.fillRect(x-.5,y-.5,2,2)}
+    return NB}
+  function nflick(t,ph){var k=Math.floor(t*14+ph*50),r=rnd(k,7+ph);if(r>.972)return .3;if(r>.955)return .65;return .94+.06*rnd(k,9+ph)}
+  function rrect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+  function tube(c,col,I,R,w,f){rrect(c,I,I,cw-2*I,ch-2*I,R);c.shadowColor='rgba('+col+',1)';c.shadowBlur=26*f;c.strokeStyle='rgba('+col+','+(.85*f)+')';c.lineWidth=w;c.stroke();
+    c.shadowBlur=10*f;c.strokeStyle='rgba(255,245,252,'+(.85*f)+')';c.lineWidth=Math.max(1.2,w*.32);c.stroke();c.shadowBlur=0}
+  function neon(t){
+    TT=t;ctx.globalCompositeOperation='source-over';ctx.drawImage(nbase(),0,0,cw,ch);
+    var f=nflick(t,0),f2=nflick(t+3.1,1),br=.75+.25*Math.sin(t*1.3);
+    /* the glow the tube throws on the glass */
+    var g=ctx.createRadialGradient(cw/2,ch/2,Math.min(cw,ch)*.15,cw/2,ch/2,Math.hypot(cw,ch)*.55);g.addColorStop(0,'rgba('+NC[0]+','+(.05*br)+')');g.addColorStop(.75,'rgba('+NC[0]+','+(.09*f)+')');g.addColorStop(1,'rgba('+NC[0]+','+(.22*f)+')');ctx.fillStyle=g;ctx.fillRect(0,0,cw,ch);
+    /* a slow light sweep across the glass */
+    var sw=((t%7)/7)*(cw+ch)*1.6-(cw+ch)*.3;ctx.save();ctx.translate(sw,0);ctx.rotate(.5);var lg=ctx.createLinearGradient(-60,0,60,0);lg.addColorStop(0,'rgba(255,255,255,0)');lg.addColorStop(.5,'rgba(255,255,255,.05)');lg.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=lg;ctx.fillRect(-60,-ch*2,120,ch*4);ctx.restore();
+    /* neon rings where the dice land */
+    ctx.globalCompositeOperation='lighter';
+    for(var i=NR.length-1;i>=0;i--){var q=NR[i],ag=t-q.t0;if(ag<0)ag=0;var life=.55+q.s*.45;if(ag>life){NR.splice(i,1);continue}var e=ag/life,a=Math.pow(1-e,1.6);
+      var pg=ctx.createRadialGradient(q.x,q.y,0,q.x,q.y,40+50*q.s);pg.addColorStop(0,'rgba('+NC[0]+','+(.35*a)+')');pg.addColorStop(1,'rgba('+NC[0]+',0)');ctx.fillStyle=pg;ctx.beginPath();ctx.arc(q.x,q.y,40+50*q.s,0,TAU);ctx.fill();
+      for(var j=0;j<2;j++){var r=(14+e*(70+80*q.s))*(1-j*.35);ctx.shadowColor='rgba('+NC[j]+',1)';ctx.shadowBlur=14;ctx.strokeStyle='rgba('+NC[j]+','+(a*(j?.6:.9))+')';ctx.lineWidth=(j?1.6:2.6)*(1-e*.5);ctx.beginPath();ctx.arc(q.x,q.y,r,0,TAU);ctx.stroke()}
+      ctx.shadowBlur=0}
+    /* the tubes: the main colour on the outside, a thinner accent tube inside it, and the little brackets holding them */
+    ctx.globalCompositeOperation='source-over';
+    tube(ctx,NC[0],11,26,6,f);tube(ctx,NC[1],22,18,2.6,f2*.85);
+    ctx.fillStyle='rgba(30,26,36,.95)';for(var k=0;k<4;k++){var bx=[cw*.3,cw*.7][k%2],by=k<2?11:ch-11;ctx.fillRect(bx-4,by-5,8,10)}
+    for(k=0;k<2;k++){var by2=ch*[.35,.65][k];ctx.fillRect(7,by2-4,10,8);ctx.fillRect(cw-17,by2-4,10,8)}
+    vignette(.28);
+  }
+  function nring(x,y,s){if(s<.3)return;if(NR.length>12)NR.shift();NR.push({x:x,y:y,s:Math.min(1,s),t0:TT})}
   fit();window.addEventListener('resize',fit);
-  return {ripple:kind==='lagoon'?ripple:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:space)(t)}};
+  return {ripple:kind==='lagoon'?ripple:kind==='neonp'||kind==='neong'?nring:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:kind==='neonp'||kind==='neong'?neon:space)(t)}};
 };

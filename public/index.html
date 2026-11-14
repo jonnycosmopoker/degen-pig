@@ -303,6 +303,26 @@ input{-webkit-user-select:text;user-select:text}
 #app[data-skin="sand"] .f1 .dlogo{background:radial-gradient(circle,rgba(255,255,240,.35) 0%,transparent 62%)}
 .mini.sand{background:radial-gradient(circle at 30% 22%,rgba(255,250,232,.45),rgba(255,250,232,0) 55%),url(dice/sand.jpg) 30% 30%/300% 300%,#E2CBA0;box-shadow:inset 0 0 0 1.5px rgba(255,246,222,.7),inset 0 0 8px rgba(120,86,36,.45),0 4px 8px rgba(0,0,0,.4)}
 .mini.sand i{background:radial-gradient(circle at 34% 28%,#FFFFFF 0%,#FBF6F4 18%,#EEE2EA 42%,#D5D3E6 64%,#B9C4D6 82%,#9AA0B8 100%);box-shadow:0 1px 2px rgba(90,62,24,.5)}
+/* Neon Pink / Neon Green dice: black glass with a neon tube round every face, glowing neon pips and a halo behind the pig.
+   They throw coloured light on the table and pulse bright each time they hit it. Doubles light up gold; a bust burns red. */
+#app[data-skin="npink"]{--nc:255,46,170;--na:170,70,255}
+#app[data-skin="ngreen"]{--nc:57,255,136;--na:190,255,60}
+#app[data-skin="npink"] .die.gold,#app[data-skin="ngreen"] .die.gold{--nc:255,206,64}
+#app[data-skin="npink"] .die.bust,#app[data-skin="ngreen"] .die.bust{--nc:255,44,54}
+#app[data-skin="npink"] .face,#app[data-skin="ngreen"] .face,#app[data-skin="npink"] .die.gold .face,#app[data-skin="ngreen"] .die.gold .face,#app[data-skin="npink"] .die.bust .face,#app[data-skin="ngreen"] .die.bust .face{
+  background:radial-gradient(circle at 50% 46%,rgba(var(--nc),.14) 0%,rgba(var(--nc),0) 68%),linear-gradient(150deg,rgba(255,255,255,.1) 0%,rgba(255,255,255,0) 32%),linear-gradient(160deg,#17141E,#07060B);
+  box-shadow:inset 0 0 0 calc(var(--d)*.011) rgba(255,244,252,.9),inset 0 0 0 calc(var(--d)*.03) rgba(var(--nc),.95),inset 0 0 calc(var(--d)*.13) rgba(var(--nc),.5)}
+#app[data-skin="npink"] .core,#app[data-skin="ngreen"] .core{background:#0B0A10}
+#app[data-skin="npink"] .pip,#app[data-skin="ngreen"] .pip,#app[data-skin="npink"] .die.gold .pip,#app[data-skin="ngreen"] .die.gold .pip,#app[data-skin="npink"] .die.bust .pip,#app[data-skin="ngreen"] .die.bust .pip{width:66%;height:66%;
+  background:radial-gradient(circle,#FFFFFF 0 20%,rgba(var(--nc),1) 46%,rgba(var(--nc),.35) 64%,rgba(var(--nc),0) 74%);box-shadow:0 0 calc(var(--d)*.05) rgba(var(--nc),.9)}
+#app[data-skin="npink"] .f1 .dlogo,#app[data-skin="ngreen"] .f1 .dlogo{background:radial-gradient(circle,rgba(var(--nc),.5) 0%,rgba(var(--nc),.15) 42%,transparent 66%)}
+#app[data-skin="npink"] .shadow,#app[data-skin="ngreen"] .shadow{background:radial-gradient(circle at 50% 50%,rgba(var(--nc),.7) 0%,rgba(var(--nc),.35) 45%,rgba(var(--nc),0) 72%)}
+#app[data-skin="npink"] .die.gold,#app[data-skin="ngreen"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,206,64,.85))}
+#app[data-skin="npink"] .die.pulse,#app[data-skin="ngreen"] .die.pulse{animation:npulse .75s ease-out}
+@keyframes npulse{0%{filter:drop-shadow(0 0 0 rgba(var(--nc),0)) brightness(1)}14%{filter:drop-shadow(0 0 calc(var(--d)*.3) rgba(var(--nc),1)) brightness(1.7)}100%{filter:drop-shadow(0 0 0 rgba(var(--nc),0)) brightness(1)}}
+.mini.npink,.mini.ngreen{background:radial-gradient(circle at 50% 46%,rgba(var(--nc),.16),rgba(var(--nc),0) 68%),linear-gradient(160deg,#17141E,#07060B);box-shadow:inset 0 0 0 1px rgba(255,244,252,.9),inset 0 0 0 3px rgba(var(--nc),.95),inset 0 0 9px rgba(var(--nc),.55),0 0 12px rgba(var(--nc),.45)}
+.mini.npink{--nc:255,46,170}.mini.ngreen{--nc:57,255,136}
+.mini.npink i,.mini.ngreen i{background:radial-gradient(circle,#fff 0 22%,rgba(var(--nc),1) 50%,rgba(var(--nc),.4) 75%,rgba(var(--nc),0) 100%);box-shadow:0 0 5px rgba(var(--nc),.95)}
 /* the dice picker in Settings */
 .f1 .one{display:none}
 #app[data-skin="original"] .f1 .dlogo{display:none}
@@ -445,6 +465,16 @@ input{-webkit-user-select:text;user-select:text}
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cdefs%3E%3CradialGradient id='g' r='.6'%3E%3Cstop offset='0' stop-color='%23FFB27A'/%3E%3Cstop offset='.6' stop-color='%23F2783E'/%3E%3Cstop offset='1' stop-color='%23C9481E'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cpath d='M0-46C6-46 9-22 14-16S44-18 45-12 22 6 20 13 32 41 27 44 6 27 0 27-23 47-28 43-20 19-22 12-46-6-44-13-19-10-14-16-6-46 0-46Z' fill='url(%23g)' stroke='%23A8401A' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cg fill='%23FFE2C4'%3E%3Ccircle cx='0' cy='-30' r='3'/%3E%3Ccircle cx='0' cy='-17' r='3.4'/%3E%3Ccircle cx='28' cy='-10' r='3'/%3E%3Ccircle cx='15' cy='-4' r='3.4'/%3E%3Ccircle cx='17' cy='29' r='3'/%3E%3Ccircle cx='10' cy='14' r='3.4'/%3E%3Ccircle cx='-17' cy='29' r='3'/%3E%3Ccircle cx='-10' cy='14' r='3.4'/%3E%3Ccircle cx='-28' cy='-10' r='3'/%3E%3Ccircle cx='-15' cy='-4' r='3.4'/%3E%3Ccircle cx='0' cy='2' r='4'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
 @keyframes lgstar{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(-4deg) scale(1.05)}}
 @media (prefers-reduced-motion:reduce){.tile.nb-lagoon::before,.tile.nb-lagoon::after{animation:none}}
+/* 15/16 Neon Pink and Neon Green: a glowing neon tube for a border with a white-hot core, a thin accent tube round the
+   outside, and a glow that buzzes and now and then flickers like a real sign */
+.tile.nb-npink{--nc:255,46,170;--na:170,70,255}.tile.nb-ngreen{--nc:57,255,136;--na:190,255,60}
+.tile.nb-npink,.tile.nb-ngreen{border:4px solid rgb(var(--nc))!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box!important;
+  box-shadow:0 0 0 2px #07060B,0 0 0 3.5px rgba(var(--na),.95),0 0 8px 3px rgba(var(--na),.35),inset 0 0 10px rgba(var(--nc),.55),0 3px 6px rgba(0,0,0,.5)}
+.tile.nb-npink::before,.tile.nb-ngreen::before{inset:-2.5px;border-radius:12px;border:1.4px solid rgba(255,246,252,.92)}
+.tile.nb-npink::after,.tile.nb-ngreen::after{inset:-4px;border-radius:13px;box-shadow:0 0 6px rgba(var(--nc),1),0 0 16px rgba(var(--nc),.85),0 0 30px rgba(var(--nc),.5);animation:ntube 6s linear infinite}
+.tile.nb-ngreen::after{animation-delay:-2.7s}
+@keyframes ntube{0%,61%,63.5%,66%,100%{opacity:1}62%,65%{opacity:.25}64%{opacity:.8}30%{opacity:.88}}
+@media (prefers-reduced-motion:reduce){.tile.nb-npink::after,.tile.nb-ngreen::after{animation:none}}
 /* 8 High Stakes: cash-green bill edge with $ corners */
 .tile.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
 .tile.nb-cash::before,.tile.nb-cash::after{content:"$";font:900 12px/1 Figtree,sans-serif;color:#0E2C14;background:#7FD08A;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;border:1px solid #13361A}
@@ -1147,6 +1177,11 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #app[data-table="space"] .tray{background:#04050e;box-shadow:0 0 0 2px rgba(10,14,40,.8),0 0 26px rgba(90,130,255,.4)}#app[data-table="space"] .inlay{border:1.5px solid rgba(175,215,255,.85);box-shadow:0 0 10px rgba(110,170,255,.8),inset 0 0 12px rgba(110,170,255,.35)}#app[data-table="space"] .brand{color:rgba(205,225,255,.2)!important;text-shadow:0 0 16px rgba(120,170,255,.6)!important}
 #app[data-table="seven"] .tray{--sp:clamp(22px,7.5vw,34px);isolation:isolate;background:url(tables/seven-rail.jpg) -14px -12px/125px 125px,#38353E;box-shadow:inset 0 6px 22px rgba(0,0,0,.5),0 0 0 2px #16141A}#app[data-table="seven"] .inlay{inset:27% 12px;z-index:-1;background:url(tables/seven-felt.jpg) center/512px 512px padding-box;border:3px solid #E2793A;border-radius:999px;box-shadow:0 0 0 1px rgba(0,0,0,.35),inset 0 0 0 1px rgba(0,0,0,.2),inset 0 0 26px rgba(24,18,46,.5)}#app[data-table="seven"] .brand{font-size:clamp(22px,9.4vw,52px);color:rgba(34,30,58,.5)!important;text-shadow:0 1px 0 rgba(255,255,255,.06)!important}
 #app[data-table="lagoon"] .tray{background:#0B8AA0;box-shadow:0 0 0 2px rgba(6,60,74,.8),0 0 24px rgba(60,210,220,.35)}#app[data-table="lagoon"] .inlay{border-color:transparent}#app[data-table="lagoon"] .brand{color:rgba(0,72,96,.32)!important;text-shadow:0 1px 0 rgba(255,255,255,.18)!important}
+#app[data-table="npink"]{--tn:255,46,170}#app[data-table="ngreen"]{--tn:57,255,136}
+#app[data-table="npink"] .tray,#app[data-table="ngreen"] .tray{background:#06050A;box-shadow:0 0 0 2px rgba(0,0,0,.9),0 0 28px rgba(var(--tn),.35)}#app[data-table="npink"] .inlay,#app[data-table="ngreen"] .inlay{border-color:transparent;box-shadow:none}
+#app[data-table="npink"] .brand,#app[data-table="ngreen"] .brand{color:rgba(255,246,252,.95)!important;text-shadow:0 0 2px #fff,0 0 7px rgba(var(--tn),1),0 0 16px rgba(var(--tn),.95),0 0 34px rgba(var(--tn),.75),0 0 60px rgba(var(--tn),.45)!important;opacity:.85;animation:nsign 8s linear infinite}
+@keyframes nsign{0%,40%,41.5%,43%,100%{opacity:.85}41%,42.5%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){#app[data-table="npink"] .brand,#app[data-table="ngreen"] .brand{animation:none}}
 #app.hot .inlay{border-color:var(--gold)!important;box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)!important}
 #app[data-table="xmas"] .tray{background:#0B3A22;box-shadow:inset 0 8px 28px rgba(0,0,0,.55),0 0 0 2px #7E1020,0 0 0 4px #E9C46A,0 0 22px rgba(255,200,120,.35)}#app[data-table="xmas"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="xmas"] .brand{color:rgba(235,245,255,.18)!important;text-shadow:0 0 12px rgba(255,255,255,.35),0 1px 0 rgba(0,0,0,.3)!important}
 #app[data-table="vault"] .tray{background:#141210;box-shadow:inset 0 8px 28px rgba(0,0,0,.7),0 0 0 2px #8A5A0A,0 0 0 4px #F6CF45,0 0 0 5px #5A3A06,0 0 24px rgba(242,194,48,.35)}#app[data-table="vault"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="vault"] .brand{color:rgba(242,194,48,.16)!important;text-shadow:0 1px 0 rgba(0,0,0,.8),0 -1px 0 rgba(255,230,150,.12)!important}
@@ -1807,6 +1842,8 @@ var SKINS=[
   {id:'nebula',n:'Nebula',d:'Deep-space glass full of swirling nebula, with glinting star pips. Made for the Deep Space table.',shop:'Deep Space bundle'},
   {id:'magma',n:'Magma',d:'Black basalt split by glowing lava cracks, with molten pips. Sparks fly when it rolls. Made for the Molten Core table.',shop:'Molten Core bundle'},
   {id:'sand',n:'Beach Sand',d:'Packed beach sand with pearl pips. Made for the Tropical Lagoon table.',shop:'Tropical Lagoon bundle'},
+  {id:'npink',n:'Neon Pink',d:'Black glass dice with a pink neon tube round every face and glowing pips. They pulse when they hit the table.',shop:'Neon Pink bundle'},
+  {id:'ngreen',n:'Neon Green',d:'Black glass dice with a green neon tube round every face and glowing pips. They pulse when they hit the table.',shop:'Neon Green bundle'},
   {id:'seven',n:'Seven Mile',d:'Casino clay chips: a yellow chip rim with red and black edge spots round a black inlay. Made for the Seven Mile table.',shop:'Seven Mile bundle'}];
 /* the badge sets: the Golden Pig level of a badge, earned by anyone on this phone or by the signed-in online account */
 function achRecs(){var d=achLoad(),out=[],k;for(k in d.p)if(d.p[k]&&d.p[k].v)out.push(d.p[k]);if(ON.rec&&ON.rec.v)out.push(ON.rec);return out}
@@ -1843,15 +1880,16 @@ function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','sk
 var TBL={id:'wood',cv:null,skin:null,raf:0,last:0,load:null};
 function applyTable(){var lt=viewLook().t,id=lookOk('t',lt)?lt:'wood',app=$('app');if(TBL.id===id)return;TBL.id=id;
   if(id==='wood')delete app.dataset.table;else app.dataset.table=id;
-  tblStop();if(id==='molten'||id==='space'||id==='xmas'||id==='vault'||id==='lagoon')tblStart(id)}
+  tblStop();if(id==='molten'||id==='space'||id==='xmas'||id==='vault'||id==='lagoon'||id==='npink'||id==='ngreen')tblStart(id)}
 function tblStop(){cancelAnimationFrame(TBL.raf);TBL.raf=0;if(TBL.cv){TBL.cv.remove();TBL.cv=null}TBL.skin=null}
 function tblLoad(src){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i)};i.onerror=rej;i.src=src})}
 function tblStart(id){
   if(!TBL.load)TBL.load=new Promise(function(res,rej){if(window.DPTable)return res();var sc=document.createElement('script');sc.src='tables/tables.js';sc.onload=res;sc.onerror=rej;document.head.appendChild(sc)});
-  var kind=id==='molten'?'lava':id==='xmas'?'xmas':id==='vault'?'gold':id==='lagoon'?'lagoon':'space',A={};
+  var kind=id==='molten'?'lava':id==='xmas'?'xmas':id==='vault'?'gold':id==='lagoon'?'lagoon':id==='npink'?'neonp':id==='ngreen'?'neong':'space',A={};
   var assets=kind==='lava'?Promise.all([tblLoad('tables/lava.jpg'),tblLoad('tables/lava-wood.webp'),tblLoad('tables/lava-glow.jpg'),fetch('tables/lava-points.json').then(function(r){return r.json()})]).then(function(x){A.lava=x[0];A.wood=x[1];A.glow=x[2];A.points=x[3]})
     :kind==='gold'?Promise.all([tblLoad('tables/vault.jpg'),tblLoad('tables/link-a.png'),tblLoad('tables/link-b.png')]).then(function(x){A.bg=x[0];A.la=x[1];A.lb=x[2]})
     :kind==='xmas'?Promise.all([tblLoad('tables/xmas.jpg'),tblLoad('tables/xmas-drift.png')]).then(function(x){A.bg=x[0];A.drift=x[1]})
+    :kind==='neonp'||kind==='neong'?Promise.resolve()
     :kind==='lagoon'?Promise.all([tblLoad('tables/lagoon-bed.jpg'),tblLoad('tables/caustic.webp'),tblLoad('tables/palm.webp'),tblLoad('dice/sand.jpg')]).then(function(x){A.bed=x[0];A.caus=x[1];A.palm=x[2];A.sand=x[3]})
     :Promise.all([tblLoad('tables/space.jpg'),fetch('tables/space-stars.json').then(function(r){return r.json()})]).then(function(x){A.space=x[0];A.stars=x[1]});
   Promise.all([TBL.load,assets]).then(function(){if(TBL.id!==id)return;
@@ -1992,7 +2030,7 @@ function throwDice(vals,dir){
       else{d.x=clamp(sx+Math.cos(perp)*off,m,T.w-m);d.y=clamp(sy+Math.sin(perp)*off,m,T.h-m);d.vx=Math.cos(a)*sp;d.vy=Math.sin(a)*sp;d.z=1;d.vz=0}
     });
     pickWood();if(reduce){sfxKnock(0.8,'drop');setTimeout(function(){sfxKnock(0.5,'drop')},90)}
-    var hot=embHot()&&!reduce,wet=!reduce&&TBL.skin&&TBL.skin.ripple;if(hot){EMB.on=true;tray.classList.add('rolling');embGo()}
+    var hot=embHot()&&!reduce,wet=!reduce&&TBL.skin&&TBL.skin.ripple,glow=!reduce&&/^n(pink|green)$/.test($('app').dataset.skin||'');if(hot){EMB.on=true;tray.classList.add('rolling');embGo()}
     var last=performance.now();
     function step(now){
       var dt=clamp((now-last)/1000,0.001,0.034);last=now;m=margin();
@@ -2005,7 +2043,7 @@ function throwDice(vals,dir){
         if(hit>base*0.06)sfxKnock(hit/base*1.1,'wall');
         if(hot&&hit>base*0.05)embBurst(d.x,d.y,hit/base*1.4,false);
         if(wet&&hit>base*0.04)wet(d.x,d.y,.25+hit/base);
-        if(d.z>0||d.vz!==0){d.vz-=9*dt;d.z+=d.vz*dt;if(d.z<=0){d.z=0;if(d.vz<-0.9){sfxKnock(-d.vz/4.3,'drop');if(hot)embBurst(d.x,d.y,-d.vz/3.2,true);if(wet)wet(d.x,d.y,.35+(-d.vz)/3);d.vz=-d.vz*0.45}else d.vz=0}}
+        if(d.z>0||d.vz!==0){d.vz-=9*dt;d.z+=d.vz*dt;if(d.z<=0){d.z=0;if(d.vz<-0.9){sfxKnock(-d.vz/4.3,'drop');if(hot)embBurst(d.x,d.y,-d.vz/3.2,true);if(wet)wet(d.x,d.y,.35+(-d.vz)/3);if(glow){d.el.classList.remove('pulse');void d.el.offsetWidth;d.el.classList.add('pulse')}d.vz=-d.vz*0.45}else d.vz=0}}
         var spd=Math.hypot(d.vx,d.vy);
         if(wet&&d.z===0&&spd>base*0.035){d.wk=(d.wk||0)-dt;if(d.wk<=0){wet(d.x,d.y,.08+.5*spd/base);d.wk=.085}}
         if(hot&&(spd>base*0.04||d.z>0)&&Math.random()<dt*(22+60*spd/base))embEdge(d);
@@ -2791,11 +2829,13 @@ var BUNDLES=[
   {id:'lava',n:'Molten Core',t:'molten',d:'magma',b:'magma',price:'$19.99',anim:true,blurb:'Flowing lava, basalt dice that throw sparks when they roll, and a lava-cracked tag with rising embers.'},
   {id:'space',n:'Deep Space',t:'space',d:'nebula',b:'nebula',price:'$19.99',anim:true,blurb:'Drifting nebula and shooting stars, star-pipped Nebula dice, and a tag with an orbiting comet.'},
   {id:'lagoon',n:'Tropical Lagoon',t:'lagoon',d:'sand',b:'lagoon',price:'$19.99',anim:true,blurb:'A shallow turquoise lagoon that ripples wherever the dice land, beach sand dice with pearl pips, and a water tag with a starfish.'},
+  {id:'npink',n:'Neon Pink',t:'npink',d:'npink',b:'npink',price:'$19.99',anim:true,blurb:'Black glass under a buzzing pink neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
+  {id:'ngreen',n:'Neon Green',t:'ngreen',d:'ngreen',b:'ngreen',price:'$19.99',anim:true,blurb:'Black glass under a buzzing green neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
   {id:'seven',n:'Seven Mile',t:'seven',d:'seven',b:'seven',price:'$4.99',anim:false,blurb:'The card-room felt with its suits rail, clay-chip dice, and the matching rail tag.'}];
 function bndlOf(k,id){for(var i=0;i<BUNDLES.length;i++)if(BUNDLES[i][k]===id)return BUNDLES[i];return null}
 var SHOP={tab:'bundles',items:{
-  tables:[['xmas','Christmas Eve','Christmas Eve bundle','Animated'],['vault','Gold Vault','Gold Vault bundle','Animated'],['molten','Molten Core','Molten Core bundle','Animated'],['space','Deep Space','Deep Space bundle','Animated'],['lagoon','Tropical Lagoon','Tropical Lagoon bundle','Animated'],['seven','Seven Mile','Seven Mile bundle']],
-  borders:[['candy','Candy Cane','Christmas Eve bundle'],['gold','Gold Plated','Gold Vault bundle'],['magma','Magma','Molten Core bundle'],['nebula','Nebula','Deep Space bundle'],['lagoon','Lagoon','Tropical Lagoon bundle'],['seven','Seven Mile','Seven Mile bundle']]}};
+  tables:[['xmas','Christmas Eve','Christmas Eve bundle','Animated'],['vault','Gold Vault','Gold Vault bundle','Animated'],['molten','Molten Core','Molten Core bundle','Animated'],['space','Deep Space','Deep Space bundle','Animated'],['lagoon','Tropical Lagoon','Tropical Lagoon bundle','Animated'],['npink','Neon Pink','Neon Pink bundle','Animated'],['ngreen','Neon Green','Neon Green bundle','Animated'],['seven','Seven Mile','Seven Mile bundle']],
+  borders:[['candy','Candy Cane','Christmas Eve bundle'],['gold','Gold Plated','Gold Vault bundle'],['magma','Magma','Molten Core bundle'],['nebula','Nebula','Deep Space bundle'],['lagoon','Lagoon','Tropical Lagoon bundle'],['npink','Neon Pink','Neon Pink bundle'],['ngreen','Neon Green','Neon Green bundle'],['seven','Seven Mile','Seven Mile bundle']]}};
 /* Pieces with no theme bundle yet, off sale for now (their looks are still in the CSS):
    SHOP_RETIRED={
   tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated'],['vault','Gold Vault','$4.99','Animated'],['seven','Seven Mile','$3.99']],
