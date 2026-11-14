@@ -925,13 +925,6 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #app[data-phase="dice"] .tray{display:none}
 .lksign{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:linear-gradient(90deg,rgba(217,58,58,.3),rgba(217,58,58,.1));border:1px solid rgba(242,194,48,.45);font-size:14px;line-height:1.35}
 .lksign span{flex:1}
-.lkframe{padding:2px;border-radius:18px;background:linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12);box-shadow:0 8px 18px rgba(0,0,0,.5)}
-.lkprev{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(12px,5vw,24px);aspect-ratio:16/8.5;border-radius:16px;background:#3a2414 center/cover;box-shadow:inset 0 8px 28px rgba(10,4,0,.65),inset 0 0 0 1px rgba(0,0,0,.4);overflow:hidden}
-.lkprev .tile{width:clamp(78px,24vw,96px);flex:none;box-shadow:0 6px 14px rgba(0,0,0,.5)}
-.lkprev .tile .nm{font-size:14px}.lkprev .tile .sc{font-size:24px}
-.lkprev .lkd{display:flex;gap:12px}
-.lkprev .mini{width:clamp(50px,15vw,60px);height:clamp(50px,15vw,60px);padding:clamp(9px,2.8vw,11px);box-shadow:0 8px 14px rgba(0,0,0,.55)}
-.lkprev .mini:first-child{transform:rotate(-9deg) scale(var(--ds,1))}.lkprev .mini:last-child{transform:rotate(12deg) translateY(6px) scale(var(--ds,1))}
 .lksize{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:2px solid transparent;border-radius:14px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box}
 .lksz-l{display:flex;flex-direction:column;gap:2px;min-width:0}
 .lksz-l em{font-style:normal;font-family:var(--display);font-size:16px;letter-spacing:.5px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap}
@@ -939,10 +932,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 .lkseg{display:flex;gap:6px;flex:none}
 .lkseg button{min-height:40px;padding:0 clamp(8px,2.6vw,12px);border:1.5px solid rgba(242,194,48,.55);border-radius:10px;background:rgba(0,0,0,.25);color:#F6CF45;font:inherit;font-family:var(--display);font-size:clamp(11px,3.4vw,13px);letter-spacing:.3px;text-transform:uppercase;cursor:pointer}
 .lkseg button.on{color:#2A1702;border-color:transparent;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 65%,#F0D262 80%,#B97C12 100%)}
-.lkprev .mini{transform-origin:center}
 @media (max-width:600px){.lksize{flex-direction:column;align-items:stretch;gap:8px}.lksz-l{flex-direction:row;align-items:baseline;justify-content:space-between}.lkseg button{flex:1}}
-.lkcap{margin:-4px 0 0;text-align:center;font-size:13px;color:var(--muted)}
-.lkcap b{color:var(--ivory);font-weight:700}
 .lksec h2{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 8px;font-family:var(--display);font-weight:400;font-size:20px;letter-spacing:1px;text-transform:uppercase}
 .lksec h2 em{font-style:normal;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
 .lksec h2 small{font-family:inherit;font-size:12px;letter-spacing:.5px;color:var(--muted)}
@@ -1103,9 +1093,9 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 @media (min-width:640px){#shop .shopgrid.bndls{grid-template-columns:repeat(2,minmax(0,1fr))}}
 #shop .bndl{display:flex;flex-direction:column;gap:10px;padding:12px 12px 16px;border:2px solid transparent;border-radius:20px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
 #shop .bndl.anim{background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5),0 0 22px rgba(242,194,48,.18)}
-#shop .bvid{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:780/914;background:#08120F;box-shadow:0 0 0 2px #C8901A,0 0 0 3px rgba(0,0,0,.6),0 6px 14px rgba(0,0,0,.55)}
+#shop .bvid{position:relative;margin-top:10px;border-radius:14px;overflow:hidden;aspect-ratio:780/914;background:#08120F;box-shadow:0 0 0 2px #C8901A,0 0 0 3px rgba(0,0,0,.6),0 6px 14px rgba(0,0,0,.55)}
 #shop .bvid video{display:block;width:100%;height:100%;object-fit:cover}
-#shop .banim{position:absolute;right:10px;bottom:10px;padding:3px 10px;border-radius:999px;font:400 11px/16px var(--display);letter-spacing:.6px;text-transform:uppercase;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A);box-shadow:0 2px 6px rgba(0,0,0,.5);font-style:normal}
+#shop .banim{display:table;margin-top:6px;padding:3px 10px;-webkit-text-fill-color:#2A1702;border-radius:999px;font:400 11px/16px var(--display);letter-spacing:.6px;text-transform:uppercase;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A);box-shadow:0 2px 6px rgba(0,0,0,.5);font-style:normal}
 #shop .binfo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 4px}
 #shop .bname{font-family:var(--display);font-weight:400;font-size:clamp(18px,5.4vw,24px);text-transform:uppercase;letter-spacing:.5px;line-height:1.05;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
 #shop .bprice{flex:none;padding:5px 12px;border-radius:10px;font:400 16px/1 var(--display);color:#F6CF45;background:linear-gradient(180deg,#0D1F19,#06110D) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;border:2px solid transparent}
@@ -1113,6 +1103,17 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #shop .bparts{list-style:none;margin:0;padding:0 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 #shop .bparts li{display:flex;flex-direction:column;gap:2px;padding:7px 8px;border-radius:10px;background:rgba(0,0,0,.28);box-shadow:inset 0 0 0 1px rgba(246,207,69,.28);font-size:13px;font-weight:700;color:var(--ivory);min-width:0;overflow-wrap:anywhere}
 #shop .bparts em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#C8A24A}
+#shop .bname{display:flex;flex-direction:column;align-items:flex-start}
+#shop .bprev{padding:0 4px}
+#shop .bprev summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;min-height:44px;padding:0 16px;border-radius:12px;border:2px solid transparent;
+  background:linear-gradient(180deg,#0D1F19,#06110D) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45;font:400 15px/1 var(--display);letter-spacing:.6px;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
+#shop .bprev summary::-webkit-details-marker{display:none}
+#shop .bprev summary:focus-visible{outline:3px solid #FBE58A;outline-offset:2px}
+#shop .bplay{width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent #F6CF45}
+#shop .bchev{width:8px;height:8px;border-right:2.5px solid #F6CF45;border-bottom:2.5px solid #F6CF45;transform:rotate(45deg) translate(-2px,-2px);transition:transform .2s}
+#shop .bprev[open] .bchev{transform:rotate(-135deg) translate(-2px,-2px)}
+#shop .bprev[open] summary{background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#2A1702}
+#shop .bprev[open] .bplay{border-color:transparent transparent transparent #2A1702}#shop .bprev[open] .bchev{border-color:#2A1702}
 #shop .bndl .shopbuy{align-self:center;min-width:60%}
 #setup #startBtn{min-height:72px;border:2px solid transparent;border-radius:16px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 6px 14px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.4)}
 #setup #startBtn span{font-family:var(--display);font-weight:400;font-size:clamp(20px,6vw,24px);letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
@@ -1408,8 +1409,6 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
   <section class="dock scroll" id="dice" hidden>
     <div class="headrow"><button type="button" class="link back" id="backDice">‹ Main menu</button><h1 class="screen-h">Locker</h1></div>
     <div class="lksign" id="lkSign" hidden><span>Sign in to keep your unlocked dice on every phone.</span><button type="button" class="acctbtn" id="lkSignBtn">Sign in</button></div>
-    <div class="lkframe"><div class="lkprev" id="lkPrev"></div></div>
-    <p class="lkcap" id="lkCap"></p>
     <div class="lksize"><span class="lksz-l"><em>Dice size</em><small>Only on your screen</small></span><div class="lkseg" role="group" aria-label="Dice size"><button type="button" data-ds="1">Large</button><button type="button" data-ds="0.9">Medium</button><button type="button" data-ds="0.8">Small</button></div></div>
     <div class="lksec" id="lkSecT"><h2><em>Tables</em><small id="lkNt"></small></h2><div class="lkrow" id="lkRowT"></div><p class="lknote" id="lkNoteT" role="status"></p></div>
     <div class="lksec" id="lkSecD"><h2><em>Dice</em><small id="lkNd"></small></h2><div class="lkrow" id="lkRowD"></div><p class="lknote" id="skinNote" role="status"></p></div>
@@ -1865,10 +1864,7 @@ function renderSkins(){
   var cur=skinNow(),tb=lkNow('t'),tg=lkNow('b'),nm=lkName(),lockI=LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"');
   $('backDice').textContent='‹ '+({menu:'Main menu',settings:'Settings',shop:'Shop',ach:'Achievements'}[LK.from]||'Back');
   $('lkSign').hidden=!!AUTH&&!ON.admin;$('lkSign').querySelector('span').textContent=ON.admin?'Owner mode: every table, dice set and name tag is unlocked on your account for testing.':'Sign in to keep your unlocked dice on every phone.';$('lkSignBtn').hidden=!!AUTH;
-  $('lkPrev').style.backgroundImage='url('+lkBg(tb[0])+')';$('lkPrev').style.setProperty('--ds',S.dsize||1);
   Array.prototype.forEach.call(document.querySelectorAll('.lkseg button'),function(b){var on=+b.getAttribute('data-ds')===(S.dsize||1);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
-  $('lkPrev').innerHTML=lkTag(tg[0],nm)+'<span class="lkd"><span class="mini '+cur.id+'">'+MINI+'</span><span class="mini '+cur.id+'">'+MINI3+'</span></span>';
-  $('lkCap').innerHTML='<b>'+esc(tb[1])+'</b> table · <b>'+esc(cur.n)+'</b> dice · <b>'+esc(tg[1])+'</b> tag';
   function shopItems(k,on){var L=lkList(k).filter(function(it){return ON.admin||lkOwns(k,it[0])}),n=0;var h=L.map(function(it){var own=lkOwns(k,it[0]),is=on[0]===it[0];if(own)n++;
       var th=k==='t'?'<span class="th" style="background-image:url('+lkBg(it[0])+')"></span>':'<span class="th">'+lkTag(it[0],nm)+'</span>';
       var st=is?'<span class="st">Equipped</span>':own?'<span class="st use">Tap to equip</span>':'<span class="st">'+lockI+'In the '+it[2]+'</span>';
@@ -2816,8 +2812,8 @@ function renderShop(){
   g.innerHTML=BUNDLES.map(function(B){
     var sk=skinById(B.d),tb=lkList('t').filter(function(x){return x[0]===B.t})[0],tg=lkList('b').filter(function(x){return x[0]===B.b})[0];
     var on=S.table===B.t&&skinNow().id===B.d&&S.tag===B.b;
-    return '<div class="bndl'+(B.anim?' anim':'')+'"><div class="bvid"><video src="shop/b-'+B.id+'.mp4" poster="shop/b-'+B.id+'.jpg" muted loop playsinline autoplay preload="metadata" aria-label="'+esc(B.n)+' bundle preview"></video>'+(B.anim?'<i class="banim">Animated</i>':'')+'</div>'+
-      '<div class="binfo"><b class="bname">'+esc(B.n)+'</b><span class="bprice">'+B.price+'</span></div><p class="bblurb">'+esc(B.blurb)+'</p>'+
+    return '<div class="bndl'+(B.anim?' anim':'')+'"><div class="binfo"><b class="bname">'+esc(B.n)+(B.anim?'<i class="banim">Animated</i>':'')+'</b><span class="bprice">'+B.price+'</span></div><p class="bblurb">'+esc(B.blurb)+'</p>'+
+      '<details class="bprev"><summary><span class="bplay" aria-hidden="true"></span>Preview<span class="bchev" aria-hidden="true"></span></summary><div class="bvid"><video data-src="shop/b-'+B.id+'.mp4" poster="shop/b-'+B.id+'.jpg" muted loop playsinline preload="none" aria-label="'+esc(B.n)+' bundle preview"></video></div></details>'+
       '<ul class="bparts"><li><em>Table</em>'+esc(tb?tb[1]:B.t)+'</li><li><em>Dice</em>'+esc(sk?sk.n:B.d)+'</li><li><em>Name tag</em>'+esc(tg?tg[1]:B.b)+'</li></ul>'+
       '<button type="button" class="shopbuy'+(on?' on':'')+'" data-b="'+B.id+'">'+(on?'Set equipped':'Equip set')+'</button></div>'}).join('');
 }
@@ -2879,6 +2875,9 @@ $('achWho').addEventListener('click',function(e){var b=e.target.closest('button[
 $('mShop').addEventListener('click',function(){S.phase='shop';$('shop').scrollTop=0;renderShop();render()});
 $('backShop').addEventListener('click',toMenu);
 document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;SHOP.tab=b.getAttribute('data-tab');renderShop()});
+/* a bundle's preview video only loads and plays while its Preview drop-down is open */
+$('shopGrid').addEventListener('toggle',function(e){var d=e.target;if(!d.classList||!d.classList.contains('bprev'))return;var v=d.querySelector('video');if(!v)return;
+  if(d.open){if(!v.getAttribute('src'))v.setAttribute('src',v.getAttribute('data-src'));var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}else v.pause()},true);
 $('shopGrid').addEventListener('click',function(e){var b=e.target.closest('.shopbuy[data-b]');if(!b||!ON.admin)return;var B=BUNDLES.filter(function(x){return x.id===b.getAttribute('data-b')})[0];if(!B)return;
   S.skin=B.d;S.table=B.t;S.tag=B.b;savePrefs();renderShop();render()});
 $('shopLocker').addEventListener('click',function(){openLocker('shop')});
