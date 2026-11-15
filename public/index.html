@@ -27,6 +27,7 @@
 <body>
 <div id="emoLayer"></div>
 <div id="emoWheel" hidden><div class="emoring"></div></div>
+<div id="emoMenu" hidden><div class="mucard" role="dialog" aria-label="Mute emotes"></div></div>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@400;600;700;800&display=swap">
 <style>
@@ -456,6 +457,17 @@ input{-webkit-user-select:text;user-select:text}
 .emohub{position:absolute;left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:none;cursor:pointer;font:400 22px/1 var(--display);color:#2A1702;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%);box-shadow:0 0 0 2px #5A3A06,0 4px 10px rgba(0,0,0,.5)}
 @media (prefers-reduced-motion:reduce){.emote,.emote *{animation-duration:.01s!important;animation-iteration-count:1!important}.emote{animation:emoFade 3s linear forwards!important}.emote .pf-shades{transform:translateY(-46px) rotate(-7deg)}}
 @keyframes emoFade{0%,100%{opacity:0;transform:translateX(-50%)}8%,90%{opacity:1;transform:translateX(-50%)}}
+#emoMenu{position:fixed;inset:0;z-index:72}#emoMenu[hidden]{display:none}
+.mucard{position:absolute;transform:translateX(-50%);width:200px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 14px 14px;border-radius:16px;border:2px solid transparent;text-align:center;
+  background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 12px 28px rgba(0,0,0,.6);animation:muIn .18s cubic-bezier(.2,1.3,.4,1)}
+.mucard::before{content:"";position:absolute;left:50%;top:-8px;width:14px;height:14px;transform:translateX(-50%) rotate(45deg);background:#1B3A31;border-left:2px solid #F6CF45;border-top:2px solid #F6CF45}
+@keyframes muIn{from{opacity:0;transform:translateX(-50%) translateY(-6px) scale(.9)}}
+.mucard b{font:400 16px/1.1 var(--display);text-transform:uppercase;letter-spacing:.04em;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A 70%,#FBE58A);-webkit-background-clip:text;background-clip:text;color:transparent;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mucard span{font-size:12px;color:rgba(246,241,228,.75)}
+.mubtn{margin-top:4px;min-height:42px;width:100%;border-radius:999px;border:none;cursor:pointer;font:400 14px/1 var(--display);letter-spacing:.04em;text-transform:uppercase;color:#2A1702;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%);box-shadow:0 0 0 2px #5A3A06,0 4px 10px rgba(0,0,0,.45)}
+.mubtn.on{color:#FBE58A;background:linear-gradient(180deg,#5A1A10,#2A0905);box-shadow:0 0 0 2px #F6CF45,0 4px 10px rgba(0,0,0,.45)}
+.mubtn:focus-visible{outline:3px solid #FBE58A;outline-offset:2px}
+.tile .emochip.mut{right:auto;left:4px;background:radial-gradient(circle at 35% 30%,#F4EFE6,#B9B2A6 60%,#7A7268)}
 /* the dice picker in Settings */
 .f1 .one{display:none}
 #app[data-skin="original"] .f1 .dlogo{display:none}
@@ -2782,8 +2794,8 @@ function renderMain(){
   var list=S.order.length?S.order:S.players.map(function(_,i){return i}),act=activeIdx(),lead=(ph==='final'||ph==='over')?leaders():[];
   var b=$('board');b.hidden=ph==='over';b.style.setProperty('--n',S.n);
   b.innerHTML=list.map(function(i){
-    var p=P(i),cls='tile',val,foot,em=canEmote(i);
-    if(i===act)cls+=' active';if(em)cls+=' emo-ok';
+    var p=P(i),cls='tile',val,foot,em=canEmote(i),mu=isMuted(i);
+    if(i===act)cls+=' active';if(em||canMute(i))cls+=' emo-ok';
     var tg=seatLook(p).b;if(tg&&tg!=='plain'&&lookOk('b',tg))cls+=' nb-'+tg;
     if(lead.indexOf(i)>=0)cls+=' lead';
     if(ph==='order'){var ks=S.ord.keys[i];val=ks.length?ks[ks.length-1]:'–';foot='<span class="tag">'+(S.ord.done?(S.order.indexOf(i)+1)+ordinal(S.order.indexOf(i)+1):'')+'</span>'}
@@ -2801,7 +2813,7 @@ function renderMain(){
     var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
     var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
     var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
-    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+(em&&(S.online||p.you)?'<span class="emochip" title="Send an emote"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="1.6" fill="#3B2305"/><circle cx="13" cy="8" r="1.6" fill="#3B2305"/><path d="M5.5 11.5q4.5 5 9 0" fill="none" stroke="#3B2305" stroke-width="1.8" stroke-linecap="round"/></svg></span>':'')+'</div>';
+    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+(mu?'<span class="emochip mut" title="Emotes muted"><svg viewBox="0 0 20 20"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="#3B2305"/><path d="M13 7.5l4.5 5M17.5 7.5l-4.5 5" stroke="#3B2305" stroke-width="1.9" stroke-linecap="round"/></svg></span>':'')+(em&&(S.online||p.you)?'<span class="emochip" title="Send an emote"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="1.6" fill="#3B2305"/><circle cx="13" cy="8" r="1.6" fill="#3B2305"/><path d="M5.5 11.5q4.5 5 9 0" fill="none" stroke="#3B2305" stroke-width="1.8" stroke-linecap="round"/></svg></span>':'')+'</div>';
   }).join('');
 
   var bn=$('banner');bn.hidden=ph!=='final';
@@ -3524,7 +3536,18 @@ function sfxEmote(k){
   else{horn(t,392,.3,.16);horn(t+.36,370,.3,.16);horn(t+.72,349,.3,.16);horn(t+1.08,330,1.1,.17,true)}
 }
 function canEmote(i){var p=P(i);if(!p||!S.players.length)return false;if(S.online)return i===S.me&&S.me>=0;return !p.bot}
-function emoClose(){var w=$('emoWheel');if(!w.hidden){w.classList.remove('open');w.hidden=true}}
+function emoClose(){var w=$('emoWheel');if(!w.hidden){w.classList.remove('open');w.hidden=true}muClose()}
+/* muting: online, tap another player's name tag to mute or unmute their emotes on your phone. Kept for this table only. */
+var MUTE={code:null,s:{}};
+function isMuted(i){return !!(S.online&&MUTE.code===ON.code&&MUTE.s[i])}
+function canMute(i){var p=P(i);return !!(S.online&&p&&S.players.length&&i!==S.me&&!p.bot)}
+function muClose(){var m=$('emoMenu');if(m&&!m.hidden){m.hidden=true}}
+function muOpen(i){
+  var m=$('emoMenu'),tile=document.querySelector('#board .tile[data-i="'+i+'"]');if(!tile)return;
+  var r=tile.getBoundingClientRect(),vw=window.innerWidth,on=isMuted(i);m.dataset.i=i;
+  m.querySelector('.mucard').innerHTML='<b>'+esc(P(i).name)+'</b><span>'+(on?'Their emotes are muted for you.':'Emotes from this player')+'</span><button type="button" class="mubtn'+(on?' on':'')+'" data-mu="'+i+'">'+(on?'Unmute emotes':'Mute emotes')+'</button>';
+  var c=m.querySelector('.mucard');c.style.left=clamp(r.left+r.width/2,112,vw-112)+'px';c.style.top=(r.bottom+10)+'px';m.hidden=false;var b=c.querySelector('.mubtn');if(b)b.focus({preventScroll:true});
+}
 function emoOpen(i){
   var w=$('emoWheel'),tile=document.querySelector('#board .tile[data-i="'+i+'"]');if(!tile)return;
   var r=tile.getBoundingClientRect(),vw=window.innerWidth,vh=window.innerHeight,R=Math.min(122,vw*.31),cx=vw/2,cy=clamp(r.bottom+R+64,R+70,vh-R-70);
@@ -3535,6 +3558,7 @@ function emoOpen(i){
   w.hidden=false;void w.offsetWidth;w.classList.add('open');var f=ring.querySelector('.emobtn');if(f)f.focus({preventScroll:true});
 }
 function showEmote(i,k){
+  if(isMuted(i))return;
   if(!EMOS.some(function(e){return e[0]===k}))return;
   var tile=document.querySelector('#board .tile[data-i="'+i+'"]');if(!tile||$('board').hidden)return;
   var L=$('emoLayer'),r=tile.getBoundingClientRect(),old=EMO.live[i];if(old){clearTimeout(old.t);old.el.remove()}
@@ -3547,7 +3571,8 @@ function sendEmote(i,k){
   var now=Date.now();if(now-EMO.last<1500)return;EMO.last=now;
   if(S.online)onSend('emote',{e:k});else showEmote(i,k);
 }
-$('board').addEventListener('click',function(e){var t=e.target.closest('.tile[data-i]');if(!t)return;var i=+t.getAttribute('data-i');if(canEmote(i))emoOpen(i)});
+$('board').addEventListener('click',function(e){var t=e.target.closest('.tile[data-i]');if(!t)return;var i=+t.getAttribute('data-i');if(canEmote(i))emoOpen(i);else if(canMute(i))muOpen(i)});
+$('emoMenu').addEventListener('click',function(e){var b=e.target.closest('.mubtn');if(b){var i=+b.getAttribute('data-mu');if(MUTE.code!==ON.code)MUTE={code:ON.code,s:{}};MUTE.s[i]=!MUTE.s[i];if(MUTE.s[i]&&EMO.live[i]){clearTimeout(EMO.live[i].t);EMO.live[i].el.remove();delete EMO.live[i]}render()}muClose()});
 $('emoWheel').addEventListener('click',function(e){var b=e.target.closest('.emobtn');var w=$('emoWheel');if(b){var i=+w.dataset.i;emoClose();sendEmote(i,b.getAttribute('data-e'))}else emoClose()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')emoClose()});
 window.addEventListener('resize',emoClose);
