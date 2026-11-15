@@ -2515,14 +2515,13 @@ function doRoll(dir){
 function after(fx){
   try{if(navigator.vibrate&&!fx.quiet&&!(S.online&&S.cur!==S.me))navigator.vibrate(fx.bust?[60,40,120]:12)}catch(e){}
   if(fx.bust&&!fx.quiet)sfxBust();else if(fx.dbl)sfxDoubles(S.hotTurn);
-  function go(){
-    if(fx.burn>0){
-      S.burnShow={i:S.cur,val:fx.burn};render();
-      burnScore(S.cur,fx.burn).then(function(){S.burnShow=null;S.busy=false;render();onNext()});
-    }else{S.busy=false;render();onNext()}
-  }
-  var lost=fx.bust?(S.lost||0):0;
-  if(lost>0)rewindTurn(lost).then(go);else go();
+  var lost=fx.bust?(S.lost||0):0,snake=fx.bust&&(fx.snake||S.snake),bank=fx.burn||0;
+  /* snake eyes (or a re-roll bust): the fire burns the turn and the banked score down together. A plain 1: the turn rewinds. */
+  if(bank>0||(snake&&lost>0)){
+    S.burnShow={i:S.cur,val:bank};render();
+    burnScore(S.cur,lost+bank,bank).then(function(){S.burnShow=null;S.busy=false;render();onNext()});
+  }else if(lost>0)rewindTurn(lost).then(function(){S.busy=false;render();onNext()});
+  else{S.busy=false;render();onNext()}
 }
 /* ---------- a 1 rewinds the turn: the at-risk points spin back down to 0 like a tape rewinding (bigger turns take longer) ---------- */
 function rewindTurn(from){
@@ -2558,7 +2557,7 @@ function takeBust(){
 }
 
 /* ---------- fire over a score burned by snake eyes ---------- */
-function burnScore(idx,from){
+function burnScore(idx,from,bank){if(bank==null)bank=from;
   return new Promise(function(resolve){
     var el=$('burn'),cv=$('fire'),cv2=$('fire2'),num=$('burnVal'),reduce=false;
     try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
@@ -2573,7 +2572,7 @@ function burnScore(idx,from){
     function frame(now){
       var t=now-t0,dt=clamp((now-last)/1000,0.001,0.034);last=now;
       var p=Math.min(1,t/dur),v=Math.round(from*(1-p*p*(3-2*p)));
-      num.textContent=v;if(tile)tile.textContent=v;if(S.burnShow)S.burnShow.val=v;
+      var bv=Math.round(bank*(1-p*p*(3-2*p)));num.textContent=v;if(tile)tile.textContent=bv;if(S.burnShow)S.burnShow.val=bv;
       var heat=t<dur?1:Math.max(0,1-(t-dur)/hold);
       if(!reduce){
         num.style.transform=p<1?'translate('+rand(-2,2).toFixed(1)+'px,'+rand(-2,2).toFixed(1)+'px) rotate('+rand(-5,5).toFixed(1)+'deg)':'none';
