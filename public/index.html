@@ -1486,6 +1486,13 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
 .chatform .btn.primary{flex:none;min-height:48px;padding:0 18px;font-size:15px}
 /* Sign out in the account pop-up */
 .acctdlg .acctout{min-height:40px;padding:0 18px;border:2px solid transparent;border-radius:999px;background:var(--mqred) padding-box,var(--mqgb) border-box;color:#FBE58A;font-family:var(--display);font-weight:400;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+/* a 1 rewinds the at-risk points to 0 */
+.stat.big.rw .lab{color:#FF9A8A;display:inline-flex;align-items:center;gap:5px}
+.stat.big.rw .rwi{width:20px;height:12px;animation:rwblink .3s steps(2) infinite}
+.stat.big.rw .val{color:#FF7A66;text-shadow:0 0 16px rgba(255,70,50,.65),2px 0 0 rgba(80,200,255,.35),-2px 0 0 rgba(255,60,120,.35);animation:rwjit .08s steps(2) infinite}
+@keyframes rwjit{0%{transform:translateX(-1.5px) skewX(-7deg)}100%{transform:translateX(1.5px) skewX(-3deg)}}
+@keyframes rwblink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.stat.big.rw .val,.stat.big.rw .rwi{animation:none}}
 </style>
 
 <div id="app" data-phase="menu">
@@ -2508,10 +2515,38 @@ function doRoll(dir){
 function after(fx){
   try{if(navigator.vibrate&&!fx.quiet&&!(S.online&&S.cur!==S.me))navigator.vibrate(fx.bust?[60,40,120]:12)}catch(e){}
   if(fx.bust&&!fx.quiet)sfxBust();else if(fx.dbl)sfxDoubles(S.hotTurn);
-  if(fx.burn>0){
-    S.burnShow={i:S.cur,val:fx.burn};render();
-    burnScore(S.cur,fx.burn).then(function(){S.burnShow=null;S.busy=false;render();onNext()});
-  }else{S.busy=false;render();onNext()}
+  function go(){
+    if(fx.burn>0){
+      S.burnShow={i:S.cur,val:fx.burn};render();
+      burnScore(S.cur,fx.burn).then(function(){S.burnShow=null;S.busy=false;render();onNext()});
+    }else{S.busy=false;render();onNext()}
+  }
+  var lost=fx.bust?(S.lost||0):0;
+  if(lost>0)rewindTurn(lost).then(go);else go();
+}
+/* ---------- a 1 rewinds the turn: the at-risk points spin back down to 0 like a tape rewinding (bigger turns take longer) ---------- */
+function rewindTurn(from){
+  return new Promise(function(resolve){
+    var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+    var dur=reduce?250:clamp(420+from*11,550,1700),wait=reduce?0:220;
+    S.rewind={v:from};render();
+    setTimeout(function(){
+      sfxRewind(dur/1000);var t0=performance.now();
+      (function frame(now){var p=Math.min(1,(now-t0)/dur),e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+        S.rewind.v=Math.round(from*(1-e));var pl=P(S.cur);$('v2').textContent=S.rewind.v;if(pl&&S.bust)$('v3').textContent=pl.score+S.rewind.v;
+        if(p<1)requestAnimationFrame(frame);else setTimeout(function(){S.rewind=null;render();resolve()},reduce?0:260)})(t0);
+    },wait);
+  });
+}
+function sfxRewind(d){
+  if(!ac())return;var t=AC.currentTime+0.01;
+  var o=AC.createOscillator();o.type='square';o.frequency.setValueAtTime(1500,t);o.frequency.exponentialRampToValueAtTime(420,t+d);
+  var bp=AC.createBiquadFilter();bp.type='bandpass';bp.Q.value=2.5;bp.frequency.setValueAtTime(2400,t);bp.frequency.exponentialRampToValueAtTime(900,t+d);
+  var tr=AC.createGain();tr.gain.value=.5;var l=AC.createOscillator();l.type='square';l.frequency.setValueAtTime(26,t);l.frequency.linearRampToValueAtTime(14,t+d);var lg=AC.createGain();lg.gain.value=.5;l.connect(lg);lg.connect(tr.gain);
+  var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(.075,t+.04);g.gain.setValueAtTime(.075,t+d*.85);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+  o.connect(bp);bp.connect(tr);tr.connect(g);g.connect(OUT);o.start(t);o.stop(t+d+.05);l.start(t);l.stop(t+d+.05);
+  noise(t,d,'bandpass',3200,.8,.05,.03);
+  tone(t+d,'triangle',150,0,.09,.16);tone(t+d+.01,'sine',90,0,.12,.14);
 }
 function doReroll(){
   var p=P(S.cur);if(!S.pend||S.busy||!((p.rr||0)>0))return;
@@ -2936,6 +2971,8 @@ function renderMain(){
   $('l1').textContent='Banked';$('v1').textContent=p.score;
   $('l2').textContent=S.hotTurn?'At risk · ×'+MX():'At risk';$('v2').textContent=S.turn;
   $('l3').textContent='If you lock in';$('v3').textContent=p.score+S.turn;
+  $('v2').parentNode.classList.toggle('rw',!!S.rewind);
+  if(S.rewind){$('l2').innerHTML='<svg class="rwi" viewBox="0 0 24 14" aria-hidden="true"><path d="M11 1L1 7l10 6zM23 1L13 7l10 6z" fill="currentColor"/></svg>Rewinding';$('v2').textContent=S.rewind.v;$('v3').textContent=p.score+S.rewind.v}
   rolls.innerHTML=S.rolls.map(function(r){
     var mult=(r.dbl?2:1)*(r.m||1);
     if(r.rr)return '<span class="x">'+r.a+' + '+r.b+'<b>↻</b></span>';
