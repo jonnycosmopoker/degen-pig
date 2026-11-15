@@ -323,6 +323,48 @@ input{-webkit-user-select:text;user-select:text}
 .mini.npink,.mini.ngreen{background:radial-gradient(circle at 50% 46%,rgba(var(--nc),.16),rgba(var(--nc),0) 68%),linear-gradient(160deg,#17141E,#07060B);box-shadow:inset 0 0 0 1px rgba(255,244,252,.9),inset 0 0 0 3px rgba(var(--nc),.95),inset 0 0 9px rgba(var(--nc),.55),0 0 12px rgba(var(--nc),.45)}
 .mini.npink{--nc:255,46,170}.mini.ngreen{--nc:57,255,136}
 .mini.npink i,.mini.ngreen i{background:radial-gradient(circle,#fff 0 22%,rgba(var(--nc),1) 50%,rgba(var(--nc),.4) 75%,rgba(var(--nc),0) 100%);box-shadow:0 0 5px rgba(var(--nc),.95)}
+/* Liberty (Stars & Stripes): navy dice with a red-and-white rim and white star pips. Doubles: gold stars on a gold rim.
+   Bust: the face turns red. */
+#app[data-skin="usa"] .face,#app[data-skin="usa"] .die.gold .face,#app[data-skin="usa"] .die.bust .face{
+  background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 55%),linear-gradient(var(--tint,rgba(0,0,0,0)),var(--tint,rgba(0,0,0,0))),url(tables/usa-felt.jpg) center/300% 300%,#1B2F6E;
+  box-shadow:inset 0 0 0 calc(var(--d)*.02) #F4F1EA,inset 0 0 0 calc(var(--d)*.045) #B22234,inset 0 0 calc(var(--d)*.14) rgba(0,0,0,.42)}
+#app[data-skin="usa"] .die.gold .face{box-shadow:inset 0 0 0 calc(var(--d)*.02) #FFF2B0,inset 0 0 0 calc(var(--d)*.045) #D9A21A,inset 0 0 calc(var(--d)*.14) rgba(0,0,0,.42)}
+#app[data-skin="usa"] .die.bust .face{--tint:rgba(178,34,52,.9)}
+#app[data-skin="usa"] .core{background:#1B2F6E}#app[data-skin="usa"] .die.bust .core{background:#8E1B2A}
+#app[data-skin="usa"] .pip,#app[data-skin="usa"] .die.gold .pip,#app[data-skin="usa"] .die.bust .pip{width:94%;height:94%;border-radius:0;box-shadow:none;background:#FFFFFF;clip-path:polygon(50% 2%,61.5% 36%,97% 36%,68.5% 57%,79.5% 92%,50% 71%,20.5% 92%,31.5% 57%,3% 36%,38.5% 36%)}
+#app[data-skin="usa"] .die.gold .pip{background:linear-gradient(180deg,#FFF6C2,#F6CF45 45%,#C8901A)}
+#app[data-skin="usa"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,210,80,.85))}
+.mini.usa{background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),url(tables/usa-felt.jpg) center/300% 300%,#1B2F6E;box-shadow:inset 0 0 0 1.5px #F4F1EA,inset 0 0 0 3.5px #B22234,0 4px 8px rgba(0,0,0,.4)}
+.mini.usa i{border-radius:0;background:#fff;clip-path:polygon(50% 2%,61.5% 36%,97% 36%,68.5% 57%,79.5% 92%,50% 71%,20.5% 92%,31.5% 57%,3% 36%,38.5% 36%);transform:scale(1.35)}
+/* Gumdrop (Whimsical): a swirl of cotton-candy pastels with shiny gumdrop pips in every colour. Doubles turn gold-dusted;
+   a bust is a grey rain cloud. */
+#app[data-skin="whimsy"] .face,#app[data-skin="whimsy"] .die.gold .face,#app[data-skin="whimsy"] .die.bust .face{
+  background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.6) 0%,rgba(255,255,255,0) 50%),linear-gradient(var(--tint,rgba(0,0,0,0)),var(--tint,rgba(0,0,0,0))),conic-gradient(from 20deg at 50% 50%,#FFC6E0,#E3CCFF,#C6E8FF,#C9F7DE,#FFF1B8,#FFC6E0);
+  box-shadow:inset 0 0 0 calc(var(--d)*.016) rgba(255,255,255,.95),inset 0 0 calc(var(--d)*.13) rgba(200,140,220,.45)}
+#app[data-skin="whimsy"] .die.gold .face{--tint:rgba(255,206,90,.4);box-shadow:inset 0 0 0 calc(var(--d)*.02) #FFE58A,inset 0 0 calc(var(--d)*.13) rgba(220,150,40,.45)}
+#app[data-skin="whimsy"] .die.bust .face{--tint:rgba(110,116,140,.82)}
+#app[data-skin="whimsy"] .core{background:#EBD3F2}#app[data-skin="whimsy"] .die.bust .core{background:#7A7F96}
+#app[data-skin="whimsy"] .pip,#app[data-skin="whimsy"] .die.gold .pip,#app[data-skin="whimsy"] .die.bust .pip{width:70%;height:70%;--g:#FF4F9A;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.85) 0 12%,rgba(255,255,255,0) 34%),var(--g);box-shadow:0 calc(var(--d)*.012) calc(var(--d)*.02) rgba(120,60,140,.4),inset 0 calc(var(--d)*-.012) 0 rgba(0,0,0,.14)}
+#app[data-skin="whimsy"] .pip:nth-child(6n+2){--g:#8A5CFF}#app[data-skin="whimsy"] .pip:nth-child(6n+3){--g:#19A9F5}#app[data-skin="whimsy"] .pip:nth-child(6n+4){--g:#1FBF85}#app[data-skin="whimsy"] .pip:nth-child(6n+5){--g:#FFA51F}#app[data-skin="whimsy"] .pip:nth-child(6n){--g:#FF6B6B}
+#app[data-skin="whimsy"] .die.gold .pip{--g:#E7A812!important}
+#app[data-skin="whimsy"] .die.bust .pip{--g:#3E5BA8!important}
+#app[data-skin="whimsy"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,200,90,.85))}
+.mini.whimsy{background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.6),rgba(255,255,255,0) 50%),conic-gradient(from 20deg,#FFC6E0,#E3CCFF,#C6E8FF,#C9F7DE,#FFF1B8,#FFC6E0);box-shadow:inset 0 0 0 1.5px #fff,0 4px 8px rgba(120,60,140,.35)}
+.mini.whimsy i{background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.85) 0 14%,rgba(255,255,255,0) 36%),#FF4F9A}.mini.whimsy i:nth-child(2n){background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.85) 0 14%,rgba(255,255,255,0) 36%),#19A9F5}.mini.whimsy i:nth-child(3n){background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.85) 0 14%,rgba(255,255,255,0) 36%),#1FBF85}
+/* Pigskin (Game Day): pebbled football leather with white stitching and white lace pips. Doubles shine like a trophy;
+   a bust throws the yellow penalty flag. */
+#app[data-skin="gridiron"] .face,#app[data-skin="gridiron"] .die.gold .face,#app[data-skin="gridiron"] .die.bust .face{
+  background:radial-gradient(circle at 30% 24%,rgba(255,230,200,.26) 0%,rgba(255,230,200,0) 55%),linear-gradient(var(--tint,rgba(0,0,0,0)),var(--tint,rgba(0,0,0,0))),url(dice/leather.jpg) 0 0/130% 130%,#84401F;
+  box-shadow:inset 0 0 0 calc(var(--d)*.012) rgba(60,24,8,.9),inset 0 0 calc(var(--d)*.15) rgba(40,14,2,.55)}
+#app[data-skin="gridiron"] .face::before{content:"";position:absolute;inset:calc(var(--d)*.065);border:calc(var(--d)*.014) dashed rgba(255,250,240,.85);border-radius:14%;pointer-events:none}
+#app[data-skin="gridiron"] .die.gold .face{--tint:rgba(255,196,40,.55)}
+#app[data-skin="gridiron"] .die.bust .face{--tint:rgba(255,212,0,.93)}
+#app[data-skin="gridiron"] .core{background:#6E3418}#app[data-skin="gridiron"] .die.gold .core{background:#B7801C}#app[data-skin="gridiron"] .die.bust .core{background:#E2BC00}
+#app[data-skin="gridiron"] .pip,#app[data-skin="gridiron"] .die.gold .pip{width:64%;height:64%;background:radial-gradient(circle at 38% 32%,#FFFFFF 0%,#F4EFE6 55%,#CFC6B6 100%);box-shadow:0 calc(var(--d)*.01) calc(var(--d)*.016) rgba(30,10,0,.6)}
+#app[data-skin="gridiron"] .die.bust .pip{width:64%;height:64%;background:#14213D;box-shadow:none}
+#app[data-skin="gridiron"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,200,60,.85))}
+.mini.gridiron{background:radial-gradient(circle at 30% 24%,rgba(255,230,200,.26),rgba(255,230,200,0) 55%),url(dice/leather.jpg) 0 0/180% 180%,#84401F;box-shadow:inset 0 0 0 1px rgba(60,24,8,.9),inset 0 0 0 4px #84401F,inset 0 0 0 5.5px rgba(255,250,240,.75),0 4px 8px rgba(0,0,0,.45)}
+.mini.gridiron i{background:#F4EFE6}
 /* the dice picker in Settings */
 .f1 .one{display:none}
 #app[data-skin="original"] .f1 .dlogo{display:none}
@@ -475,6 +517,18 @@ input{-webkit-user-select:text;user-select:text}
 .tile.nb-ngreen::after{animation-delay:-2.7s}
 @keyframes ntube{0%,61%,63.5%,66%,100%{opacity:1}62%,65%{opacity:.25}64%{opacity:.8}30%{opacity:.88}}
 @media (prefers-reduced-motion:reduce){.tile.nb-npink::after,.tile.nb-ngreen::after{animation:none}}
+/* 17 Stars & Stripes: red-and-white stripes with a navy star badge on the corner */
+.tile.nb-usa{border:6px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,repeating-linear-gradient(90deg,#B22234 0 7px,#F4F1EA 7px 14px) border-box!important;
+  box-shadow:0 0 0 1.5px #0F1D47,inset 0 0 0 1.5px #0F1D47,0 3px 6px rgba(0,0,0,.45)}
+.tile.nb-usa::after{top:-11px;left:-11px;width:26px;height:26px;border-radius:50%;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cpath d='M0-34L8-11H32L13 3 20 27 0 13-20 27-13 3-32-11H-8Z' fill='%23fff'/%3E%3C/svg%3E") center/72% no-repeat,radial-gradient(circle at 35% 30%,#2D4BA0,#14275E);box-shadow:0 0 0 2px #D9B44A,0 2px 4px rgba(0,0,0,.5)}
+/* 18 Rainbow Cloud: a soft pastel rainbow border, a white outline, and a fluffy cloud on the corner */
+.tile.nb-whimsy{border:6px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,linear-gradient(90deg,#FF9EC7,#FFC98A,#FFF08A,#9CEBB8,#8FCBFF,#C3A6FF) border-box!important;
+  box-shadow:0 0 0 2px #fff,inset 0 0 0 2px rgba(255,255,255,.9),0 0 12px rgba(255,170,220,.55),0 3px 6px rgba(0,0,0,.35)}
+.tile.nb-whimsy::after{top:-13px;right:-14px;width:38px;height:24px;filter:drop-shadow(0 2px 2px rgba(150,110,200,.45));background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 76 48'%3E%3Cg fill='%23fff'%3E%3Ccircle cx='24' cy='28' r='14'/%3E%3Ccircle cx='40' cy='20' r='17'/%3E%3Ccircle cx='56' cy='29' r='12'/%3E%3Crect x='12' y='28' width='54' height='14' rx='7'/%3E%3C/g%3E%3Cpath d='M64 6l2 5 5 2-5 2-2 5-2-5-5-2 5-2z' fill='%23FFD84A'/%3E%3Cpath d='M8 10l1.4 3.4L13 15l-3.6 1.4L8 20l-1.4-3.6L3 15l3.6-1.6z' fill='%23FF9EC7'/%3E%3C/svg%3E") center/contain no-repeat}
+/* 19 Pigskin: football leather with the white end stripes and laces stitched across the top */
+.tile.nb-gridiron{border:7px solid transparent!important;background:linear-gradient(var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt))),var(--tbg,color-mix(in srgb,var(--pc) 34%,var(--felt)))) padding-box,linear-gradient(#F4EFE6,#F4EFE6) 12% 0/5px 100% no-repeat border-box,linear-gradient(#F4EFE6,#F4EFE6) 88% 0/5px 100% no-repeat border-box,url(dice/leather.jpg) 0 0/90px 90px border-box,#84401F border-box!important;
+  box-shadow:0 0 0 1.5px #3C1808,inset 0 0 0 1.5px #3C1808,0 3px 6px rgba(0,0,0,.5)}
+.tile.nb-gridiron::after{top:-9px;left:50%;width:46px;height:14px;transform:translateX(-50%);filter:drop-shadow(0 1px 1px rgba(0,0,0,.5));background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 28'%3E%3Crect x='4' y='11' width='84' height='6' rx='3' fill='%23F4EFE6'/%3E%3Cg fill='%23F4EFE6'%3E%3Crect x='14' y='3' width='6' height='22' rx='3'/%3E%3Crect x='30' y='3' width='6' height='22' rx='3'/%3E%3Crect x='46' y='3' width='6' height='22' rx='3'/%3E%3Crect x='62' y='3' width='6' height='22' rx='3'/%3E%3Crect x='78' y='5' width='5' height='18' rx='2.5'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat}
 /* 8 High Stakes: cash-green bill edge with $ corners */
 .tile.nb-cash{border:3px solid #3E9A4E!important;outline:1px dashed #A8E0A8;outline-offset:-6px;box-shadow:0 0 0 1px #13361A}
 .tile.nb-cash::before,.tile.nb-cash::after{content:"$";font:900 12px/1 Figtree,sans-serif;color:#0E2C14;background:#7FD08A;width:15px;height:15px;border-radius:50%;display:grid;place-items:center;border:1px solid #13361A}
@@ -1199,6 +1253,15 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #app[data-table="npink"] .brand,#app[data-table="ngreen"] .brand{color:rgba(255,246,252,.95)!important;text-shadow:0 0 2px #fff,0 0 7px rgba(var(--tn),1),0 0 16px rgba(var(--tn),.95),0 0 34px rgba(var(--tn),.75),0 0 60px rgba(var(--tn),.45)!important;opacity:.85;animation:nsign 8s linear infinite}
 @keyframes nsign{0%,40%,41.5%,43%,100%{opacity:.85}41%,42.5%{opacity:.3}}
 @media (prefers-reduced-motion:reduce){#app[data-table="npink"] .brand,#app[data-table="ngreen"] .brand{animation:none}}
+#app[data-table="usa"] .tray{isolation:isolate;background:repeating-linear-gradient(180deg,#B22234 0 16px,#F4F1EA 16px 32px);box-shadow:0 0 0 2px #0F1D47,inset 0 6px 20px rgba(0,0,0,.3)}#app[data-table="usa"] .inlay{inset:16px;z-index:-1;background:url(tables/usa-felt.jpg) center/420px 420px padding-box;border:3px solid #D9B44A;border-radius:16px;box-shadow:0 0 0 2px #0F1D47,inset 0 0 30px rgba(0,0,0,.45)}#app[data-table="usa"] .brand{color:rgba(255,255,255,.2)!important;text-shadow:0 2px 0 rgba(0,0,0,.25)!important}
+#app[data-table="whimsy"] .tray{isolation:isolate;background:linear-gradient(135deg,#FFB3D1,#FFE0A6 22%,#FFF5B0 40%,#C2F5D2 60%,#B8DCFF 80%,#D9C2FF);box-shadow:0 0 0 2px #fff,0 0 22px rgba(255,170,220,.45)}#app[data-table="whimsy"] .inlay{inset:13px;z-index:-1;background:url(tables/whimsy-sky.jpg) center/cover padding-box;border:4px solid #fff;border-radius:24px;box-shadow:0 0 0 2px rgba(255,150,200,.6),inset 0 0 22px rgba(190,140,230,.35)}#app[data-table="whimsy"] .brand{color:rgba(170,120,210,.4)!important;text-shadow:0 2px 0 rgba(255,255,255,.7)!important}
+#app[data-table="gridiron"] .tray{background:
+  linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)) 50% 9%/100% 3px no-repeat,linear-gradient(rgba(255,255,255,.9),rgba(255,255,255,.9)) 50% 91%/100% 3px no-repeat,
+  repeating-linear-gradient(180deg,rgba(255,255,255,.8) 0 2px,transparent 2px 12.5%) 50% 50%/100% 82% no-repeat,
+  repeating-linear-gradient(180deg,rgba(255,255,255,.7) 0 2px,transparent 2px 2.5%) 33% 50%/12px 82% no-repeat,repeating-linear-gradient(180deg,rgba(255,255,255,.7) 0 2px,transparent 2px 2.5%) 67% 50%/12px 82% no-repeat,
+  repeating-linear-gradient(45deg,#173C8F 0 12px,#1E4AA8 12px 24px) top/100% 9% no-repeat,repeating-linear-gradient(-45deg,#173C8F 0 12px,#1E4AA8 12px 24px) bottom/100% 9% no-repeat,
+  repeating-linear-gradient(180deg,rgba(255,255,255,.06) 0 6.25%,rgba(0,0,0,.06) 6.25% 12.5%),url(tables/turf.jpg) 0 0/200px 200px,#2F7D35;box-shadow:inset 0 0 26px rgba(0,0,0,.4),0 0 0 2px #14381A}
+#app[data-table="gridiron"] .inlay{inset:8px;border:3px solid rgba(255,255,255,.9);border-radius:8px;box-shadow:none}#app[data-table="gridiron"] .brand{color:rgba(255,255,255,.4)!important;text-shadow:0 2px 0 rgba(0,0,0,.3)!important}
 #app.hot .inlay{border-color:var(--gold)!important;box-shadow:0 0 20px rgba(242,194,48,.6),inset 0 0 20px rgba(242,194,48,.35)!important}
 #app[data-table="xmas"] .tray{background:#0B3A22;box-shadow:inset 0 8px 28px rgba(0,0,0,.55),0 0 0 2px #7E1020,0 0 0 4px #E9C46A,0 0 22px rgba(255,200,120,.35)}#app[data-table="xmas"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="xmas"] .brand{color:rgba(235,245,255,.18)!important;text-shadow:0 0 12px rgba(255,255,255,.35),0 1px 0 rgba(0,0,0,.3)!important}
 #app[data-table="vault"] .tray{background:#141210;box-shadow:inset 0 8px 28px rgba(0,0,0,.7),0 0 0 2px #8A5A0A,0 0 0 4px #F6CF45,0 0 0 5px #5A3A06,0 0 24px rgba(242,194,48,.35)}#app[data-table="vault"] .inlay{border-color:transparent;box-shadow:none}#app[data-table="vault"] .brand{color:rgba(242,194,48,.16)!important;text-shadow:0 1px 0 rgba(0,0,0,.8),0 -1px 0 rgba(255,230,150,.12)!important}
@@ -1861,6 +1924,9 @@ var SKINS=[
   {id:'sand',n:'Beach Sand',d:'Packed beach sand with pearl pips. Made for the Tropical Lagoon table.',shop:'Tropical Lagoon bundle'},
   {id:'npink',n:'Neon Pink',d:'Black glass dice with a pink neon tube round every face and glowing pips. They pulse when they hit the table.',shop:'Neon Pink bundle'},
   {id:'ngreen',n:'Neon Green',d:'Black glass dice with a green neon tube round every face and glowing pips. They pulse when they hit the table.',shop:'Neon Green bundle'},
+  {id:'usa',n:'Liberty',d:'Navy dice with a red and white rim and white star pips.',shop:'Stars & Stripes bundle'},
+  {id:'whimsy',n:'Gumdrop',d:'A swirl of cotton-candy pastels with shiny gumdrop pips in every colour.',shop:'Whimsical bundle'},
+  {id:'gridiron',n:'Pigskin',d:'Pebbled football leather with white stitching and lace-white pips.',shop:'Game Day bundle'},
   {id:'seven',n:'Seven Mile',d:'Casino clay chips: a yellow chip rim with red and black edge spots round a black inlay. Made for the Seven Mile table.',shop:'Seven Mile bundle'}];
 /* the badge sets: the Golden Pig level of a badge, earned by anyone on this phone or by the signed-in online account */
 function achRecs(){var d=achLoad(),out=[],k;for(k in d.p)if(d.p[k]&&d.p[k].v)out.push(d.p[k]);if(ON.rec&&ON.rec.v)out.push(ON.rec);return out}
@@ -2848,11 +2914,14 @@ var BUNDLES=[
   {id:'lagoon',n:'Tropical Lagoon',t:'lagoon',d:'sand',b:'lagoon',price:'$14.99',anim:true,blurb:'A shallow turquoise lagoon that ripples wherever the dice land, beach sand dice with pearl pips, and a water tag with a starfish.'},
   {id:'npink',n:'Neon Pink',t:'npink',d:'npink',b:'npink',price:'$14.99',anim:true,blurb:'Black glass under a buzzing pink neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
   {id:'ngreen',n:'Neon Green',t:'ngreen',d:'ngreen',b:'ngreen',price:'$14.99',anim:true,blurb:'Black glass under a buzzing green neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
-  {id:'seven',n:'Seven Mile',t:'seven',d:'seven',b:'seven',price:'$4.99',anim:false,blurb:'The card-room felt with its suits rail, clay-chip dice, and the matching rail tag.'}];
+  {id:'seven',n:'Seven Mile',t:'seven',d:'seven',b:'seven',price:'$4.99',anim:false,blurb:'The card-room felt with its suits rail, clay-chip dice, and the matching rail tag.'},
+  {id:'usa',n:'Stars & Stripes',t:'usa',d:'usa',b:'usa',price:'$4.99',anim:false,blurb:'Star-spangled navy felt framed in red and white stripes, Liberty dice with star pips, and a striped tag with a star badge.'},
+  {id:'whimsy',n:'Whimsical',t:'whimsy',d:'whimsy',b:'whimsy',price:'$4.99',anim:false,blurb:'A cotton-candy sky of fluffy clouds inside a pastel rainbow, Gumdrop dice in every colour, and a rainbow tag with its own cloud.'},
+  {id:'gridiron',n:'Game Day',t:'gridiron',d:'gridiron',b:'gridiron',price:'$4.99',anim:false,blurb:'A football field with yard lines and end zones, Pigskin dice in pebbled leather with white laces, and a football tag.'}];
 function bndlOf(k,id){for(var i=0;i<BUNDLES.length;i++)if(BUNDLES[i][k]===id)return BUNDLES[i];return null}
 var SHOP={tab:'bundles',items:{
-  tables:[['xmas','Christmas Eve','Christmas Eve bundle','Animated'],['vault','Gold Vault','Gold Vault bundle','Animated'],['molten','Molten Core','Molten Core bundle','Animated'],['space','Deep Space','Deep Space bundle','Animated'],['lagoon','Tropical Lagoon','Tropical Lagoon bundle','Animated'],['npink','Neon Pink','Neon Pink bundle','Animated'],['ngreen','Neon Green','Neon Green bundle','Animated'],['seven','Seven Mile','Seven Mile bundle']],
-  borders:[['candy','Candy Cane','Christmas Eve bundle'],['gold','Gold Plated','Gold Vault bundle'],['magma','Magma','Molten Core bundle'],['nebula','Nebula','Deep Space bundle'],['lagoon','Lagoon','Tropical Lagoon bundle'],['npink','Neon Pink','Neon Pink bundle'],['ngreen','Neon Green','Neon Green bundle'],['seven','Seven Mile','Seven Mile bundle']]}};
+  tables:[['xmas','Christmas Eve','Christmas Eve bundle','Animated'],['vault','Gold Vault','Gold Vault bundle','Animated'],['molten','Molten Core','Molten Core bundle','Animated'],['space','Deep Space','Deep Space bundle','Animated'],['lagoon','Tropical Lagoon','Tropical Lagoon bundle','Animated'],['npink','Neon Pink','Neon Pink bundle','Animated'],['ngreen','Neon Green','Neon Green bundle','Animated'],['seven','Seven Mile','Seven Mile bundle'],['usa','Old Glory','Stars & Stripes bundle'],['whimsy','Cotton Candy Sky','Whimsical bundle'],['gridiron','Gridiron','Game Day bundle']],
+  borders:[['candy','Candy Cane','Christmas Eve bundle'],['gold','Gold Plated','Gold Vault bundle'],['magma','Magma','Molten Core bundle'],['nebula','Nebula','Deep Space bundle'],['lagoon','Lagoon','Tropical Lagoon bundle'],['npink','Neon Pink','Neon Pink bundle'],['ngreen','Neon Green','Neon Green bundle'],['seven','Seven Mile','Seven Mile bundle'],['usa','Stars & Stripes','Stars & Stripes bundle'],['whimsy','Rainbow Cloud','Whimsical bundle'],['gridiron','Pigskin','Game Day bundle']]}};
 /* Pieces with no theme bundle yet, off sale for now (their looks are still in the CSS):
    SHOP_RETIRED={
   tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated'],['vault','Gold Vault','$4.99','Animated'],['seven','Seven Mile','$3.99']],
@@ -2862,6 +2931,8 @@ var SHOP={tab:'bundles',items:{
    and a preview video, and can equip a whole set to try it out */
 /* the Any 3 Bundles deal: the owner can pick three bundles to see how the deal will work (checkout isn't live yet) */
 var PICK3={on:false,ids:[],msg:''};
+/* the deal is $29.99, or what the three picked bundles cost on their own if that's less */
+function p3Price(){var t=0;PICK3.ids.forEach(function(id){var B=BUNDLES.filter(function(x){return x.id===id})[0];if(B)t+=parseFloat(B.price.slice(1))});return (PICK3.ids.length===3?Math.min(29.99,t):29.99).toFixed(2)}
 function renderShop(){
   var own=!!ON.admin,g=$('shopGrid');
   $('shop').classList.toggle('soon',!own);
@@ -2871,7 +2942,7 @@ function renderShop(){
   var P=PICK3.ids,full=P.length>=3,slot=function(i){var B=P[i]&&BUNDLES.filter(function(x){return x.id===P[i]})[0];return '<li class="'+(B?'on':'')+'"><em>'+(i+1)+'</em>'+(B?esc(B.n):'Pick a bundle')+'</li>'};
   var deal='<div class="bdeal mq"><div class="binfo"><b class="bname">Any 3 Bundles</b><span class="bprice">$29.99</span></div><p class="bblurb">Pick any 3 bundles in the Shop and get them all at once. Save up to $14.98.</p>'+
     (PICK3.on?'<ol class="bslots">'+slot(0)+slot(1)+slot(2)+'</ol><p class="bdealnote" id="pickNote">'+(PICK3.msg||(full?'All 3 picked. Tap a bundle again to swap it out.':'Tap Add to my 3 on any bundle below. '+(3-P.length)+' to go.'))+'</p>'+
-      '<div class="bdealbtns"><button type="button" class="shopbuy" data-p3="buy"'+(full?'':' disabled')+'>Buy 3 for $29.99</button><button type="button" class="bghost" data-p3="cancel">Cancel</button></div>'
+      '<div class="bdealbtns"><button type="button" class="shopbuy" data-p3="buy"'+(full?'':' disabled')+'>Buy 3 for $'+p3Price()+'</button><button type="button" class="bghost" data-p3="cancel">Cancel</button></div>'
     :'<button type="button" class="shopbuy" data-p3="start">Choose 3 bundles</button>')+'</div>';
   g.innerHTML=deal+BUNDLES.map(function(B){
     var sk=skinById(B.d),tb=lkList('t').filter(function(x){return x[0]===B.t})[0],tg=lkList('b').filter(function(x){return x[0]===B.b})[0];
