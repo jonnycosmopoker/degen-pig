@@ -1144,6 +1144,23 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #shop .bprev[open] .bchev{transform:rotate(-135deg) translate(-2px,-2px)}
 #shop .bprev[open] summary{background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#2A1702}
 #shop .bprev[open] .bplay{border-color:transparent transparent transparent #2A1702}#shop .bprev[open] .bchev{border-color:#2A1702}
+/* the Any 3 Bundles deal at the top of the Shop: a red marquee sign with lights, three numbered slots and its own buttons */
+#shop .bdeal{position:relative;display:flex;flex-direction:column;gap:10px;padding:22px 14px 16px;border:2px solid transparent;border-radius:20px;background:linear-gradient(180deg,#5A1A10,#2A0905) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 20px rgba(0,0,0,.55),0 0 26px rgba(242,194,48,.25);overflow:hidden}
+#shop .bdeal::before{content:"";position:absolute;left:14px;right:14px;top:7px;height:8px;background:radial-gradient(circle,#FFF4C4 0 2.4px,rgba(255,200,80,.7) 3px,transparent 4.2px) 0 0/16px 8px repeat-x;animation:bulbs 1.2s steps(2) infinite}
+@media (prefers-reduced-motion:reduce){#shop .bdeal::before{animation:none}}
+#shop .bdeal .bname{font-size:clamp(20px,6.2vw,28px)}
+#shop .bslots{list-style:none;margin:0;padding:0 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#shop .bslots li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:58px;padding:6px;border-radius:12px;border:1.5px dashed rgba(246,207,69,.45);color:rgba(246,241,228,.6);font-size:12px;font-weight:700;text-align:center;line-height:1.2;overflow-wrap:anywhere}
+#shop .bslots li em{font:400 15px/1 var(--display);font-style:normal;color:#C8A24A}
+#shop .bslots li.on{border:1.5px solid #F6CF45;background:rgba(0,0,0,.3);color:var(--ivory);box-shadow:0 0 12px rgba(242,194,48,.25)}#shop .bslots li.on em{color:#F6CF45}
+#shop .bdealnote{margin:0;padding:0 4px;text-align:center;font-size:13px;color:#FBE58A}
+#shop .bdealbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+#shop .bdeal .shopbuy{align-self:center;min-width:60%}#shop .bdealbtns .shopbuy{min-width:0;flex:1 1 auto}
+#shop .shopbuy:disabled{opacity:.45;filter:saturate(.5);cursor:default}
+#shop .bghost{min-height:44px;padding:0 18px;border-radius:999px;border:2px solid rgba(246,207,69,.6);background:transparent;color:#F6CF45;font:400 14px/1 var(--display);letter-spacing:.5px;text-transform:uppercase;cursor:pointer}
+#shop .bpick{align-self:center;min-width:60%;min-height:44px;padding:0 18px;border-radius:999px;border:2px dashed rgba(246,207,69,.7);background:rgba(0,0,0,.25);color:#F6CF45;font:400 14px/1 var(--display);letter-spacing:.5px;text-transform:uppercase;cursor:pointer}
+#shop .bpick.on{border-style:solid;background:linear-gradient(180deg,#5A1A10,#2A0905);color:#FBE58A;box-shadow:0 0 14px rgba(242,194,48,.35)}
+#shop .bpick:disabled{opacity:.4;cursor:default}
 #shop .bndl .shopbuy{align-self:center;min-width:60%}
 #setup #startBtn{min-height:72px;border:2px solid transparent;border-radius:16px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 6px 14px rgba(0,0,0,.45),inset 0 0 0 1px rgba(0,0,0,.4)}
 #setup #startBtn span{font-family:var(--display);font-weight:400;font-size:clamp(20px,6vw,24px);letter-spacing:1.5px;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
@@ -2824,13 +2841,13 @@ function toMenu(){S.phase='menu';render()}
 /* ---------- Degen Pig Shop (preview: nothing is for sale yet) ---------- */
 /* The Shop sells theme bundles: a table, a dice set and a name tag that match. Only pieces from a bundle are on sale. */
 var BUNDLES=[
-  {id:'xmas',n:'Christmas Eve',t:'xmas',d:'candy',b:'candy',price:'$19.99',anim:true,blurb:'Falling snow and twinkling holiday lights, peppermint dice, and a candy cane tag under the mistletoe.'},
-  {id:'gold',n:'Gold Vault',t:'vault',d:'gold24',b:'gold',price:'$19.99',anim:true,blurb:'Quilted black leather wrapped in glinting gold chain, solid 24K dice, and a polished gold tag.'},
-  {id:'lava',n:'Molten Core',t:'molten',d:'magma',b:'magma',price:'$19.99',anim:true,blurb:'Flowing lava, basalt dice that throw sparks when they roll, and a lava-cracked tag with rising embers.'},
-  {id:'space',n:'Deep Space',t:'space',d:'nebula',b:'nebula',price:'$19.99',anim:true,blurb:'Drifting nebula and shooting stars, star-pipped Nebula dice, and a tag with an orbiting comet.'},
-  {id:'lagoon',n:'Tropical Lagoon',t:'lagoon',d:'sand',b:'lagoon',price:'$19.99',anim:true,blurb:'A shallow turquoise lagoon that ripples wherever the dice land, beach sand dice with pearl pips, and a water tag with a starfish.'},
-  {id:'npink',n:'Neon Pink',t:'npink',d:'npink',b:'npink',price:'$19.99',anim:true,blurb:'Black glass under a buzzing pink neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
-  {id:'ngreen',n:'Neon Green',t:'ngreen',d:'ngreen',b:'ngreen',price:'$19.99',anim:true,blurb:'Black glass under a buzzing green neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
+  {id:'xmas',n:'Christmas Eve',t:'xmas',d:'candy',b:'candy',price:'$14.99',anim:true,blurb:'Falling snow and twinkling holiday lights, peppermint dice, and a candy cane tag under the mistletoe.'},
+  {id:'gold',n:'Gold Vault',t:'vault',d:'gold24',b:'gold',price:'$14.99',anim:true,blurb:'Quilted black leather wrapped in glinting gold chain, solid 24K dice, and a polished gold tag.'},
+  {id:'lava',n:'Molten Core',t:'molten',d:'magma',b:'magma',price:'$14.99',anim:true,blurb:'Flowing lava, basalt dice that throw sparks when they roll, and a lava-cracked tag with rising embers.'},
+  {id:'space',n:'Deep Space',t:'space',d:'nebula',b:'nebula',price:'$14.99',anim:true,blurb:'Drifting nebula and shooting stars, star-pipped Nebula dice, and a tag with an orbiting comet.'},
+  {id:'lagoon',n:'Tropical Lagoon',t:'lagoon',d:'sand',b:'lagoon',price:'$14.99',anim:true,blurb:'A shallow turquoise lagoon that ripples wherever the dice land, beach sand dice with pearl pips, and a water tag with a starfish.'},
+  {id:'npink',n:'Neon Pink',t:'npink',d:'npink',b:'npink',price:'$14.99',anim:true,blurb:'Black glass under a buzzing pink neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
+  {id:'ngreen',n:'Neon Green',t:'ngreen',d:'ngreen',b:'ngreen',price:'$14.99',anim:true,blurb:'Black glass under a buzzing green neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
   {id:'seven',n:'Seven Mile',t:'seven',d:'seven',b:'seven',price:'$4.99',anim:false,blurb:'The card-room felt with its suits rail, clay-chip dice, and the matching rail tag.'}];
 function bndlOf(k,id){for(var i=0;i<BUNDLES.length;i++)if(BUNDLES[i][k]===id)return BUNDLES[i];return null}
 var SHOP={tab:'bundles',items:{
@@ -2843,18 +2860,26 @@ var SHOP={tab:'bundles',items:{
 
 /* Until launch the Shop is a "coming soon" card for everyone except the owner, who sees every theme bundle with its price
    and a preview video, and can equip a whole set to try it out */
+/* the Any 3 Bundles deal: the owner can pick three bundles to see how the deal will work (checkout isn't live yet) */
+var PICK3={on:false,ids:[],msg:''};
 function renderShop(){
   var own=!!ON.admin,g=$('shopGrid');
   $('shop').classList.toggle('soon',!own);
   $('shopNote').textContent=own?'Owner preview: only you can see the bundles and prices until launch. Tap Equip set to try one in a game.':'';
   if(!own){g.className='shopgrid one';g.innerHTML='<div class="shopsoon mq"><span class="soonpig">'+dieLogo('soon')+'</span><b>Coming Soon</b><p>Theme bundles with a matching table, dice and name tag are on the way. Check back soon!</p></div>';return}
   g.className='shopgrid bndls';
-  g.innerHTML=BUNDLES.map(function(B){
+  var P=PICK3.ids,full=P.length>=3,slot=function(i){var B=P[i]&&BUNDLES.filter(function(x){return x.id===P[i]})[0];return '<li class="'+(B?'on':'')+'"><em>'+(i+1)+'</em>'+(B?esc(B.n):'Pick a bundle')+'</li>'};
+  var deal='<div class="bdeal mq"><div class="binfo"><b class="bname">Any 3 Bundles</b><span class="bprice">$29.99</span></div><p class="bblurb">Pick any 3 bundles in the Shop and get them all at once. Save up to $14.98.</p>'+
+    (PICK3.on?'<ol class="bslots">'+slot(0)+slot(1)+slot(2)+'</ol><p class="bdealnote" id="pickNote">'+(PICK3.msg||(full?'All 3 picked. Tap a bundle again to swap it out.':'Tap Add to my 3 on any bundle below. '+(3-P.length)+' to go.'))+'</p>'+
+      '<div class="bdealbtns"><button type="button" class="shopbuy" data-p3="buy"'+(full?'':' disabled')+'>Buy 3 for $29.99</button><button type="button" class="bghost" data-p3="cancel">Cancel</button></div>'
+    :'<button type="button" class="shopbuy" data-p3="start">Choose 3 bundles</button>')+'</div>';
+  g.innerHTML=deal+BUNDLES.map(function(B){
     var sk=skinById(B.d),tb=lkList('t').filter(function(x){return x[0]===B.t})[0],tg=lkList('b').filter(function(x){return x[0]===B.b})[0];
     var on=S.table===B.t&&skinNow().id===B.d&&S.tag===B.b;
     return '<div class="bndl'+(B.anim?' anim':'')+'"><div class="binfo"><b class="bname">'+esc(B.n)+(B.anim?'<i class="banim">Animated</i>':'')+'</b><span class="bprice">'+B.price+'</span></div><p class="bblurb">'+esc(B.blurb)+'</p>'+
       '<details class="bprev"><summary><span class="bplay" aria-hidden="true"></span>Preview<span class="bchev" aria-hidden="true"></span></summary><div class="bvid"><video data-src="shop/b-'+B.id+'.mp4" poster="shop/b-'+B.id+'.jpg" muted loop playsinline preload="none" aria-label="'+esc(B.n)+' bundle preview"></video></div></details>'+
       '<ul class="bparts"><li><em>Table</em>'+esc(tb?tb[1]:B.t)+'</li><li><em>Dice</em>'+esc(sk?sk.n:B.d)+'</li><li><em>Name tag</em>'+esc(tg?tg[1]:B.b)+'</li></ul>'+
+      (PICK3.on?(function(){var pk=P.indexOf(B.id)>=0;return '<button type="button" class="bpick'+(pk?' on':'')+'" data-pick="'+B.id+'" aria-pressed="'+pk+'"'+(!pk&&full?' disabled':'')+'>'+(pk?'✓ In my 3':'+ Add to my 3')+'</button>'})():'')+
       '<button type="button" class="shopbuy'+(on?' on':'')+'" data-b="'+B.id+'">'+(on?'Set equipped':'Equip set')+'</button></div>'}).join('');
 }
 /* ---------- the pig's tour of the rules, in the dice window on the main menu ---------- */
@@ -2918,6 +2943,12 @@ document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e
 /* a bundle's preview video only loads and plays while its Preview drop-down is open */
 $('shopGrid').addEventListener('toggle',function(e){var d=e.target;if(!d.classList||!d.classList.contains('bprev'))return;var v=d.querySelector('video');if(!v)return;
   if(d.open){if(!v.getAttribute('src'))v.setAttribute('src',v.getAttribute('data-src'));var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}else v.pause()},true);
+$('shopGrid').addEventListener('click',function(e){var q=e.target.closest('[data-p3],[data-pick]');if(!q||!ON.admin)return;PICK3.msg='';
+  var a=q.getAttribute('data-p3'),id=q.getAttribute('data-pick');
+  if(a==='start'){PICK3.on=true;PICK3.ids=[]}else if(a==='cancel'){PICK3.on=false;PICK3.ids=[]}
+  else if(a==='buy'){PICK3.msg='Checkout isn’t live yet. When it is, this unlocks all 3 picked bundles.'}
+  else if(id){var i=PICK3.ids.indexOf(id);if(i>=0)PICK3.ids.splice(i,1);else if(PICK3.ids.length<3)PICK3.ids.push(id)}
+  var y=window.scrollY;renderShop();window.scrollTo(0,y);if(a==='start'){var d=document.querySelector('.bdeal');if(d)d.scrollIntoView({block:'nearest'})}});
 $('shopGrid').addEventListener('click',function(e){var b=e.target.closest('.shopbuy[data-b]');if(!b||!ON.admin)return;var B=BUNDLES.filter(function(x){return x.id===b.getAttribute('data-b')})[0];if(!B)return;
   S.skin=B.d;S.table=B.t;S.tag=B.b;savePrefs();renderShop();render()});
 $('shopLocker').addEventListener('click',function(){openLocker('shop')});
