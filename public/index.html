@@ -2327,6 +2327,8 @@ function ordActive(){return S.ord&&!S.ord.done?S.ord.cont[S.ord.i]:-1}
 function activeIdx(){return S.phase==='order'?ordActive():(S.phase==='play'||S.phase==='final')?S.cur:-1}
 function nextIdx(){if(S.phase==='final')return S.queue.length>1?S.queue[1]:-1;return S.order[(S.pos+1)%S.n]}
 function finalRollMode(){return S.phase==='final'&&S.finalMode==='roll'}
+/* online: after rolling a 1, tapping the table passes the dice, same as the Pass button */
+function canPassTap(){return !S.busy&&!S.pend&&!!S.bust&&(S.phase==='play'||S.phase==='final')}
 function canRoll(){
   if(S.busy)return false;
   if(S.phase==='menu'||S.phase==='setup')return true;
@@ -3233,10 +3235,10 @@ tray.addEventListener('pointerup',function(e){
   shakeAsk();
   if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
   if(dist>24)dir={dx:dx,dy:dy,x:pd.x-r.left,y:pd.y-r.top,speed:clamp(dist/dt*1.1,0.85,1.9)};
-  pd=null;if(S.online){if(!S.busy&&!blocked()&&canRoll()){ac();onSend('roll',{dir:dir})}return}if(isBotTurn())return;doRoll(dir);
+  pd=null;if(S.online){if(!S.busy&&!blocked()){if(canRoll()){ac();onSend('roll',{dir:dir})}else if(canPassTap()){ac();onSend('pass')}}return}if(isBotTurn())return;doRoll(dir);
 });
 tray.addEventListener('pointercancel',function(){pd=null});
-tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(S.online){if(!S.busy&&!blocked()&&canRoll())onSend('roll');return}if(!isBotTurn())doRoll(null)}});
+tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(S.online){if(!S.busy&&!blocked()){if(canRoll())onSend('roll');else if(canPassTap())onSend('pass')}return}if(!isBotTurn())doRoll(null)}});
 if(window.ResizeObserver)new ResizeObserver(layout).observe(tray);
 window.addEventListener('resize',layout);
 window.addEventListener('resize',function(){var pl=$('play');pl._minH=0;pl.style.minHeight='';render()});
