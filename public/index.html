@@ -1450,6 +1450,42 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
   .who{font-size:16px}
 }
 @media (prefers-reduced-motion:reduce){.die,.face{transition:none}.seal{animation:none}}
+/* ---------- Casino Marquee for the rest: game screen, game over, pop-ups, Leaderboard header, tutorial bubble, chat ---------- */
+:root{--mqgb:linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12);--mqgold:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%);--mqgreen:linear-gradient(180deg,#1B3A31,#0D1F19);--mqred:linear-gradient(180deg,#5A1A10,#2A0905)}
+/* main buttons: solid gold plaques for the main action, gold-trimmed green for the others, red-and-gold for anything you can't take back */
+.btn.primary,.btn.ghost,.btn.danger{font-family:var(--display);font-weight:400;letter-spacing:.06em;text-transform:uppercase;border:2px solid transparent;border-radius:14px;box-shadow:0 5px 12px rgba(0,0,0,.45);transition:filter .15s,box-shadow .15s}
+.btn.primary{background:var(--mqgold) padding-box,var(--mqgb) border-box;color:#2A1702;text-shadow:0 1px 0 rgba(255,246,200,.6);box-shadow:0 0 0 1px #5A3A06,0 5px 14px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn.ghost{background:var(--mqgreen) padding-box,var(--mqgb) border-box;color:#F6CF45}
+.btn.danger{background:var(--mqred) padding-box,var(--mqgb) border-box;color:#FFB8A8}
+.btn.primary:hover:not(:disabled),.btn.ghost:hover:not(:disabled),.btn.danger:hover:not(:disabled){filter:brightness(1.08)}
+.btn.primary:focus-visible,.btn.ghost:focus-visible,.btn.danger:focus-visible{outline:3px solid #FBE58A;outline-offset:2px}
+#rollBtn{font-size:clamp(20px,6vw,26px);letter-spacing:.1em}
+#lockBtn{font-size:clamp(17px,5vw,22px)}
+#lockBtn:not(:disabled){background:var(--mqred) padding-box,var(--mqgb) border-box;color:#FBE58A;box-shadow:0 5px 14px rgba(0,0,0,.45),0 0 16px rgba(242,194,48,.18)}
+#over .actions .btn{font-size:clamp(11px,3.4vw,15px);letter-spacing:.03em;padding:8px 6px;white-space:nowrap}
+dialog .btn.primary,dialog .btn.ghost,dialog .btn.danger{font-size:clamp(13px,3.8vw,15px);letter-spacing:.04em}
+.top .link.chatbtn{white-space:nowrap;font-size:clamp(11px,3.3vw,14px);padding:0 12px}
+/* header buttons on every screen: Menu, ?, Chat */
+.top .link.chatbtn,.top .link.qbtn{border:2px solid transparent;border-radius:12px;background:var(--mqgreen) padding-box,var(--mqgb) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.top .link.qbtn{font-size:20px}
+.top .link.chatbtn svg{color:#F6CF45}
+.top .link.chatbtn.open{background:var(--mqgold) padding-box,var(--mqgb) border-box;color:#2A1702}
+/* pop-ups: gold-framed with gold lettering */
+dialog:not(.acctdlg){border:2px solid transparent;background:var(--mqgreen) padding-box,var(--mqgb) border-box;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+dialog:not(.acctdlg) h2{text-transform:uppercase;letter-spacing:.06em;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+dialog .txt,.chatform .txt{background:#06110D;border:2px solid rgba(246,207,69,.55);color:var(--ivory)}
+dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-shadow:0 0 0 3px rgba(246,207,69,.25)}
+/* Leaderboard header, like the other screens */
+#lb .headrow .screen-h{font-size:clamp(17px,5.6vw,26px);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 0 rgba(0,0,0,.6))}
+#lb .headrow .back{min-height:44px;padding:0 14px;border:2px solid transparent;border-radius:12px;background:var(--mqgreen) padding-box,var(--mqgb) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;font-size:clamp(11px,3.4vw,13px);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+/* tutorial bubble */
+.tutskip{font-family:var(--display);font-weight:400;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#8A5A0A}
+.tutnext{border:2px solid transparent;border-radius:10px;padding:6px 16px;font-family:var(--display);font-weight:400;font-size:13px;letter-spacing:.06em;text-transform:uppercase;background:var(--mqgold) padding-box,var(--mqgb) border-box;box-shadow:0 0 0 1px #5A3A06,0 3px 6px rgba(0,0,0,.3)}
+/* table chat */
+.chatpane .chathead b{font-family:var(--display);font-weight:400;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 40%,#C8901A 70%,#FBE58A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.chatform .btn.primary{flex:none;min-height:48px;padding:0 18px;font-size:15px}
+/* Sign out in the account pop-up */
+.acctdlg .acctout{min-height:40px;padding:0 18px;border:2px solid transparent;border-radius:999px;background:var(--mqred) padding-box,var(--mqgb) border-box;color:#FBE58A;font-family:var(--display);font-weight:400;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
 </style>
 
 <div id="app" data-phase="menu">
