@@ -18,6 +18,7 @@ const CHAT_KEEP = 60, CHAT_LEN = 200;
 const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.text, at: m.at, me: m.uid === uid });
 /* what each player shows off at the table: dice, table and name tag. Free ones anyone can use; Shop items only the owner
    (until the Shop opens, then whoever bought them). Anything else falls back to the house look. */
+const EMOTES = ['happy', 'angry', 'confused', 'amazed', 'sad'];
 const LOOKS = {
   d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24', 'nebula', 'magma', 'seven', 'sand', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron'] },
   t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault', 'seven', 'lagoon', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron'] },
@@ -159,9 +160,16 @@ export class TableRoom {
       case 'leave': return this.leave(seatIdx);
       case 'again': return this.voteAgain(c.uid);
       case 'roll': case 'lock': case 'reroll': case 'take': case 'pass': return this.act(seatIdx, m);
+      case 'emote': return this.emote(c, seatIdx, m.e);
     }
   }
   send(sock, obj) { try { sock.send(JSON.stringify(obj)) } catch (e) { } }
+  /* ---- emotes: a pig face from a seated player, passed straight to everyone at the table (at most one every 1.5s) ---- */
+  emote(c, i, e) {
+    if (!EMOTES.includes(e)) return;
+    const now = this.now(); if (c.emT && now - c.emT < 1500) return; c.emT = now;
+    for (const [sock, x] of this.conns) if (x.uid) this.send(sock, { t: 'emote', i, e });
+  }
 
   /* ---- table chat: players and watchers; the last few dozen messages are kept with the table ---- */
   chatMsg(c, m) {

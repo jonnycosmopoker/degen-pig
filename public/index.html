@@ -25,6 +25,9 @@
 <style>body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
+<div id="emoLayer"></div>
+<div id="emoWheel" hidden><div class="emoring"></div></div>
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Figtree:wght@400;600;700;800&display=swap">
 <style>
 /* Layout: one-screen phone column. Scoreboard strip on top, the wooden dice table fills the middle, the turn panel and two thumb-sized buttons dock at the bottom. */
@@ -365,6 +368,79 @@ input{-webkit-user-select:text;user-select:text}
 #app[data-skin="gridiron"] .die.gold{filter:drop-shadow(0 0 calc(var(--d)*.1) rgba(255,200,60,.85))}
 .mini.gridiron{background:radial-gradient(circle at 30% 24%,rgba(255,230,200,.26),rgba(255,230,200,0) 55%),url(dice/leather.jpg) 0 0/180% 180%,#84401F;box-shadow:inset 0 0 0 1px rgba(60,24,8,.9),inset 0 0 0 4px #84401F,inset 0 0 0 5.5px rgba(255,250,240,.75),0 4px 8px rgba(0,0,0,.45)}
 .mini.gridiron i{background:#F4EFE6}
+/* ---------- emotes: the wheel of pig faces and the faces themselves ---------- */
+.tile.emo-ok{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tile .emochip{position:absolute;right:4px;top:4px;width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFF6C2,#F6CF45 45%,#C8901A);box-shadow:0 0 0 1px #6A4206,0 1px 3px rgba(0,0,0,.5);display:grid;place-items:center;z-index:2;pointer-events:none}
+.tile .emochip svg{width:11px;height:11px}
+#emoLayer{position:fixed;inset:0;pointer-events:none;z-index:70}
+.emote{position:fixed;width:clamp(150px,46vw,210px);margin-top:-6%;aspect-ratio:1;transform:translateX(-50%);transform-origin:50% 0;animation:emoLife 3s cubic-bezier(.2,.9,.3,1.2) forwards}
+.emote .pf{position:relative;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55))}
+.emohalo{position:absolute;inset:6%;border-radius:50%;background:radial-gradient(circle,var(--hc) 0%,rgba(0,0,0,0) 68%);animation:emoHalo 1.4s ease-in-out infinite}
+.emo-happy{--hc:rgba(255,214,90,.75)}.emo-angry{--hc:rgba(255,60,40,.75)}.emo-confused{--hc:rgba(170,120,255,.7)}.emo-amazed{--hc:rgba(120,220,255,.75)}.emo-sad{--hc:rgba(90,150,255,.7)}
+@keyframes emoLife{0%{opacity:0;transform:translateX(-50%) translateY(-14px) scale(.2)}10%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.14)}17%{transform:translateX(-50%) scale(1)}88%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:0;transform:translateX(-50%) translateY(-18px) scale(.55)}}
+@keyframes emoHalo{0%,100%{transform:scale(.92);opacity:.8}50%{transform:scale(1.08);opacity:1}}
+.pf g,.pf path,.pf ellipse,.pf circle,.pf text{transform-box:fill-box;transform-origin:center}
+.pf .pfb{transform-origin:50% 100%}
+.emote .pf-happy .pfb{animation:pfHop .75s cubic-bezier(.3,.7,.4,1) 4}
+@keyframes pfHop{0%,100%{transform:translateY(0) scale(1.06,.94)}35%{transform:translateY(-16%) scale(.96,1.05)}70%{transform:translateY(0) scale(1.04,.96)}}
+.emote .pf-angry .pfb{animation:pfShake .5s linear 6}
+@keyframes pfShake{0%,100%{transform:translateX(0) rotate(0)}15%{transform:translateX(-4%) rotate(-3deg)}35%{transform:translateX(4%) rotate(3deg)}55%{transform:translateX(-3%) rotate(-2deg)}75%{transform:translateX(3%) rotate(2deg)}}
+.emote .pf-confused .pfb{animation:pfTilt 1.5s ease-in-out 2}
+@keyframes pfTilt{0%,100%{transform:rotate(0)}25%{transform:rotate(-13deg)}75%{transform:rotate(13deg)}}
+.emote .pf-amazed .pfb{animation:pfJump 3s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes pfJump{0%,8%{transform:scale(1)}18%{transform:translateY(-10%) scale(1.14)}30%,100%{transform:scale(1.04)}}
+.emote .pf-sad .pfb{animation:pfSlump 3s ease-in-out forwards}
+@keyframes pfSlump{0%{transform:none}25%,100%{transform:translateY(5%) scale(.95,.93)}}
+.emote .pf-sad .pf-earl{transform-origin:90% 90%;animation:pfDroopL 3s ease-in-out forwards}.emote .pf-sad .pf-earr{transform-origin:10% 90%;animation:pfDroopR 3s ease-in-out forwards}
+@keyframes pfDroopL{25%,100%{transform:rotate(-26deg)}}@keyframes pfDroopR{25%,100%{transform:rotate(26deg)}}
+.pf .pf-d1{animation-delay:0s!important}.pf .pf-d2{animation-delay:-.35s!important}.pf .pf-d3{animation-delay:-.6s!important}.pf .pf-d4{animation-delay:-.9s!important}
+.emote .pf-tw{animation:pfTw 1s ease-in-out infinite}
+@keyframes pfTw{0%,100%{transform:scale(.4) rotate(0);opacity:.4}50%{transform:scale(1.15) rotate(45deg);opacity:1}}
+.emote .pf-heart{animation:pfHeart 1.5s ease-out infinite}
+@keyframes pfHeart{0%{transform:translateY(10px) scale(.4);opacity:0}25%{opacity:1;transform:translateY(0) scale(1)}100%{transform:translateY(-34px) scale(.8);opacity:0}}
+.pf-flush{opacity:.18}.emote .pf-flush{animation:pfFlush .5s ease-in-out infinite alternate}
+@keyframes pfFlush{from{opacity:.12}to{opacity:.5}}
+.emote .pf-vein{animation:pfVein .45s ease-in-out infinite alternate}
+@keyframes pfVein{from{transform:scale(.8)}to{transform:scale(1.2)}}
+.emote .pf-steam{animation:pfSteam .9s ease-out infinite}
+@keyframes pfSteam{0%{transform:translateY(8px) scale(.5);opacity:0}30%{opacity:1}100%{transform:translateY(-30px) scale(1.4);opacity:0}}
+.emote .pf-look{animation:pfLook 1.5s ease-in-out infinite}
+@keyframes pfLook{0%,100%{transform:translate(-3px,-2px)}50%{transform:translate(3px,1px)}}
+.emote .pf-q{animation:pfQ 1.2s ease-in-out infinite}
+@keyframes pfQ{0%{transform:scale(0) rotate(-20deg);opacity:0}20%{transform:scale(1.2) rotate(8deg);opacity:1}40%,80%{transform:scale(1) translateY(-4px) rotate(0)}100%{transform:scale(.9) translateY(-10px);opacity:0}}
+.pf-rays{opacity:.45}.emote .pf-rays{animation:pfRays 3s linear forwards}
+@keyframes pfRays{0%{transform:scale(.2) rotate(0);opacity:0}25%{transform:scale(1) rotate(25deg);opacity:.55}100%{transform:scale(1.05) rotate(90deg);opacity:.35}}
+.emote .pf-shades{animation:pfShades 3s cubic-bezier(.3,1.4,.5,1) forwards}
+@keyframes pfShades{0%,10%{transform:none}24%,100%{transform:translateY(-46px) rotate(-7deg)}}
+.emote .pf-tear{animation:pfTear 1s ease-in infinite}
+@keyframes pfTear{0%{transform:translateY(0) scale(.5);opacity:0}15%{opacity:1;transform:translateY(0) scale(1)}100%{transform:translateY(38px) scale(.9);opacity:0}}
+.emote .pf-cloud{animation:pfCloud 1.6s ease-in-out infinite}
+@keyframes pfCloud{0%,100%{transform:translateX(-4px)}50%{transform:translateX(4px)}}
+.emote .pf-rain{stroke-dasharray:4 12;animation:pfRain .5s linear infinite}
+@keyframes pfRain{to{stroke-dashoffset:-16}}
+/* in the wheel the faces hold a pose */
+.emobtn .pf-shades{transform:translateY(-46px) rotate(-7deg)}.emobtn .pf-flush{opacity:.3}.emobtn .pf-steam{opacity:.9}
+.emobtn .pf-q,.emobtn .pf-tw,.emobtn .pf-heart{opacity:.95}
+.emobtn .pf-sad .pf-earl{transform-origin:90% 90%;transform:rotate(-26deg)}.emobtn .pf-sad .pf-earr{transform-origin:10% 90%;transform:rotate(26deg)}
+#emoWheel{position:fixed;inset:0;z-index:72;background:rgba(4,10,8,.45);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);opacity:0;transition:opacity .18s}
+#emoWheel[hidden]{display:none}#emoWheel.open{opacity:1}
+.emoring{position:absolute;width:0;height:0}
+.emodisc{position:absolute;left:calc(-1 * (var(--R) + 58px));top:calc(-1 * (var(--R) + 58px));width:calc(2 * (var(--R) + 58px));height:calc(2 * (var(--R) + 58px));border-radius:50%;clip-path:inset(50% 0 0 0);
+  background:radial-gradient(circle,rgba(0,0,0,0) 0 26px,rgba(242,194,48,.0) 27px,#1B3A31 28px,#0D1F19 70%,#0A1813 calc(100% - 4px),#F6CF45 calc(100% - 3px),#8A5A0A 100%);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);transform:scale(.4);transform-origin:50% 50%;transition:transform .25s cubic-bezier(.2,1.3,.4,1)}
+#emoWheel.open .emodisc{transform:scale(1)}
+.emobtn{position:absolute;left:0;top:0;width:64px;height:64px;margin:-32px 0 0 -32px;padding:2px;border-radius:50%;border:2px solid transparent;cursor:pointer;
+  background:radial-gradient(circle at 50% 40%,#244A3E,#0D1F19 72%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;
+  box-shadow:0 6px 14px rgba(0,0,0,.55),0 0 0 3px rgba(0,0,0,.25);transform:translate(0,0) scale(.2);opacity:0;
+  transition:transform .32s cubic-bezier(.2,1.4,.4,1) calc(var(--k) * 45ms),opacity .2s calc(var(--k) * 45ms),box-shadow .15s}
+#emoWheel.open .emobtn{transform:translate(var(--x),var(--y)) scale(1);opacity:1}
+.emobtn .pf{width:100%;height:100%;overflow:visible}
+.emobtn em{position:absolute;left:50%;top:calc(100% + 3px);transform:translateX(-50%);font:400 10px/1 var(--display);font-style:normal;letter-spacing:.06em;text-transform:uppercase;color:#F6CF45;text-shadow:0 1px 2px #000;white-space:nowrap}
+.emobtn:hover,.emobtn:focus-visible{outline:none;box-shadow:0 6px 14px rgba(0,0,0,.55),0 0 0 3px #FBE58A,0 0 18px rgba(246,207,69,.6)}
+#emoWheel.open .emobtn:active{transform:translate(var(--x),var(--y)) scale(.92)}
+.emohub{position:absolute;left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:none;cursor:pointer;font:400 22px/1 var(--display);color:#2A1702;background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%);box-shadow:0 0 0 2px #5A3A06,0 4px 10px rgba(0,0,0,.5)}
+@media (prefers-reduced-motion:reduce){.emote,.emote *{animation-duration:.01s!important;animation-iteration-count:1!important}.emote{animation:emoFade 3s linear forwards!important}.emote .pf-shades{transform:translateY(-46px) rotate(-7deg)}}
+@keyframes emoFade{0%,100%{opacity:0;transform:translateX(-50%)}8%,90%{opacity:1;transform:translateX(-50%)}}
 /* the dice picker in Settings */
 .f1 .one{display:none}
 #app[data-skin="original"] .f1 .dlogo{display:none}
@@ -2691,8 +2767,8 @@ function renderMain(){
   var list=S.order.length?S.order:S.players.map(function(_,i){return i}),act=activeIdx(),lead=(ph==='final'||ph==='over')?leaders():[];
   var b=$('board');b.hidden=ph==='over';b.style.setProperty('--n',S.n);
   b.innerHTML=list.map(function(i){
-    var p=P(i),cls='tile',val,foot;
-    if(i===act)cls+=' active';
+    var p=P(i),cls='tile',val,foot,em=canEmote(i);
+    if(i===act)cls+=' active';if(em)cls+=' emo-ok';
     var tg=seatLook(p).b;if(tg&&tg!=='plain'&&lookOk('b',tg))cls+=' nb-'+tg;
     if(lead.indexOf(i)>=0)cls+=' lead';
     if(ph==='order'){var ks=S.ord.keys[i];val=ks.length?ks[ks.length-1]:'–';foot='<span class="tag">'+(S.ord.done?(S.order.indexOf(i)+1)+ordinal(S.order.indexOf(i)+1):'')+'</span>'}
@@ -2710,7 +2786,7 @@ function renderMain(){
     var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
     var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
     var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
-    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+'</div>';
+    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+(em&&(S.online||p.you)?'<span class="emochip" title="Send an emote"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="1.6" fill="#3B2305"/><circle cx="13" cy="8" r="1.6" fill="#3B2305"/><path d="M5.5 11.5q4.5 5 9 0" fill="none" stroke="#3B2305" stroke-width="1.8" stroke-linecap="round"/></svg></span>':'')+'</div>';
   }).join('');
 
   var bn=$('banner');bn.hidden=ph!=='final';
@@ -3342,6 +3418,102 @@ function chatIn(m){
   }else{ON.chat=(ON.chat||[]).concat([m.m]).slice(-60);if(m.m.me||ON.chatOpen)ON.chatSeen=Math.max(ON.chatSeen||0,m.m.id);else sfxChat()}
   chatUI(true);
 }
+/* ---------- Emotes: tap your own name tag to open a wheel of five animated pig faces. The one you pick pops out of your
+   tag for everyone at the table for three seconds, acting out its feeling with a matching sound. ---------- */
+var EMOS=[['happy','Happy'],['angry','Angry'],['confused','Confused'],['amazed','Amazed'],['sad','Sad']],EMOn=0,EMO={last:0,live:{}};
+function pigFace(k){
+  var u='pf'+(++EMOn),D='#3B2305',
+  defs='<defs><linearGradient id="'+u+'g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6C2"/><stop offset=".22" stop-color="#F6CF45"/><stop offset=".52" stop-color="#C8901A"/><stop offset=".6" stop-color="#F0D262"/><stop offset=".82" stop-color="#D49B1C"/><stop offset="1" stop-color="#8A5A0A"/></linearGradient><linearGradient id="'+u+'s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF9D6"/><stop offset=".5" stop-color="#F8DA6A"/><stop offset="1" stop-color="#C98F18"/></linearGradient><linearGradient id="'+u+'e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98F18"/><stop offset="1" stop-color="#7A4D08"/></linearGradient><radialGradient id="'+u+'w" cx=".4" cy=".35" r=".7"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#E6E1D2"/></radialGradient></defs>',
+  G='url(#'+u+'g)',SG='url(#'+u+'s)',EG='url(#'+u+'e)',
+  earL='<g class="pf-earl"><path d="M44 86 L26 46 Q62 48 78 70 Z" fill="'+G+'" stroke="#8A5A0A" stroke-width="3" stroke-linejoin="round"/><path d="M46 76 L38 54 Q56 56 66 68 Z" fill="'+EG+'"/></g>',
+  earR='<g class="pf-earr"><path d="M156 86 L174 46 Q138 48 122 70 Z" fill="'+G+'" stroke="#8A5A0A" stroke-width="3" stroke-linejoin="round"/><path d="M154 76 L162 54 Q144 56 134 68 Z" fill="'+EG+'"/></g>',
+  face='<ellipse cx="100" cy="122" rx="66" ry="58" fill="'+G+'" stroke="#8A5A0A" stroke-width="3"/>',
+  snout='<ellipse cx="100" cy="144" rx="32" ry="21" fill="'+SG+'" stroke="#8A5A0A" stroke-width="3"/><ellipse cx="89" cy="144" rx="5.5" ry="8" fill="'+D+'"/><ellipse cx="111" cy="144" rx="5.5" ry="8" fill="'+D+'"/>',
+  crown='<g class="pf-crown"><path d="M68 70 L64 26 L84 46 L100 14 L116 46 L136 26 L132 70 Z" fill="'+SG+'" stroke="#8A5A0A" stroke-width="3" stroke-linejoin="round"/><circle cx="64" cy="24" r="5" fill="'+SG+'" stroke="#8A5A0A" stroke-width="2.5"/><circle cx="100" cy="12" r="5" fill="'+SG+'" stroke="#8A5A0A" stroke-width="2.5"/><circle cx="136" cy="24" r="5" fill="'+SG+'" stroke="#8A5A0A" stroke-width="2.5"/><circle cx="100" cy="56" r="5" fill="#D93A3A" stroke="'+D+'" stroke-width="2"/></g>',
+  shades=function(glint){return '<path d="M38 104 L162 104" stroke="#14201C" stroke-width="6" stroke-linecap="round"/><rect x="48" y="96" width="46" height="29" rx="10" fill="#14201C"/><rect x="106" y="96" width="46" height="29" rx="10" fill="#14201C"/><path d="M58 104 L70 104 M116 104 L128 104" stroke="'+glint+'" stroke-width="3.5" stroke-linecap="round"/>'},
+  spark=function(x,y,r,c,cl){return '<path class="'+cl+'" d="M'+x+' '+(y-r)+' Q'+(x+r*.18)+' '+(y-r*.18)+' '+(x+r)+' '+y+' Q'+(x+r*.18)+' '+(y+r*.18)+' '+x+' '+(y+r)+' Q'+(x-r*.18)+' '+(y+r*.18)+' '+(x-r)+' '+y+' Q'+(x-r*.18)+' '+(y-r*.18)+' '+x+' '+(y-r)+'Z" fill="'+c+'"/>'},
+  back='',mid='',top='',mouthUnder='';
+  if(k==='happy'){
+    mouthUnder='<path d="M72 150 Q100 204 128 150 Z" fill="#5A1608" stroke="'+D+'" stroke-width="3" stroke-linejoin="round"/><path d="M86 170 Q100 186 114 170 Q100 163 86 170Z" fill="#FF6F8A"/>';
+    mid='<ellipse cx="56" cy="130" rx="13" ry="8" fill="#FF6F86" opacity=".55"/><ellipse cx="144" cy="130" rx="13" ry="8" fill="#FF6F86" opacity=".55"/><path d="M58 113 Q75 92 92 113 M108 113 Q125 92 142 113" fill="none" stroke="'+D+'" stroke-width="7.5" stroke-linecap="round"/>';
+    top=spark(16,62,13,'#FFF2A8','pf-tw pf-d1')+spark(186,58,11,'#fff','pf-tw pf-d2')+spark(190,150,9,'#FFE27A','pf-tw pf-d3')+spark(10,150,10,'#fff','pf-tw pf-d4')+
+      '<path class="pf-heart pf-d1" d="M30 30c-6-7-17-1-12 8l12 11 12-11c5-9-6-15-12-8z" fill="#FF4F7A" stroke="#B0163E" stroke-width="2"/><path class="pf-heart pf-d3" d="M172 22c-5-6-14-1-10 7l10 9 10-9c4-8-5-13-10-7z" fill="#FF4F7A" stroke="#B0163E" stroke-width="2"/>';
+  }else if(k==='angry'){
+    mid='<ellipse class="pf-flush" cx="100" cy="122" rx="64" ry="56" fill="#FF2A1A"/>'+shades('#FF5A3A')+'<path d="M44 84 L94 100 M156 84 L106 100" stroke="'+D+'" stroke-width="10" stroke-linecap="round"/>';
+    top='<path d="M80 179 Q100 163 120 179" fill="none" stroke="'+D+'" stroke-width="5.5" stroke-linecap="round"/>'+
+      '<g class="pf-vein"><path d="M150 64 q6 4 12 0 M168 70 q-4 6 0 12 M162 88 q-6 -4 -12 0 M144 82 q4 -6 0 -12" fill="none" stroke="#E2202A" stroke-width="4.5" stroke-linecap="round"/></g>'+
+      '<g class="pf-steam pf-d1"><circle cx="22" cy="40" r="10" fill="#F4F4F4"/><circle cx="12" cy="30" r="7" fill="#fff"/><circle cx="30" cy="28" r="6" fill="#EDEDED"/></g><g class="pf-steam pf-d3"><circle cx="178" cy="40" r="10" fill="#F4F4F4"/><circle cx="188" cy="30" r="7" fill="#fff"/><circle cx="170" cy="28" r="6" fill="#EDEDED"/></g>';
+  }else if(k==='confused'){
+    mid='<circle cx="75" cy="108" r="13" fill="url(#'+u+'w)" stroke="'+D+'" stroke-width="3"/><circle class="pf-look" cx="78" cy="110" r="6" fill="'+D+'"/><path d="M114 110 Q125 104 136 110" fill="none" stroke="'+D+'" stroke-width="6.5" stroke-linecap="round"/><path d="M56 86 Q75 70 94 82 M108 98 L144 92" fill="none" stroke="'+D+'" stroke-width="6.5" stroke-linecap="round"/>';
+    top='<path d="M80 177 q6 -7 13 0 t13 0 t13 0" fill="none" stroke="'+D+'" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>'+
+      '<text class="pf-q pf-d1" x="160" y="46" font-size="54" font-family="Bowlby One,Figtree,sans-serif" fill="'+SG+'" stroke="'+D+'" stroke-width="3" paint-order="stroke">?</text><text class="pf-q pf-d3" x="10" y="52" font-size="38" font-family="Bowlby One,Figtree,sans-serif" fill="'+SG+'" stroke="'+D+'" stroke-width="3" paint-order="stroke" transform="rotate(-14 22 40)">?</text>';
+  }else if(k==='amazed'){
+    var rays='';for(var r=0;r<12;r++)rays+='<path d="M100 112 L'+(100+Math.cos((r*30-4)*Math.PI/180)*150).toFixed(1)+' '+(112+Math.sin((r*30-4)*Math.PI/180)*150).toFixed(1)+' L'+(100+Math.cos((r*30+4)*Math.PI/180)*150).toFixed(1)+' '+(112+Math.sin((r*30+4)*Math.PI/180)*150).toFixed(1)+'Z"/>';
+    back='<g class="pf-rays" fill="#FFE27A" opacity=".5">'+rays+'</g>';
+    mid='<ellipse cx="75" cy="108" rx="15" ry="18" fill="url(#'+u+'w)" stroke="'+D+'" stroke-width="3"/><ellipse cx="125" cy="108" rx="15" ry="18" fill="url(#'+u+'w)" stroke="'+D+'" stroke-width="3"/><circle cx="75" cy="111" r="8.5" fill="'+D+'"/><circle cx="125" cy="111" r="8.5" fill="'+D+'"/><circle cx="79" cy="106" r="3.6" fill="#fff"/><circle cx="129" cy="106" r="3.6" fill="#fff"/><circle cx="71" cy="115" r="1.8" fill="#fff"/><circle cx="121" cy="115" r="1.8" fill="#fff"/><path d="M58 82 Q75 70 92 80 M108 80 Q125 70 142 82" fill="none" stroke="'+D+'" stroke-width="6" stroke-linecap="round"/>';
+    top='<ellipse cx="100" cy="174" rx="9" ry="11" fill="#5A1608" stroke="'+D+'" stroke-width="3"/><g class="pf-shades">'+shades('#F6CF45')+'</g>'+spark(18,70,12,'#fff','pf-tw pf-d1')+spark(184,72,12,'#FFF2A8','pf-tw pf-d2')+spark(176,160,8,'#fff','pf-tw pf-d3')+spark(22,160,9,'#FFF2A8','pf-tw pf-d4');
+  }else{
+    mid='<path d="M56 98 L90 86 M144 98 L110 86" stroke="'+D+'" stroke-width="6" stroke-linecap="round"/><ellipse cx="75" cy="110" rx="7" ry="9" fill="'+D+'"/><ellipse cx="125" cy="110" rx="7" ry="9" fill="'+D+'"/><circle cx="77.5" cy="106" r="2.6" fill="#fff"/><circle cx="127.5" cy="106" r="2.6" fill="#fff"/><ellipse cx="75" cy="121" rx="10" ry="3.2" fill="#8FD3FF" opacity=".8"/><ellipse cx="125" cy="121" rx="10" ry="3.2" fill="#8FD3FF" opacity=".8"/>';
+    top='<path d="M82 181 Q100 165 118 181" fill="none" stroke="'+D+'" stroke-width="5.5" stroke-linecap="round"/>'+
+      '<path class="pf-tear pf-d1" d="M68 120 q-6 9 0 13 q6 -4 0 -13z" fill="#7CC8FF" stroke="#2E7FC0" stroke-width="1.5"/><path class="pf-tear pf-d3" d="M132 120 q-6 9 0 13 q6 -4 0 -13z" fill="#7CC8FF" stroke="#2E7FC0" stroke-width="1.5"/>'+
+      '<g class="pf-cloud"><path d="M70 -6 a14 14 0 0 1 22 -12 a18 18 0 0 1 32 4 a12 12 0 0 1 6 22 h-56 a10 10 0 0 1 -4 -14z" fill="#9AA6BC" stroke="#5E6A80" stroke-width="2.5"/><path class="pf-rain" d="M80 14 l-3 9 M96 14 l-3 9 M112 14 l-3 9 M124 14 l-3 9" stroke="#6FB6FF" stroke-width="3" stroke-linecap="round"/></g>';
+  }
+  return '<svg class="pf pf-'+k+'" viewBox="-30 -34 260 250" aria-hidden="true">'+defs+back+'<g class="pfb">'+earL+earR+face+mouthUnder+mid+snout+crown+top+'</g></svg>';
+}
+/* a pig's oink, tuned: base pitch, length and where the pitch peaks, for the emote sounds */
+function oinkAt(t,base,dur,pk,vol){
+  function sweep(param,v){param.setValueAtTime(v[0],t);param.linearRampToValueAtTime(v[1],t+dur*pk);param.linearRampToValueAtTime(v[2],t+dur)}
+  var o=AC.createOscillator();o.type='sawtooth';sweep(o.frequency,[base*0.9,base*1.75,base*0.8]);
+  var f1=AC.createBiquadFilter();f1.type='bandpass';f1.Q.value=5;sweep(f1.frequency,[800,1400,700]);
+  var f2=AC.createBiquadFilter();f2.type='bandpass';f2.Q.value=7;sweep(f2.frequency,[2400,3000,2200]);
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;lp.Q.value=1.2;
+  var g1=AC.createGain();g1.gain.value=2.8;var g2=AC.createGain();g2.gain.value=1.68;var gn=AC.createGain();gn.gain.value=.5;
+  var e=AC.createGain();e.gain.setValueAtTime(0.0001,t);e.gain.exponentialRampToValueAtTime(vol,t+0.015);e.gain.setValueAtTime(vol,t+dur*0.8);e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(f1);o.connect(f2);o.connect(lp);f1.connect(g1);f2.connect(g2);lp.connect(gn);g1.connect(e);g2.connect(e);gn.connect(e);e.connect(OUT);o.start(t);o.stop(t+dur+0.05);
+}
+function horn(t,f,dur,vol,vib){/* a muted brass note, for the sad trombone */
+  var o=AC.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f,t);
+  if(vib){var l=AC.createOscillator();l.frequency.value=5.5;var lg=AC.createGain();lg.gain.setValueAtTime(0,t);lg.gain.linearRampToValueAtTime(f*.035,t+dur*.4);l.connect(lg);lg.connect(o.frequency);l.start(t);l.stop(t+dur+.05)}
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.Q.value=4;lp.frequency.setValueAtTime(500,t);lp.frequency.linearRampToValueAtTime(1300,t+.08);lp.frequency.linearRampToValueAtTime(700,t+dur);
+  var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.04);g.gain.setValueAtTime(vol,t+dur*.75);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(lp);lp.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+.05);
+}
+function sfxEmote(k){
+  if(!ac())return;var t=AC.currentTime+0.03;
+  if(k==='happy'){oinkAt(t,330,.16,.35,.7);oinkAt(t+.2,400,.18,.35,.75);[1319,1661,1976,2637].forEach(function(f,i){tone(t+.45+i*.07,'triangle',f,0,.35,.13);tone(t+.45+i*.07,'sine',f*2,0,.2,.05)});oinkAt(t+1.1,420,.14,.3,.5);oinkAt(t+1.3,480,.16,.3,.55)}
+  else if(k==='angry'){oinkAt(t,170,.24,.3,.95);oinkAt(t+.3,150,.3,.3,1);noise(t+.65,.7,'highpass',3800,.7,.22,.05);noise(t+.65,.6,'bandpass',1800,1.2,.1,.05);oinkAt(t+1.5,160,.28,.3,.9);noise(t+1.85,.7,'highpass',4200,.7,.2,.05)}
+  else if(k==='confused'){oinkAt(t,260,.32,.9,.75);tone(t+.5,'sine',330,660,.3,.16);tone(t+.82,'sine',660,520,.18,.1);tone(t+1.2,'triangle',523,0,.12,.12);tone(t+1.34,'triangle',784,0,.22,.12)}
+  else if(k==='amazed'){tone(t,'sine',380,1700,.75,.2,.05);tone(t,'triangle',380,1700,.75,.06,.05);[1568,2093,2637,3136].forEach(function(f,i){tone(t+.78+i*.06,'triangle',f,0,.4,.12)});oinkAt(t+1.2,300,.22,.6,.7)}
+  else{horn(t,392,.3,.16);horn(t+.36,370,.3,.16);horn(t+.72,349,.3,.16);horn(t+1.08,330,1.1,.17,true)}
+}
+function canEmote(i){var p=P(i);if(!p||!S.players.length)return false;if(S.online)return i===S.me&&S.me>=0;return !p.bot}
+function emoClose(){var w=$('emoWheel');if(!w.hidden){w.classList.remove('open');w.hidden=true}}
+function emoOpen(i){
+  var w=$('emoWheel'),tile=document.querySelector('#board .tile[data-i="'+i+'"]');if(!tile)return;
+  var r=tile.getBoundingClientRect(),vw=window.innerWidth,R=Math.min(134,vw*.33),cx=clamp(r.left+r.width/2,R+40,vw-R-40),cy=r.bottom+6;
+  w.dataset.i=i;var ring=w.querySelector('.emoring');ring.style.left=cx+'px';ring.style.top=cy+'px';ring.style.setProperty('--R',R+'px');
+  ring.innerHTML='<span class="emodisc"></span>'+EMOS.map(function(e,k){var a=(166-k*38)*Math.PI/180;
+    return '<button type="button" class="emobtn" data-e="'+e[0]+'" style="--x:'+(Math.cos(a)*R).toFixed(1)+'px;--y:'+(Math.sin(a)*R).toFixed(1)+'px;--k:'+k+'" aria-label="'+e[1]+'">'+pigFace(e[0])+'<em>'+e[1]+'</em></button>'}).join('')+
+    '<button type="button" class="emohub" aria-label="Close">×</button>';
+  w.hidden=false;void w.offsetWidth;w.classList.add('open');var f=ring.querySelector('.emobtn');if(f)f.focus({preventScroll:true});
+}
+function showEmote(i,k){
+  if(!EMOS.some(function(e){return e[0]===k}))return;
+  var tile=document.querySelector('#board .tile[data-i="'+i+'"]');if(!tile||$('board').hidden)return;
+  var L=$('emoLayer'),r=tile.getBoundingClientRect(),old=EMO.live[i];if(old){clearTimeout(old.t);old.el.remove()}
+  var el=document.createElement('div');el.className='emote emo-'+k;el.setAttribute('role','status');el.setAttribute('aria-label',P(i).name+' is '+k);
+  el.style.left=(r.left+r.width/2)+'px';el.style.top=(r.bottom-14)+'px';el.innerHTML='<span class="emohalo"></span>'+pigFace(k);
+  L.appendChild(el);var w=el.offsetWidth,vw=window.innerWidth;el.style.left=clamp(r.left+r.width/2,w*.36,vw-w*.36)+'px';sfxEmote(k);
+  EMO.live[i]={el:el,t:setTimeout(function(){el.remove();delete EMO.live[i]},3000)};
+}
+function sendEmote(i,k){
+  var now=Date.now();if(now-EMO.last<1500)return;EMO.last=now;
+  if(S.online)onSend('emote',{e:k});else showEmote(i,k);
+}
+$('board').addEventListener('click',function(e){var t=e.target.closest('.tile[data-i]');if(!t)return;var i=+t.getAttribute('data-i');if(canEmote(i))emoOpen(i)});
+$('emoWheel').addEventListener('click',function(e){var b=e.target.closest('.emobtn');var w=$('emoWheel');if(b){var i=+w.dataset.i;emoClose();sendEmote(i,b.getAttribute('data-e'))}else emoClose()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')emoClose()});
+window.addEventListener('resize',emoClose);
 function sfxChat(){if(!S.sound||!ac())return;var t=AC.currentTime;tone(t,'sine',880,0,0.09,0.08);tone(t+0.09,'sine',1320,0,0.12,0.07)}
 function chatUnread(){var n=0,seen=ON.chatSeen||0;(ON.chat||[]).forEach(function(x){if(x.id>seen&&!x.me)n++});return n}
 function chatUI(listToo){
@@ -3365,6 +3537,7 @@ function chatUI(listToo){
 function forgetTable(){try{localStorage.removeItem('degenpig-table')}catch(e){}}
 function onMsg(m){
   if(m.t==='chatlog'||m.t==='chat'){chatIn(m);return}
+  if(m.t==='emote'){showEmote(m.i,m.e);return}
   if(m.t==='unlock'){(m.unlocks||[]).forEach(function(u){var a=ACHBY[u.id];if(a)achQ.push({a:a,lv:u.lv,who:myId().name||'You'})});loadMe();achToast();return}
   if(m.t==='timer'){ON.deadline=m.left>0?Date.now()+m.left:0;return}
   if(m.t==='error'){
