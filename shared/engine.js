@@ -3,7 +3,11 @@
    plays computer seats, keeps the stats and graph history, and tracks achievements.
    The state object uses the same field names as the game page, so a phone can draw a snapshot directly. */
 
-export const DEF_RULES = { target: 100, golden: true, noDbl: false, reroll: false, verify: false, power: true, triple: false, timer: 30, money: null };
+export const DEF_RULES = { target: 100, golden: true, noDbl: false, reroll: false, verify: false, power: true, triple: false, prime: false, timer: 30, money: null };
+
+/* Prime One: the primes a player can claim, from 5 up to the target */
+export function isPrime(n) { if (n < 2) return false; for (let d = 2; d * d <= n; d++) if (n % d === 0) return false; return true }
+export function primeList(target) { const a = []; for (let n = 5; n <= target; n++) if (isPrime(n)) a.push(n); return a }
 
 /* achievement thresholds (names and wording live in the page) */
 const ACH = [
@@ -126,8 +130,8 @@ export function Engine(S) {
   }
   function beginOrder() {
     S.order = []; S.pos = 0; S.turn = 0; S.rolls = []; S.bust = false; S.finalDone = false; S.queue = []; S.trigger = -1; S.n = S.players.length; S.finalMode = 'turn';
-    S.players.forEach(p => { p.score = 0; p.hot = false; p.rr = RL().reroll ? 3 : 0; p.pw = 0; p.pwReady = false; p.g = { turns: 0, rolls: 0, busts: 0, burnMax: 0, finalDef: null, dbl: 0, six: 0, forced: 0, wireFail: false }; p.st = { f: [0, 0, 0, 0, 0, 0], d: 0, lost: 0, sn: 0 } });
-    S.pend = null; S.inReroll = false; S.rrFail = false; S.hotTurn = false; S.hotX = 1; S.powerTurn = false; S.snake = false; S.mustRoll = false; S.winners = [];
+    S.players.forEach(p => { p.score = 0; p.hot = false; p.rr = RL().reroll ? 3 : 0; p.pw = 0; p.pwReady = false; p.pwCarry = 0; p.g = { turns: 0, rolls: 0, busts: 0, burnMax: 0, finalDef: null, dbl: 0, six: 0, forced: 0, wireFail: false }; p.st = { f: [0, 0, 0, 0, 0, 0], d: 0, lost: 0, sn: 0 } });
+    S.pend = null; S.inReroll = false; S.rrFail = false; S.hotTurn = false; S.hotX = 1; S.powerTurn = false; S.snake = false; S.mustRoll = false; S.winners = []; S.primes = {}; S.primeHit = null;
     /* Game 1 draws a random seating order. Every later game keeps that order and moves the first turn one seat along. */
     let all; const G = S.games || 0;
     if (G > 0 && S.baseOrder && S.baseOrder.length === S.players.length) { const r = G % S.baseOrder.length; all = S.baseOrder.slice(r).concat(S.baseOrder.slice(0, r)) }
@@ -157,7 +161,7 @@ export function Engine(S) {
   function beginTurn() {
     const p = P(S.cur); S.pwFull = false; S.powerTurn = false; S.rrUsed = false;
     if (p.g) { p.g.turns++; p.g.dbl = 0; p.g.six = 0; p.g.forced = 0; if (S.phase === 'final' && p.g.finalDef == null) p.g.finalDef = barScore() - p.score }
-    if (RL().power && p.pwReady) { p.pwReady = false; p.pw = 0; S.powerTurn = true }
+    if (RL().power && p.pwReady) { p.pwReady = false; p.pw = Math.min(4, p.pwCarry || 0); p.pwCarry = 0; S.powerTurn = true }
     const why = hotReasons(S.cur); S.hotX = why === 0 ? 1 : (RL().triple && why >= 2 ? 3 : 2); S.hotTurn = S.hotX > 1;
     S.turnId = (S.turnId || 0) + 1;
     if (S.hotTurn) S.fx = { hot: true, x: S.hotX };
@@ -171,6 +175,7 @@ export function Engine(S) {
   function lockIn(force) {
     if (S.bust || S.pend || (S.mustRoll && !force) || S.turn <= 0 || (S.phase !== 'play' && S.phase !== 'final')) return false;
     const p = P(S.cur), amt = S.turn; p.score += amt; if (p.g) p.g.banked = (p.g.banked || 0) + amt; rec(S.cur, 'lock', amt, amt, S.rolls.length); achLock(p, amt, S.rolls.length);
+    const pr = primeBonus(S.cur);
     S.fx = { lock: amt };
     if (S.phase === 'play' && p.score >= RL().target) {
       S.trigger = S.cur; S.phase = 'final'; S.queue = [];
@@ -178,8 +183,18 @@ export function Engine(S) {
       S.cur = S.queue[0]; S.turn = 0; S.rolls = []; S.mustRoll = false; S.marks = ['', '']; S.hotTurn = false; S.hotX = 1; beginTurn();
       say(p.name + ' locked in ' + p.score + (RL().golden ? ' · ' + Math.max(0, p.score - RL().target) + ' golden' : ''), 'gold');
     } else { nextPlayer(); if (S.phase !== 'over') say(p.name + ' banked ' + amt) }
-    S.fx.lock = amt;
+    S.fx.lock = amt; if (pr) S.fx.prime = pr;
     return true;
+  }
+  /* Prime One: the first player to bank exactly an open prime (5 up to the target) claims it and gets a Five Ones dot.
+     With all 5 dots already filled, the dot starts their next row instead. */
+  function primeOpen(n) { return !!(RL().prime && RL().power && n >= 5 && n <= RL().target && isPrime(n) && !(S.primes && S.primes[n] != null)) }
+  function primeBonus(i) {
+    const p = P(i), n = p.score; S.primeHit = null; if (!primeOpen(n)) return null;
+    (S.primes = S.primes || {})[n] = i; let full = false, carry = false;
+    if (p.pwReady) { p.pwCarry = Math.min(4, (p.pwCarry || 0) + 1); carry = true }
+    else { p.pw = (p.pw || 0) + 1; if (p.pw >= 5) { p.pw = 5; p.pwReady = true; full = true } }
+    S.primeHit = { n, i, full, carry }; return S.primeHit;
   }
   function rollText(a, b, pts, dbl, m) {
     if (dbl) return 'Doubles! ' + (a + b) + ' ×' + (2 * m) + ' = ' + pts;
@@ -284,6 +299,7 @@ export function Engine(S) {
     }
     if (maxO > 85 && total < maxO - 25) thr *= 1.3;
     const TG = RL().target;
+    if (primeOpen(total) && st !== 'c' && Tn >= Math.max(5, thr * (st === 'g' ? 0.45 : 0.6))) return 'lock';
     if (total >= TG) return (total >= Math.max(TG, maxO + margin) || Tn >= thr * 1.5) ? 'lock' : 'roll';
     return Tn >= Math.max(thr, 6) ? 'lock' : 'roll';
   }

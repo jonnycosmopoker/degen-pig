@@ -1498,6 +1498,20 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
 #board .tile.nb-gold:not(.active)::before{opacity:0}
 #board .tile.nb-magma:not(.active)::before{opacity:.35}#board .tile.nb-magma:not(.active)::after{opacity:.3}
 #board .tile.nb-npink:not(.active)::after,#board .tile.nb-ngreen:not(.active)::after{opacity:.6}
+/* Prime One: the strip of primes under the name tags */
+.primes{flex:none;display:grid;grid-template-columns:repeat(var(--pc,12),minmax(0,1fr));gap:3px;padding:5px;border-radius:12px;border:2px solid transparent;
+  background:linear-gradient(180deg,#132C24,#0A1813) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 4px 10px rgba(0,0,0,.4)}
+.primes .pr{position:relative;display:grid;place-items:center;min-height:21px;border-radius:6px;font:400 11px/1 var(--display);color:#F6CF45;background:rgba(0,0,0,.35);box-shadow:inset 0 0 0 1px rgba(246,207,69,.28)}
+.primes .pr.took{color:#fff;background:color-mix(in srgb,var(--pc) 70%,#000);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);text-decoration:line-through;text-decoration-thickness:1.5px;opacity:.8}
+.primes .pr.hint{color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 45%,#C8901A);box-shadow:0 0 10px rgba(246,207,69,.8);animation:prhint 1s ease-in-out infinite}
+@keyframes prhint{50%{transform:scale(1.14);box-shadow:0 0 16px rgba(246,207,69,1)}}
+.primes .pr.pop{animation:prpop 1.4s cubic-bezier(.2,1.4,.4,1);opacity:1;z-index:2}
+@keyframes prpop{0%{transform:scale(1)}15%{transform:scale(1.9) rotate(-6deg);box-shadow:0 0 22px 4px rgba(246,207,69,1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+.stat.prh .val{color:#F6CF45;text-shadow:0 0 14px rgba(246,207,69,.6)}
+.stat .prs{color:#F6CF45;font-weight:800;white-space:nowrap}
+.tile .pw .pwc{font-size:9px;line-height:6px;color:#FFD83A;margin-left:2px;font-weight:900}
+@media (max-width:360px){.primes .pr{font-size:9.5px;min-height:19px}}
+@media (prefers-reduced-motion:reduce){.primes .pr.hint,.primes .pr.pop{animation:none}}
 </style>
 
 <div id="app" data-phase="menu">
@@ -1518,6 +1532,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
   </div>
 
   <div class="board" id="board" hidden></div>
+  <div class="primes" id="primes" role="group" hidden></div>
   <div class="banner" id="banner" hidden></div>
 
   <div class="tray" id="tray" tabindex="0" role="button" aria-label="Dice table. Tap or flick to roll the dice.">
@@ -1629,6 +1644,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="opts" id="hOpts">
       <div class="opt"><span><b>Golden Points</b><small>Points above the target are counted as golden points.</small></span><button class="tog" data-k="golden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
+      <div class="opt"><span><b>Prime One</b><small>The first player to bank exactly a prime score (5 up to the target) claims it and gets a Five Ones dot. Turns on Five Ones 2x.</small></span><button class="tog" data-k="prime" type="button" role="switch" aria-checked="false" aria-label="Prime One"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
@@ -1685,6 +1701,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="opts">
       <div class="opt"><span><b>Golden Points</b><small>Every point a player has above the target counts as a golden point, shown on the score boxes and in the summary.</small></span><button class="tog" id="tGolden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
+      <div class="opt"><span><b>Prime One</b><small>The first player to bank exactly a prime score (5 up to the target) claims that prime and gets an extra Five Ones dot. With all 5 dots full, it starts the next row. Turns on Five Ones 2x.</small></span><button class="tog" id="tPrime" type="button" role="switch" aria-checked="false" aria-label="Prime One"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>Turns off every ×2: doubles score face value, and no catch-up or snake-eyes bonuses.</small></span><button class="tog" id="tNoDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
@@ -1868,8 +1885,8 @@ function rand(a,b){return a+Math.random()*(b-a)}
 function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n}catch(e){return Math.floor(Math.random()*n)}}
 function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
 
-var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:30};
-var S={phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:30};
+var S={phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic',youSeat:0};
 
@@ -2178,7 +2195,7 @@ function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
   if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if([1,0.9,0.8].indexOf(p.dsize)>=0)S.dsize=p.dsize;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
-  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power,triple:!!c.triple,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
+  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
 function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,dsize:S.dsize||1,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
@@ -2330,8 +2347,8 @@ function RL(){return S.rules||S.cfg}                       /* the rule set of th
 function inGame(){return S.phase==='order'||S.phase==='play'||S.phase==='final'}
 function golden(i){return Math.max(0,P(i).score-RL().target)}
 function regular(i){return RL().golden?Math.min(P(i).score,RL().target):P(i).score}   /* with Golden Points, points above the target are counted apart */
-function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple}
-function cfgSummary(c){var x=[c.target+' Pig'];if(c.golden)x.push('Golden Points');if(c.power)x.push('Five Ones 2x');if(c.triple)x.push('Enable 3x');if(c.noDbl)x.push('Doubles disabled');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
+function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple&&!!c.prime===DEF.prime}
+function cfgSummary(c){var x=[c.target+' Pig'];if(c.golden)x.push('Golden Points');if(c.power)x.push('Five Ones 2x');if(c.prime)x.push('Prime One');if(c.triple)x.push('Enable 3x');if(c.noDbl)x.push('Doubles disabled');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
 function points(a,b,m){return (a===1||b===1)?0:(a+b)*(a===b&&!RL().noDbl?2:1)*(m||1)}
 function barScore(){return Math.max.apply(null,S.players.map(function(p){return p.score}))}
 function leaders(){var b=barScore();return S.players.map(function(p,i){return p.score===b?i:-1}).filter(function(i){return i>=0})}
@@ -2369,6 +2386,7 @@ function botDecide(i){
   }
   if(maxO>85&&total<maxO-25)thr*=1.3;
   var TG=RL().target;
+  if(primeOpen(total)&&st!=='c'&&Tn>=Math.max(5,thr*(st==='g'?.45:.6)))return 'lock';
   if(total>=TG)return (total>=Math.max(TG,maxO+margin)||Tn>=thr*1.5)?'lock':'roll';
   return Tn>=Math.max(thr,6)?'lock':'roll';
 }
@@ -2396,14 +2414,14 @@ function botReroll(i){
 }
 function botThrow(){return {dx:rand(-0.6,0.6),dy:1,x:T.w/2+rand(-T.w*0.15,T.w*0.15),y:margin(),speed:rand(1.05,1.4)}}
 function startGame(){
-  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power,triple:!!S.cfg.triple};
+  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power||!!S.cfg.prime,triple:!!S.cfg.triple,prime:!!S.cfg.prime};
   S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):(i===S.youSeat&&myId().name)||'P'+(i+1)),score:0,wins:0,hot:false,bot:bot,you:!bot&&i===S.youSeat})}
   S.games=0;S.ledger=[];S.baseOrder=null;S.sess=S.players.map(function(){return {f:[0,0,0,0,0,0],d:0,lost:0,rolls:0}});
   beginOrder();
 }
 function beginOrder(){
-  S.order=[];S.pos=0;S.turn=0;S.rolls=[];S.bust=false;S.finalDone=false;S.queue=[];S.trigger=-1;
-  S.players.forEach(function(p){p.score=0;p.hot=false;p.rr=RL().reroll?3:0;p.pw=0;p.pwReady=false;p.g={turns:0,rolls:0,busts:0,burnMax:0,finalDef:null,dbl:0,six:0,forced:0,wireFail:false};p.st={f:[0,0,0,0,0,0],d:0,lost:0,sn:0}});S.pend=null;S.inReroll=false;S.rrFail=false;S.hotTurn=false;S.hotX=1;S.powerTurn=false;S.snake=false;S.burnShow=null;
+  S.order=[];S.pos=0;S.turn=0;S.rolls=[];S.bust=false;S.finalDone=false;S.queue=[];S.trigger=-1;S.primes={};S.primeHit=null;
+  S.players.forEach(function(p){p.score=0;p.hot=false;p.rr=RL().reroll?3:0;p.pw=0;p.pwReady=false;p.pwCarry=0;p.g={turns:0,rolls:0,busts:0,burnMax:0,finalDef:null,dbl:0,six:0,forced:0,wireFail:false};p.st={f:[0,0,0,0,0,0],d:0,lost:0,sn:0}});S.pend=null;S.inReroll=false;S.rrFail=false;S.hotTurn=false;S.hotX=1;S.powerTurn=false;S.snake=false;S.burnShow=null;
   /* Game 1 draws a random seating order. Every later game keeps that order and moves the first turn one seat along. */
   var all,G=S.games||0;
   if(G>0&&S.baseOrder&&S.baseOrder.length===S.players.length){var r=G%S.baseOrder.length;all=S.baseOrder.slice(r).concat(S.baseOrder.slice(0,r))}
@@ -2446,7 +2464,7 @@ function hotMult(n){return n===0?1:(RL().triple&&n>=2?3:2)}
 function MX(){return S.hotX||(S.hotTurn?2:1)}
 function beginTurn(){var p=P(S.cur);S.pwFull=false;S.powerTurn=false;S.rrUsed=false;
   if(p.g){p.g.turns++;p.g.dbl=0;p.g.six=0;p.g.forced=0;if(S.phase==='final'&&p.g.finalDef==null)p.g.finalDef=barScore()-p.score}
-  if(RL().power&&p.pwReady){p.pwReady=false;p.pw=0;S.powerTurn=true}   /* Five Ones 2x: a full row of dots doubles this turn, then resets */
+  if(RL().power&&p.pwReady){p.pwReady=false;p.pw=Math.min(4,p.pwCarry||0);p.pwCarry=0;S.powerTurn=true}   /* Five Ones 2x: a full row of dots doubles this turn, then resets */
   S.hotX=hotMult(hotReasons(S.cur,S.powerTurn));S.hotTurn=S.hotX>1;if(S.hotTurn)setTimeout(sfxHot,450)}
 function nextPlayer(){
   checkCatchUp();
@@ -2458,12 +2476,39 @@ function nextPlayer(){
 function lockIn(){
   if(S.busy||S.bust||S.mustRoll||S.turn<=0||(S.phase!=='play'&&S.phase!=='final'))return;
   var p=P(S.cur),amt=S.turn;p.score+=amt;rec(S.cur,'lock',amt,amt,S.rolls.length);achLock(p,amt,S.rolls.length);sfxLock(amt);checkCatchUp();
+  var pr=primeBonus(S.cur);
   if(S.phase==='play'&&p.score>=RL().target){
     S.trigger=S.cur;S.phase='final';S.queue=[];
     for(var k=1;k<S.n;k++)S.queue.push(S.order[(S.pos+k)%S.n]);
     S.cur=S.queue[0];S.turn=0;S.rolls=[];S.mustRoll=false;S.marks=['',''];S.hotTurn=false;S.hotX=1;beginTurn();
     say(p.name+' locked in '+p.score+(RL().golden?' · '+Math.max(0,p.score-RL().target)+' golden':''),'gold');
   }else{nextPlayer();if(S.phase!=='over')say(p.name+' banked '+amt)}
+  if(pr){primeFx(pr);if(S.callout)say(S.callout.text+' · claims prime '+pr.n,'gold')}
+}
+/* ---------- Prime One: the first player to bank exactly an open prime (5 up to the target) claims it and gets a Five Ones dot.
+   With all 5 dots already filled, the dot starts their next row instead. ---------- */
+function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true}
+function primeList(t){var a=[];for(var n=5;n<=t;n++)if(isPrime(n))a.push(n);return a}
+function primeOpen(n){return !!(RL()&&RL().prime&&RL().power&&n>=5&&n<=RL().target&&isPrime(n)&&!(S.primes&&S.primes[n]!=null))}
+function primeBonus(i){
+  var p=P(i),n=p.score;S.primeHit=null;if(!primeOpen(n))return null;
+  (S.primes=S.primes||{})[n]=i;var full=false,carry=false;
+  if(p.pwReady){p.pwCarry=Math.min(4,(p.pwCarry||0)+1);carry=true}
+  else{p.pw=(p.pw||0)+1;if(p.pw>=5){p.pw=5;p.pwReady=true;full=true}}
+  S.primeHit={n:n,i:i,full:full,carry:carry};return S.primeHit;
+}
+var PRIMEFX={n:null,t:0};
+function primeFx(pr){PRIMEFX={n:pr.n,i:pr.i,t:Date.now()};setTimeout(sfxPrime,380);setTimeout(function(){if(PRIMEFX.n===pr.n){PRIMEFX.n=null;render()}},1800)}
+function sfxPrime(){if(!ac())return;var t=AC.currentTime+0.02;[784,988,1175,1568].forEach(function(f,i){tone(t+i*.075,'triangle',f,0,.32,.12);tone(t+i*.075,'sine',f*2,0,.18,.04)});tone(t+.34,'sine',2093,0,.5,.07)}
+function renderPrimes(){
+  var el=$('primes'),R=RL(),ph=S.phase,on=!!(R&&R.prime&&R.power&&(ph==='play'||ph==='final'||ph==='over'));el.hidden=!on;if(!on)return;
+  var L=primeList(R.target),cols=Math.min(16,Math.ceil(L.length/(L.length>30?3:2))),p=P(S.cur),hint=null;
+  if((ph==='play'||ph==='final')&&!S.bust&&!S.pend&&S.turn>0&&p&&primeOpen(p.score+S.turn))hint=p.score+S.turn;
+  el.style.setProperty('--pc',cols);
+  el.innerHTML=L.map(function(n){var w=S.primes?S.primes[n]:null,c='pr';
+    if(w!=null)c+=' took';else if(n===hint)c+=' hint';if(PRIMEFX.n===n)c+=' pop';
+    return '<span class="'+c+'"'+(w!=null?' style="--pc:var(--s'+(w+1)+')" title="'+esc(P(w).name)+'"':'')+'>'+n+'</span>'}).join('');
+  el.setAttribute('aria-label','Prime One: '+L.filter(function(n){return !(S.primes&&S.primes[n]!=null)}).length+' of '+L.length+' primes still open');
 }
 function rollText(a,b,pts,dbl,m){
   if(dbl)return 'Doubles! '+(a+b)+' ×'+(2*m)+' = '+pts;
@@ -2827,7 +2872,7 @@ function chartPick(e){
 }
 function render(){
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
-  renderMain();tutUI();achToast();chatUI();applySkin();applyTable();acctUI();if(S.phase==='dice')renderSkins();
+  renderMain();renderPrimes();tutUI();achToast();chatUI();applySkin();applyTable();acctUI();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
   var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
@@ -2888,7 +2933,7 @@ function renderMain(){
       }
     }
     var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
-    var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';pw+='</span>'}
+    var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';if(p.pwReady&&p.pwCarry)pw+='<b class="pwc">+'+p.pwCarry+'</b>';pw+='</span>'}
     var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
     return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+(mu?'<span class="emochip mut" title="Emotes muted"><svg viewBox="0 0 20 20"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="#3B2305"/><path d="M13 7.5l4.5 5M17.5 7.5l-4.5 5" stroke="#3B2305" stroke-width="1.9" stroke-linecap="round"/></svg></span>':'')+(em&&(S.online||p.you)?'<span class="emochip" title="Send an emote"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="1.6" fill="#3B2305"/><circle cx="13" cy="8" r="1.6" fill="#3B2305"/><path d="M5.5 11.5q4.5 5 9 0" fill="none" stroke="#3B2305" stroke-width="1.8" stroke-linecap="round"/></svg></span>':'')+'</div>';
   }).join('');
@@ -2976,6 +3021,7 @@ function renderMain(){
   $('l2').textContent=S.hotTurn?'At risk · ×'+MX():'At risk';$('v2').textContent=S.turn;
   $('l3').textContent='If you lock in';$('v3').textContent=p.score+S.turn;
   $('v2').parentNode.classList.toggle('rw',!!S.rewind);
+  var ph1=!S.bust&&!S.pend&&S.turn>0&&primeOpen(p.score+S.turn);$('v3').parentNode.classList.toggle('prh',ph1);if(ph1)$('l3').innerHTML='If you lock in <b class="prs">★ prime</b>';
   if(S.rewind){$('l2').innerHTML='<svg class="rwi" viewBox="0 0 24 14" aria-hidden="true"><path d="M11 1L1 7l10 6zM23 1L13 7l10 6z" fill="currentColor"/></svg>Rewinding';$('v2').textContent=S.rewind.v;$('v3').textContent=p.score+S.rewind.v}
   rolls.innerHTML=S.rolls.map(function(r){
     var mult=(r.dbl?2:1)*(r.m||1);
@@ -3022,7 +3068,7 @@ function renderScreens(ph){
     $('tNoDbl').setAttribute('aria-checked',c.noDbl?'true':'false');
     $('tReroll').setAttribute('aria-checked',c.reroll?'true':'false');
     $('tVerify').setAttribute('aria-checked',c.verify?'true':'false');
-    $('tPower').setAttribute('aria-checked',c.power?'true':'false');$('tTriple').setAttribute('aria-checked',c.triple?'true':'false');
+    $('tPower').setAttribute('aria-checked',c.power?'true':'false');$('tPrime').setAttribute('aria-checked',c.prime?'true':'false');$('tTriple').setAttribute('aria-checked',c.triple?'true':'false');
     $('tg80').checked=c.target===80;$('tg100').checked=c.target===100;$('tg150').checked=c.target===150;$('tg200').checked=c.target===200;
     $('defaultsBtn').disabled=isDefault(c);
     $('defNote').textContent=isDefault(c)?'You are on the default rules.':'Default: 100 Pig with doubles, Golden Points and Five Ones 2x on, and Enable 3x, Re-roll Pig and Verify Double off.';
@@ -3041,6 +3087,7 @@ function rulesHTML(){
   if(dbl){hot.push('Stuck at zero while someone’s past 75? Your rolls pay double.','Down 75+ on your last turn? Double.','Burned by snake eyes twice? Every roll pays double for the rest of the game.')}
   if(hot.length)h+='<h3>Getting hot (×2 turns)</h3><ul><li>'+hot.join('</li><li>')+'</li></ul>';
   if(c.golden)h+='<p>Points past '+T+' are <b>Golden Points</b>, pure flex.</p>';
+  if(c.prime)h+='<p><b>Prime One:</b> be the first to bank exactly a prime score (5 up to '+T+') and you claim it, plus an extra Five Ones dot. Each prime can only be claimed once, so watch the strip above the table.</p>';
   var ex=[];
   if(c.triple&&(c.power||dbl))ex.push('<b>Enable 3x:</b> two ×2 reasons on the same turn make it ×3. Doubles on a ×3 turn pay ×6.');
   if(c.reroll)ex.push('<b>Re-roll Pig:</b> 3 chances a game to re-roll a single 1 on your first roll of a turn. A 1 on the re-roll drops your score to 0. Snake eyes can’t be re-rolled.');
@@ -3255,10 +3302,11 @@ $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)}
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
 $('tReroll').addEventListener('click',function(){setCfg('reroll',!S.cfg.reroll)});
 $('tVerify').addEventListener('click',function(){setCfg('verify',!S.cfg.verify)});
-$('tPower').addEventListener('click',function(){setCfg('power',!S.cfg.power)});
+$('tPower').addEventListener('click',function(){if(S.cfg.power)S.cfg.prime=false;setCfg('power',!S.cfg.power)});
+$('tPrime').addEventListener('click',function(){if(!S.cfg.prime)S.cfg.power=true;setCfg('prime',!S.cfg.prime)});
 $('tTriple').addEventListener('click',function(){setCfg('triple',!S.cfg.triple)});
 ['tg80','tg100','tg150','tg200'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('target',+$(id).value)})});
-$('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,triple:DEF.triple,timer:DEF.timer};savePrefs();render()});
+$('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,triple:DEF.triple,prime:DEF.prime,timer:DEF.timer};savePrefs();render()});
 $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0){stopWatching();return}askLeave()});
@@ -3388,7 +3436,7 @@ function loadMe(){
     if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();if(S.phase==='shop')renderShop();acctUI();if($('acctDlg').open)acctFill();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
-function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.prime)x.push('Prime One');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function signCardHome(){var c=$('signCard');$('signIntro').textContent='Sign in to play online. Your achievements and table history are saved to your account, on any phone.';if(ON.cardHome&&c.parentNode!==ON.cardHome)ON.cardHome.insertBefore(c,ON.cardNext||null)}
 function renderOnline(){
@@ -3434,7 +3482,7 @@ function renderHist(){
 document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);
 function ordinalN(n){return n+ordinal(n)}
 /* online tables start from their own defaults (Golden Points and Five Ones 2x on, no timer); a host's last choices are remembered */
-var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,timer:0,track:{on:false,game:'',point:'',golden:''}};
+var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:0,track:{on:false,game:'',point:'',golden:''}};
 function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k]&&typeof ONLINE_DEF[k]==='object'?Object.assign({},ONLINE_DEF[k]):ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
   if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];return c}
 /* Track $: the amounts the host typed, as numbers (or null when off or empty) */
@@ -3715,6 +3763,7 @@ function applyState(m){
   if(S.phase!=='over'&&wasOver){$('over').scrollTop=0}
 }
 function sideFx(ev){
+  if(ev.prime)primeFx(ev.prime);
   if(ev.lock)sfxLock(ev.lock);
   if(ev.hot)setTimeout(sfxHot,450);
   if(ev.note)netNote(ev.note,/disconnected|make it back/.test(ev.note)?7000:3500);
@@ -3743,7 +3792,7 @@ $('hMore').addEventListener('click',function(){ON.hostSeats=Math.min(6,ON.hostSe
 $('hPub').addEventListener('change',renderHost);
 $('hTrack').addEventListener('click',function(){var c=ON.hcfg,tk=c.track||(c.track={on:false,game:'',point:'',golden:''});tk.on=!tk.on;renderHost();if(tk.on&&!tk.game)setTimeout(function(){$('hMgame').focus()},50)});
 ['game','point','golden'].forEach(function(k){$('hM'+k).addEventListener('input',function(){var c=ON.hcfg;c.track[k]=this.value.replace(/[^0-9.]/g,'').slice(0,8);if(this.value!==c.track[k])this.value=c.track[k];renderHost()})});
-$('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');if(!b)return;var k=b.getAttribute('data-k');ON.hcfg[k]=!ON.hcfg[k];renderHost()});
+$('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');if(!b)return;var k=b.getAttribute('data-k');ON.hcfg[k]=!ON.hcfg[k];if(k==='prime'&&ON.hcfg.prime)ON.hcfg.power=true;if(k==='power'&&!ON.hcfg.power)ON.hcfg.prime=false;renderHost()});
 ['ht80','ht100','ht150','ht200'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.target=+$(id).value;renderHost()})});
 ['hm0','hm15','hm30','hm60'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.timer=+$(id).value;renderHost()})});$('hPriv').addEventListener('change',renderHost);
 $('hCreate').addEventListener('click',function(){

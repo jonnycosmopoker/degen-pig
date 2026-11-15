@@ -43,7 +43,7 @@ function cleanMoney(m) {
 }
 export function cleanRules(r) {
   r = r || {}; const t = [80, 100, 150, 200].includes(r.target) ? r.target : 100;
-  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power, triple: !!r.triple, money: cleanMoney(r.money), timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
+  return { target: t, golden: !!r.golden, noDbl: !!r.noDbl, reroll: !!r.reroll, verify: !!r.verify, power: !!r.power || !!r.prime, triple: !!r.triple, prime: !!r.prime, money: cleanMoney(r.money), timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
 }
 
 export class TableRoom {
@@ -268,7 +268,7 @@ export class TableRoom {
     const S = this.G; ev = ev || {}; S.watchers = this.watchers();
     if (ev.roll) this.busyUntil = this.now() + (ROLL_MS * this.k) + (ev.fx && ev.fx.burn > 0 ? (BURN_MS * this.k) : 0);
     else if (ev.fx && ev.fx.burn > 0) this.busyUntil = this.now() + (BURN_MS * this.k);
-    if (S.fx && S.fx.hot) ev.hot = true; if (S.fx && S.fx.lock) ev.lock = S.fx.lock;
+    if (S.fx && S.fx.hot) ev.hot = true; if (S.fx && S.fx.lock) ev.lock = S.fx.lock; if (S.fx && S.fx.prime) ev.prime = S.fx.prime;
     if (S.unlocks && S.unlocks.length) { ev.unlocks = S.unlocks; S.unlocks = [] }
     if (S.phase === 'over' && !ev.over) { ev.over = true; this.saveGame() }
     this.broadcast(ev); this.tick();
