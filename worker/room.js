@@ -18,7 +18,7 @@ const CHAT_KEEP = 60, CHAT_LEN = 200;
 const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.text, at: m.at, me: m.uid === uid });
 /* what each player shows off at the table: dice, table and name tag. Free ones anyone can use; Shop items only the owner
    (until the Shop opens, then whoever bought them). Anything else falls back to the house look. */
-const EMOTES = ['happy', 'angry', 'confused', 'amazed', 'sad'];
+const EMOTES = ['happy', 'angry', 'confused', 'amazed', 'sad', 'cocky', 'tired', 'crying'];
 const LOOKS = {
   d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24', 'nebula', 'magma', 'seven', 'sand', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron'] },
   t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault', 'seven', 'lagoon', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron'] },

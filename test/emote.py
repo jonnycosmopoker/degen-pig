@@ -13,7 +13,7 @@ with sync_playwright() as p:
     meA=A.evaluate('__dp.S.me');meB=B.evaluate('__dp.S.me')
     print('me',meA,meB,'chip on own tile only:',B.evaluate("[...document.querySelectorAll('#board .tile')].map(t=>t.dataset.i+':'+!!t.querySelector('.emochip'))"))
     B.click('#board .tile[data-i="%d"]'%meA);B.wait_for_timeout(300);print('wheel opened on other tile:',B.is_visible('#emoWheel'))
-    B.click('#board .tile[data-i="%d"]'%meB);B.wait_for_timeout(400);B.click('#emoWheel .emobtn[data-e=amazed]')
+    B.click('#board .tile[data-i="%d"]'%meB);B.wait_for_timeout(400);B.click('#emoWheel .emobtn[data-e=cocky]')
     A.wait_for_timeout(900);print('A sees:',A.evaluate("[...document.querySelectorAll('#emoLayer .emote')].map(e=>e.className)"),'B sees:',B.evaluate("[...document.querySelectorAll('#emoLayer .emote')].map(e=>e.className)"))
     A.screenshot(path=O+'/online-A.png')
     B.click('#board .tile[data-i="%d"]'%meB);B.wait_for_timeout(300);B.click('#emoWheel .emobtn[data-e=sad]');A.wait_for_timeout(300)
