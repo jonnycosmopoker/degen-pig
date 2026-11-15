@@ -1493,6 +1493,11 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
 @keyframes rwjit{0%{transform:translateX(-1.5px) skewX(-7deg)}100%{transform:translateX(1.5px) skewX(-3deg)}}
 @keyframes rwblink{50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.stat.big.rw .val,.stat.big.rw .rwi{animation:none}}
+/* animated name tags only come alive on the tag of the player whose turn it is; the others rest in a still pose */
+#board .tile:not(.active)::before,#board .tile:not(.active)::after{animation:none!important}
+#board .tile.nb-gold:not(.active)::before{opacity:0}
+#board .tile.nb-magma:not(.active)::before{opacity:.35}#board .tile.nb-magma:not(.active)::after{opacity:.3}
+#board .tile.nb-npink:not(.active)::after,#board .tile.nb-ngreen:not(.active)::after{opacity:.6}
 </style>
 
 <div id="app" data-phase="menu">
