@@ -1729,7 +1729,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
   <section class="dock scroll" id="dice" hidden>
     <div class="headrow"><button type="button" class="link back" id="backDice">‹ Main menu</button><h1 class="screen-h">Locker</h1></div>
     <div class="lksign" id="lkSign" hidden><span>Sign in to keep your unlocked dice on every phone.</span><button type="button" class="acctbtn" id="lkSignBtn">Sign in</button></div>
-    <div class="lksize"><span class="lksz-l"><em>Dice size</em><small>Only on your screen</small></span><div class="lkseg" role="group" aria-label="Dice size"><button type="button" data-ds="1">Large</button><button type="button" data-ds="0.9">Medium</button><button type="button" data-ds="0.8">Small</button></div></div>
+    <div class="lksize"><span class="lksz-l"><em>Dice size</em><small>Only on your screen</small></span><div class="lkseg" role="group" aria-label="Dice size"><button type="button" data-ds="1">Large</button><button type="button" data-ds="0.85">Medium</button><button type="button" data-ds="0.7">Small</button></div></div>
     <div class="lksec" id="lkSecT"><h2><em>Tables</em><small id="lkNt"></small></h2><div class="lkrow" id="lkRowT"></div><p class="lknote" id="lkNoteT" role="status"></p></div>
     <div class="lksec" id="lkSecD"><h2><em>Dice</em><small id="lkNd"></small></h2><div class="lkrow" id="lkRowD"></div><p class="lknote" id="skinNote" role="status"></p></div>
     <div class="lksec" id="lkSecB"><h2><em>Name Tags</em><small id="lkNb"></small></h2><div class="lkrow" id="lkRowB"></div><p class="lknote" id="lkNoteB" role="status"></p></div>
@@ -1903,7 +1903,7 @@ function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u
 function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
 
 var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:30};
-var S={phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+var S={dsize:0.85,phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic',youSeat:0};
 
@@ -2191,7 +2191,7 @@ function renderSkins(){
   var cur=skinNow(),tb=lkNow('t'),tg=lkNow('b'),nm=lkName(),lockI=LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"');
   $('backDice').textContent='‹ '+({menu:'Main menu',settings:'Settings',shop:'Shop',ach:'Achievements'}[LK.from]||'Back');
   $('lkSign').hidden=!!AUTH&&!ON.admin;$('lkSign').querySelector('span').textContent=ON.admin?'Owner mode: every table, dice set and name tag is unlocked on your account for testing.':'Sign in to keep your unlocked dice on every phone.';$('lkSignBtn').hidden=!!AUTH;
-  Array.prototype.forEach.call(document.querySelectorAll('.lkseg button'),function(b){var on=+b.getAttribute('data-ds')===(S.dsize||1);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
+  Array.prototype.forEach.call(document.querySelectorAll('.lkseg button'),function(b){var on=+b.getAttribute('data-ds')===(S.dsize||0.85);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
   function shopItems(k,on){var L=lkList(k).filter(function(it){return ON.admin||lkOwns(k,it[0])}),n=0;var h=L.map(function(it){var own=lkOwns(k,it[0]),is=on[0]===it[0];if(own)n++;
       var th=k==='t'?'<span class="th" style="background-image:url('+lkBg(it[0])+')"></span>':'<span class="th">'+lkTag(it[0],nm)+'</span>';
       var st=is?'<span class="st">Equipped</span>':own?'<span class="st use">Tap to equip</span>':'<span class="st">'+lockI+'In the '+it[2]+'</span>';
@@ -2212,9 +2212,9 @@ function renderSkins(){
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
-  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if([1,0.9,0.8].indexOf(p.dsize)>=0)S.dsize=p.dsize;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
+  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if([1,0.85,0.7].indexOf(p.dsz)>=0)S.dsize=p.dsz;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,dsize:S.dsize||1,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,dsz:S.dsize||0.85,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -2241,7 +2241,7 @@ function layout(){
   var r=tray.getBoundingClientRect();if(r.width<10||r.height<10)return;
   T={w:r.width,h:r.height};
   if(tray.classList.contains('tutting')){var bb=$('tutBub');T.h=Math.max(120,r.height-(bb.hidden?0:bb.offsetHeight)-54)}   /* the pig's speech bubble owns the bottom of the table */
-  D=clamp(Math.min(T.w*0.25,T.h*0.44)*(S.dsize||1),36,124);   /* Dice size in the Locker shrinks them on this phone only */
+  D=clamp(Math.min(T.w*0.25,T.h*0.44)*(S.dsize||0.85),36,124);   /* Dice size in the Locker shrinks them on this phone only */
   tray.style.setProperty('--d',D+'px');
   var m=margin();
   if(!placed){placed=true;dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}
