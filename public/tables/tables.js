@@ -252,6 +252,55 @@ window.DPTable=function(cv,kind,A){
     vignette(.28);
   }
   function nring(x,y,s){if(s<.3)return;if(NR.length>12)NR.shift();NR.push({x:x,y:y,s:Math.min(1,s),t0:TT})}
+
+  /* ---------- High Roller craps table: a padded mahogany rail with a brass trim, rubber pyramids lining the wall, and a green
+     felt craps layout with gold-foil lettering. A glint runs round the brass, the gold lettering catches a passing light, and
+     soft spotlights breathe over the felt. ---------- */
+  var CF=null,CR=null,CP=null,GC=null;
+  function crapsGeo(){var I=Math.max(16,Math.min(30,Math.min(cw,ch)*.075)),PW=Math.max(7,I*.4);return {I:I,PW:PW,fx:I+PW,fy:I+PW,fw:cw-2*(I+PW),fh:ch-2*(I+PW)}}
+  function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+  function craps(t){
+    var g=crapsGeo();
+    if(!CF){CF=ctx.createPattern(A.felt,'repeat');CR=ctx.createPattern(A.rail,'repeat');CP=ctx.createPattern(A.pyr,'repeat')}
+    ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
+    /* the rail: mahogany with a padded roll of light along it */
+    CR.setTransform(new DOMMatrix().scale(.5));ctx.fillStyle=CR;ctx.fillRect(0,0,cw,ch);
+    var rg=ctx.createLinearGradient(0,0,0,ch);rg.addColorStop(0,'rgba(255,220,180,.14)');rg.addColorStop(.5,'rgba(0,0,0,0)');rg.addColorStop(1,'rgba(0,0,0,.25)');ctx.fillStyle=rg;ctx.fillRect(0,0,cw,ch);
+    ctx.lineWidth=g.I*.5;ctx.strokeStyle='rgba(255,210,170,.08)';rr(ctx,g.I*.35,g.I*.35,cw-g.I*.7,ch-g.I*.7,g.I*.9);ctx.stroke();
+    /* the rubber pyramids lining the wall */
+    CP.setTransform(new DOMMatrix().scale(g.PW/16));ctx.fillStyle=CP;rr(ctx,g.I,g.I,cw-2*g.I,ch-2*g.I,8);ctx.fill();
+    /* the felt */
+    ctx.save();rr(ctx,g.fx,g.fy,g.fw,g.fh,5);ctx.clip();
+    CF.setTransform(new DOMMatrix().scale(.75));ctx.fillStyle=CF;ctx.fillRect(g.fx,g.fy,g.fw,g.fh);
+    var s=Math.min((g.fw-10)/1200,(g.fh-10)/960),lw=1200*s,lh=960*s,lx=g.fx+(g.fw-lw)/2,ly=g.fy+(g.fh-lh)/2;
+    ctx.drawImage(A.lay,lx,ly,lw,lh);
+    /* the gold lettering catches a light passing across */
+    if(!GC){GC=document.createElement('canvas')}
+    if(GC.width!==cv.width||GC.height!==cv.height){GC.width=cv.width;GC.height=cv.height}
+    var gx=GC.getContext('2d');gx.setTransform(dpr,0,0,dpr,0,0);gx.globalCompositeOperation='source-over';gx.clearRect(0,0,cw,ch);gx.drawImage(A.gold,lx,ly,lw,lh);
+    var u=(t%6)/6,bx=lx-lw*.4+u*lw*1.9;gx.globalCompositeOperation='source-in';
+    var sg=gx.createLinearGradient(bx-70,ly,bx+70,ly+lh*.35);sg.addColorStop(0,'rgba(255,250,220,0)');sg.addColorStop(.5,'rgba(255,250,220,.95)');sg.addColorStop(1,'rgba(255,250,220,0)');gx.fillStyle=sg;gx.fillRect(0,0,cw,ch);
+    ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.75;ctx.drawImage(GC,0,0,cw,ch);ctx.globalAlpha=1;
+    /* two soft spotlights breathing over the felt */
+    ctx.globalCompositeOperation='soft-light';
+    for(var k=0;k<2;k++){var cx=g.fx+g.fw*(k?.72:.3),cy=g.fy+g.fh*(k?.62:.38),R=Math.max(g.fw,g.fh)*.55,a=.32+.1*Math.sin(t*.9+k*2.1);
+      var lg=ctx.createRadialGradient(cx,cy,0,cx,cy,R);lg.addColorStop(0,'rgba(255,245,215,'+a+')');lg.addColorStop(1,'rgba(255,245,215,0)');ctx.fillStyle=lg;ctx.fillRect(g.fx,g.fy,g.fw,g.fh)}
+    ctx.globalCompositeOperation='source-over';
+    var ig=ctx.createLinearGradient(0,g.fy,0,g.fy+14);ig.addColorStop(0,'rgba(0,0,0,.45)');ig.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=ig;ctx.fillRect(g.fx,g.fy,g.fw,14);
+    ctx.restore();
+    /* the brass trim round the felt, with a glint that runs round it */
+    rr(ctx,g.fx-1.5,g.fy-1.5,g.fw+3,g.fh+3,6);
+    var bg=ctx.createLinearGradient(0,0,cw,ch);bg.addColorStop(0,'#FFF0B0');bg.addColorStop(.3,'#D9A630');bg.addColorStop(.55,'#8A5A0A');bg.addColorStop(.75,'#F2D27A');bg.addColorStop(1,'#A87418');
+    ctx.strokeStyle=bg;ctx.lineWidth=3;ctx.stroke();
+    rr(ctx,g.I-1,g.I-1,cw-2*g.I+2,ch-2*g.I+2,9);ctx.lineWidth=2.5;ctx.stroke();
+    var per=2*(g.fw+g.fh),d=((t%5)/5)*per,px,py;
+    if(d<g.fw){px=g.fx+d;py=g.fy}else if(d<g.fw+g.fh){px=g.fx+g.fw;py=g.fy+d-g.fw}else if(d<2*g.fw+g.fh){px=g.fx+g.fw-(d-g.fw-g.fh);py=g.fy+g.fh}else{px=g.fx;py=g.fy+g.fh-(d-2*g.fw-g.fh)}
+    ctx.globalCompositeOperation='lighter';var hg=ctx.createRadialGradient(px,py,0,px,py,26);hg.addColorStop(0,'rgba(255,250,220,.95)');hg.addColorStop(.3,'rgba(255,220,140,.45)');hg.addColorStop(1,'rgba(255,200,100,0)');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(px,py,26,0,TAU);ctx.fill();
+    for(var j=0;j<6;j++){var per2=2.4+rnd(j,1)*2,e=((t+rnd(j,2)*per2)%per2)/.5;if(e>=1)continue;var side=j%4,q=rnd(j,Math.floor((t+rnd(j,2)*per2)/per2)+3),sx2,sy2;
+      if(side===0){sx2=g.I+q*(cw-2*g.I);sy2=g.I}else if(side===1){sx2=cw-g.I;sy2=g.I+q*(ch-2*g.I)}else if(side===2){sx2=g.I+q*(cw-2*g.I);sy2=ch-g.I}else{sx2=g.I;sy2=g.I+q*(ch-2*g.I)}
+      var a2=Math.sin(Math.PI*e),sz=5+rnd(j,4)*5;ctx.strokeStyle='rgba(255,250,225,'+a2+')';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(sx2-sz,sy2);ctx.lineTo(sx2+sz,sy2);ctx.moveTo(sx2,sy2-sz*.7);ctx.lineTo(sx2,sy2+sz*.7);ctx.stroke()}
+    ctx.globalCompositeOperation='source-over';vignette(.22);
+  }
   fit();window.addEventListener('resize',fit);
-  return {ripple:kind==='lagoon'?ripple:kind==='neonp'||kind==='neong'?nring:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:kind==='neonp'||kind==='neong'?neon:space)(t)}};
+  return {ripple:kind==='lagoon'?ripple:kind==='neonp'||kind==='neong'?nring:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:kind==='neonp'||kind==='neong'?neon:kind==='craps'?craps:space)(t)}};
 };
