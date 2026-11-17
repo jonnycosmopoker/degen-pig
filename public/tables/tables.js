@@ -256,7 +256,7 @@ window.DPTable=function(cv,kind,A){
   /* ---------- High Roller craps table: a padded mahogany rail with a brass trim, rubber pyramids lining the wall, and a green
      felt craps layout with gold-foil lettering. A glint runs round the brass, the gold lettering catches a passing light, and
      soft spotlights breathe over the felt. ---------- */
-  var CF=null,CR=null,CP=null,GC=null,CT=0,CHIPS=[],HQ=[],HAND=null,LG={s:1,x:0,y:0};
+  var CF=null,CR=null,CP=null,GC=null,CT=0,CHIPS=[],HQ=[],HAND=null,LG={s:1,sx:1,sy:1,x:0,y:0};
   /* where a chip goes for each roll total, in layout units: the place numbers, the field numbers, and 7 on the pass line */
   var BW=1010/6,FW=1010/7,SPOT={4:[150+BW*.5,302],5:[150+BW*1.5,302],6:[150+BW*2.5,302],8:[150+BW*3.5,302],9:[150+BW*4.5,302],10:[150+BW*5.5,302],
     2:[150+FW*.5+34,572],3:[150+FW*1.5+30,572],11:[150+FW*5.5+30,572],12:[150+FW*6.5-34,572],7:[860,866]};
@@ -269,7 +269,7 @@ window.DPTable=function(cv,kind,A){
     ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r*.56,0,TAU);ctx.fill();
     var hg=ctx.createRadialGradient(x-r*.3,y-r*.35,0,x,y,r);hg.addColorStop(0,'rgba(255,255,255,.35)');hg.addColorStop(.6,'rgba(255,255,255,0)');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();
     ctx.restore()}
-  function cxy(n,k){var p=SPOT[n];return [LG.x+p[0]*LG.s,LG.y+(p[1]-k*8)*LG.s]}
+  function cxy(n,k){var p=SPOT[n];return [LG.x+p[0]*LG.sx,LG.y+p[1]*LG.sy-k*8*LG.s]}
   function hstep(){if(!HAND&&HQ.length){HAND=HQ.shift();HAND.t0=CT}}
   function ease(e){return e<.5?2*e*e:1-Math.pow(-2*e+2,2)/2}
   /* the dealer's gloved hand reaching in from the top of the table */
@@ -281,7 +281,7 @@ window.DPTable=function(cv,kind,A){
       chip(p[0],p[1]+dy-(1-e)*6,r*(1+.12*(1-e)),CHC[c.n],a)});
     CHIPS=CHIPS.filter(function(c){return c.gone==null||CT-c.gone<.5});
     if(HAND){var e=(CT-HAND.t0)/1.05;if(e>=1){if(!HAND.done){if(HAND.kind==='place'){HAND.c.held=false;HAND.c.t0=CT}else CHIPS.forEach(function(c){if(c.gone==null)c.gone=CT})}HAND=null;hstep();return}
-      var tx,ty;if(HAND.kind==='place'){var p=cxy(HAND.n,HAND.k);tx=p[0];ty=p[1]}else{tx=LG.x+655*LG.s;ty=LG.y+420*LG.s}
+      var tx,ty;if(HAND.kind==='place'){var p=cxy(HAND.n,HAND.k);tx=p[0];ty=p[1]}else{tx=LG.x+655*LG.sx;ty=LG.y+420*LG.sy}
       var top=-430*sc2*.15,k=e<.42?ease(e/.42):e<.58?1:1-ease((e-.58)/.42),hy=top+(ty-top)*k,hx=tx+(1-k)*20;
       if(HAND.kind==='place'){if(e<.5){chip(hx,hy,r,CHC[HAND.n])}else if(!HAND.done){HAND.done=true;HAND.c.held=false;HAND.c.t0=CT}}
       else if(e>.45&&!HAND.done){HAND.done=true;CHIPS.forEach(function(c){if(c.gone==null)c.gone=CT})}
@@ -305,8 +305,12 @@ window.DPTable=function(cv,kind,A){
     /* the felt */
     ctx.save();rr(ctx,g.fx,g.fy,g.fw,g.fh,5);ctx.clip();
     CF.setTransform(new DOMMatrix().scale(.75));ctx.fillStyle=CF;ctx.fillRect(g.fx,g.fy,g.fw,g.fh);
-    var s=Math.min((g.fw-10)/1200,(g.fh-10)/960),lw=1200*s,lh=960*s,lx=g.fx+(g.fw-lw)/2,ly=g.fy+(g.fh-lh)/2;
-    ctx.drawImage(A.lay,lx,ly,lw,lh);LG={s:s,x:lx,y:ly};
+    /* the layout's outer line (40..1160 x 40..920 in layout units) runs to within a few pixels of the left and right edges of the felt */
+    var sx=(g.fw-8)/1120,sy=Math.min(sx,(g.fh-8)/880),s=Math.min(sx,sy),lw=1200*sx,lh=960*sy,lx=g.fx+4-40*sx,ly=g.fy+(g.fh-880*sy)/2-40*sy;
+    ctx.drawImage(A.lay,lx,ly,lw,lh);LG={s:s,sx:sx,sy:sy,x:lx,y:ly};
+    /* the table's name, small and faint, in the open Come area between the place numbers and the field */
+    var fs=Math.min(84*sy,560*sx/5.6);ctx.save();ctx.font=fs+'px "Bowlby One",Figtree,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(246,207,69,.22)';ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowOffsetY=Math.max(1,fs*.05);ctx.fillText('DEGEN PIG',lx+712*sx,ly+447*sy);ctx.restore();
     /* the gold lettering catches a light passing across */
     if(!GC){GC=document.createElement('canvas')}
     if(GC.width!==cv.width||GC.height!==cv.height){GC.width=cv.width;GC.height=cv.height}
