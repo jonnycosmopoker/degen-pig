@@ -2178,7 +2178,7 @@ function tblStart(id){
     :kind==='gold'?Promise.all([tblLoad('tables/vault.jpg'),tblLoad('tables/link-a.png'),tblLoad('tables/link-b.png')]).then(function(x){A.bg=x[0];A.la=x[1];A.lb=x[2]})
     :kind==='xmas'?Promise.all([tblLoad('tables/xmas.jpg'),tblLoad('tables/xmas-drift.png')]).then(function(x){A.bg=x[0];A.drift=x[1]})
     :kind==='neonp'||kind==='neong'?Promise.resolve()
-    :kind==='craps'?Promise.all([tblLoad('tables/craps-felt.jpg'),tblLoad('tables/craps-rail.jpg'),tblLoad('tables/craps-pyr.png'),tblLoad('tables/craps-layout.webp'),tblLoad('tables/craps-gold.webp')]).then(function(x){A.felt=x[0];A.rail=x[1];A.pyr=x[2];A.lay=x[3];A.gold=x[4]})
+    :kind==='craps'?Promise.all([tblLoad('tables/craps-felt.jpg'),tblLoad('tables/craps-rail.jpg'),tblLoad('tables/craps-pyr.png'),tblLoad('tables/craps-layout.webp'),tblLoad('tables/craps-gold.webp'),tblLoad('tables/craps-hand.png')]).then(function(x){A.felt=x[0];A.rail=x[1];A.pyr=x[2];A.lay=x[3];A.gold=x[4];A.hand=x[5]})
     :kind==='lagoon'?Promise.all([tblLoad('tables/lagoon-bed.jpg'),tblLoad('tables/caustic.webp'),tblLoad('tables/palm.webp'),tblLoad('dice/sand.jpg')]).then(function(x){A.bed=x[0];A.caus=x[1];A.palm=x[2];A.sand=x[3]})
     :Promise.all([tblLoad('tables/space.jpg'),fetch('tables/space-stars.json').then(function(r){return r.json()})]).then(function(x){A.space=x[0];A.stars=x[1]});
   Promise.all([TBL.load,assets]).then(function(){if(TBL.id!==id)return;
@@ -2352,6 +2352,7 @@ function throwDice(vals,dir){
       if(dice.every(function(d){return d.t>=d.dur&&d.z===0&&d.vz===0})){
         dice.forEach(function(d,i){var f=FACE[vals[i]];d.rx=f[0];d.ry=f[1];d.spin=((d.spin+180)%360+360)%360-180;draw(d)});
         if(hot){EMB.on=false;tray.classList.remove('rolling')}
+        if(TBL.skin&&TBL.skin.mark){if(vals[0]===1||vals[1]===1)TBL.skin.clear();else{TBL.skin.mark(vals[0]+vals[1]);if(!reduce)setTimeout(sfxChip,470)}}
         resolve();
       }else requestAnimationFrame(step);
     }
@@ -2605,6 +2606,7 @@ function rewindTurn(from){
     },wait);
   });
 }
+function sfxChip(){if(!ac())return;var t=AC.currentTime+0.01;noise(t,.03,'bandpass',3400,3,.22,.01);tone(t,'triangle',2600,0,.05,.08);noise(t+.07,.025,'bandpass',4200,3,.14,.01);tone(t+.07,'triangle',3100,0,.04,.05)}
 function sfxRewind(d){
   if(!ac())return;var t=AC.currentTime+0.01;
   var o=AC.createOscillator();o.type='square';o.frequency.setValueAtTime(1500,t);o.frequency.exponentialRampToValueAtTime(420,t+d);
@@ -2890,6 +2892,7 @@ function chartPick(e){
 }
 function render(){
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
+  if(TBL.skin&&TBL.skin.clear&&!(S.rolls&&S.rolls.length))TBL.skin.clear();
   renderMain();renderPrimes();tutUI();achToast();chatUI();applySkin();applyTable();acctUI();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */

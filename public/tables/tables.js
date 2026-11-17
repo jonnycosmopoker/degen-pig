@@ -256,11 +256,44 @@ window.DPTable=function(cv,kind,A){
   /* ---------- High Roller craps table: a padded mahogany rail with a brass trim, rubber pyramids lining the wall, and a green
      felt craps layout with gold-foil lettering. A glint runs round the brass, the gold lettering catches a passing light, and
      soft spotlights breathe over the felt. ---------- */
-  var CF=null,CR=null,CP=null,GC=null;
+  var CF=null,CR=null,CP=null,GC=null,CT=0,CHIPS=[],HQ=[],HAND=null,LG={s:1,x:0,y:0};
+  /* where a chip goes for each roll total, in layout units: the place numbers, the field numbers, and 7 on the pass line */
+  var BW=1010/6,FW=1010/7,SPOT={4:[150+BW*.5,302],5:[150+BW*1.5,302],6:[150+BW*2.5,302],8:[150+BW*3.5,302],9:[150+BW*4.5,302],10:[150+BW*5.5,302],
+    2:[150+FW*.5+34,572],3:[150+FW*1.5+30,572],11:[150+FW*5.5+30,572],12:[150+FW*6.5-34,572],7:[860,866]};
+  var CHC={2:'#2B6CD9',3:'#7A3FC4',4:'#D9262E',5:'#1F8F4E',6:'#D9262E',7:'#E07A12',8:'#1F8F4E',9:'#1C1C20',10:'#2B6CD9',11:'#7A3FC4',12:'#1C1C20'};
+  function chip(x,y,r,col,a){ctx.save();ctx.globalAlpha=a==null?1:a;
+    ctx.fillStyle='rgba(0,0,0,.4)';ctx.beginPath();ctx.ellipse(x+r*.12,y+r*.22,r,r*.92,0,0,TAU);ctx.fill();
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();
+    ctx.fillStyle='#F4F1EA';for(var k=0;k<6;k++){ctx.save();ctx.translate(x,y);ctx.rotate(k*TAU/6);ctx.fillRect(-r*.16,-r,r*.32,r*.3);ctx.restore()}
+    ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=Math.max(1,r*.08);ctx.setLineDash([r*.22,r*.16]);ctx.beginPath();ctx.arc(x,y,r*.66,0,TAU);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=col;ctx.beginPath();ctx.arc(x,y,r*.56,0,TAU);ctx.fill();
+    var hg=ctx.createRadialGradient(x-r*.3,y-r*.35,0,x,y,r);hg.addColorStop(0,'rgba(255,255,255,.35)');hg.addColorStop(.6,'rgba(255,255,255,0)');ctx.fillStyle=hg;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill();
+    ctx.restore()}
+  function cxy(n,k){var p=SPOT[n];return [LG.x+p[0]*LG.s,LG.y+(p[1]-k*8)*LG.s]}
+  function hstep(){if(!HAND&&HQ.length){HAND=HQ.shift();HAND.t0=CT}}
+  function ease(e){return e<.5?2*e*e:1-Math.pow(-2*e+2,2)/2}
+  /* the dealer's gloved hand reaching in from the top of the table */
+  function drawHand(x,y,sc2){var w=230*sc2,h=430*sc2;ctx.drawImage(A.hand,x-103*sc2,y-345*sc2,w,h)}
+  function chipsAndHand(){
+    var r=Math.max(10,46*LG.s),sc2=r/28;
+    CHIPS.forEach(function(c){if(c.held)return;var e=Math.min(1,(CT-c.t0)/.25),p=cxy(c.n,c.k),a=1,dy=0;
+      if(c.gone!=null){var g=Math.min(1,(CT-c.gone)/.5);a=1-g;dy=-g*40}
+      chip(p[0],p[1]+dy-(1-e)*6,r*(1+.12*(1-e)),CHC[c.n],a)});
+    CHIPS=CHIPS.filter(function(c){return c.gone==null||CT-c.gone<.5});
+    if(HAND){var e=(CT-HAND.t0)/1.05;if(e>=1){if(!HAND.done){if(HAND.kind==='place'){HAND.c.held=false;HAND.c.t0=CT}else CHIPS.forEach(function(c){if(c.gone==null)c.gone=CT})}HAND=null;hstep();return}
+      var tx,ty;if(HAND.kind==='place'){var p=cxy(HAND.n,HAND.k);tx=p[0];ty=p[1]}else{tx=LG.x+655*LG.s;ty=LG.y+420*LG.s}
+      var top=-430*sc2*.15,k=e<.42?ease(e/.42):e<.58?1:1-ease((e-.58)/.42),hy=top+(ty-top)*k,hx=tx+(1-k)*20;
+      if(HAND.kind==='place'){if(e<.5){chip(hx,hy,r,CHC[HAND.n])}else if(!HAND.done){HAND.done=true;HAND.c.held=false;HAND.c.t0=CT}}
+      else if(e>.45&&!HAND.done){HAND.done=true;CHIPS.forEach(function(c){if(c.gone==null)c.gone=CT})}
+      drawHand(hx,hy,sc2)}
+    hstep();
+  }
+  function crapsMark(n){if(!SPOT[n])return;var k=CHIPS.filter(function(c){return c.n===n&&c.gone==null}).length;var c={n:n,k:Math.min(k,7),t0:0,held:true};CHIPS.push(c);HQ.push({kind:'place',n:n,k:c.k,c:c})}
+  function crapsClear(){if(!CHIPS.some(function(c){return c.gone==null}))return;HQ=HQ.filter(function(h){return h.kind!=='place'});CHIPS=CHIPS.filter(function(c){return !c.held});HQ.push({kind:'sweep'})}
   function crapsGeo(){var I=Math.max(16,Math.min(30,Math.min(cw,ch)*.075)),PW=Math.max(7,I*.4);return {I:I,PW:PW,fx:I+PW,fy:I+PW,fw:cw-2*(I+PW),fh:ch-2*(I+PW)}}
   function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
   function craps(t){
-    var g=crapsGeo();
+    CT=t;var g=crapsGeo();
     if(!CF){CF=ctx.createPattern(A.felt,'repeat');CR=ctx.createPattern(A.rail,'repeat');CP=ctx.createPattern(A.pyr,'repeat')}
     ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;
     /* the rail: mahogany with a padded roll of light along it */
@@ -273,7 +306,7 @@ window.DPTable=function(cv,kind,A){
     ctx.save();rr(ctx,g.fx,g.fy,g.fw,g.fh,5);ctx.clip();
     CF.setTransform(new DOMMatrix().scale(.75));ctx.fillStyle=CF;ctx.fillRect(g.fx,g.fy,g.fw,g.fh);
     var s=Math.min((g.fw-10)/1200,(g.fh-10)/960),lw=1200*s,lh=960*s,lx=g.fx+(g.fw-lw)/2,ly=g.fy+(g.fh-lh)/2;
-    ctx.drawImage(A.lay,lx,ly,lw,lh);
+    ctx.drawImage(A.lay,lx,ly,lw,lh);LG={s:s,x:lx,y:ly};
     /* the gold lettering catches a light passing across */
     if(!GC){GC=document.createElement('canvas')}
     if(GC.width!==cv.width||GC.height!==cv.height){GC.width=cv.width;GC.height=cv.height}
@@ -300,7 +333,8 @@ window.DPTable=function(cv,kind,A){
       if(side===0){sx2=g.I+q*(cw-2*g.I);sy2=g.I}else if(side===1){sx2=cw-g.I;sy2=g.I+q*(ch-2*g.I)}else if(side===2){sx2=g.I+q*(cw-2*g.I);sy2=ch-g.I}else{sx2=g.I;sy2=g.I+q*(ch-2*g.I)}
       var a2=Math.sin(Math.PI*e),sz=5+rnd(j,4)*5;ctx.strokeStyle='rgba(255,250,225,'+a2+')';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(sx2-sz,sy2);ctx.lineTo(sx2+sz,sy2);ctx.moveTo(sx2,sy2-sz*.7);ctx.lineTo(sx2,sy2+sz*.7);ctx.stroke()}
     ctx.globalCompositeOperation='source-over';vignette(.22);
+    chipsAndHand();
   }
   fit();window.addEventListener('resize',fit);
-  return {ripple:kind==='lagoon'?ripple:kind==='neonp'||kind==='neong'?nring:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:kind==='neonp'||kind==='neong'?neon:kind==='craps'?craps:space)(t)}};
+  return {mark:kind==='craps'?crapsMark:null,clear:kind==='craps'?crapsClear:null,ripple:kind==='lagoon'?ripple:kind==='neonp'||kind==='neong'?nring:null,draw:function(t){if(cv.clientWidth!==cw||cv.clientHeight!==ch)fit();ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,cw,ch);(kind==='lava'?lava:kind==='xmas'?xmas:kind==='gold'?goldv:kind==='lagoon'?lagoon:kind==='neonp'||kind==='neong'?neon:kind==='craps'?craps:space)(t)}};
 };
