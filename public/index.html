@@ -1450,6 +1450,13 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #shop .bdeal.wide .bname{font-size:clamp(17px,5vw,26px)}
 #shop .bdeal.wide .bprice{font-size:14px;padding:4px 9px}
 @media (min-width:640px){#shop .bdeal.wide .shopbuy{max-width:none;padding:0 26px}}
+/* prices always fit their card: the name gives way, a discounted price stacks the old price above the new one, and a very
+   tight card drops the price under the name */
+#shop .bndl .binfo{flex-wrap:wrap}
+#shop .bndl .bname{flex:1 1 6.5em;min-width:0}
+@media (min-width:640px){#shop .bndl .bname{font-size:20px}}
+#shop .bndl .bprice{margin-left:auto;white-space:nowrap;text-align:center}
+#shop .bprice s{display:block;margin:0 0 3px;font-size:11px}
 /* Shop before launch: everyone but the owner sees one "coming soon" plaque */
 #shop.soon .shoptabs,#shop.soon .shopnote,#shop.soon .shoplk{display:none}
 .shopsoon.mq{gap:8px;padding:26px 18px 24px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
