@@ -1434,13 +1434,22 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 .lkit .sndth{color:#FBE58A}.lkit .sndth svg{width:36px;height:36px;padding:7px}
 #shop .bhear{display:inline-flex;align-items:center;justify-content:center;gap:8px;align-self:center}
 #shop .shopitem.pc .bhear{min-height:36px;padding:0 14px;font-size:12px}
-#shop .bparts.four{grid-template-columns:repeat(2,minmax(0,1fr))}@media (min-width:420px){#shop .bparts.four{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#shop .bparts.four{grid-template-columns:repeat(2,minmax(0,1fr))}@media (min-width:420px) and (max-width:639px){#shop .bparts.four{grid-template-columns:repeat(4,minmax(0,1fr))}}
 #shop .bparts li.got{box-shadow:inset 0 0 0 1.5px #F6CF45;background:rgba(242,194,48,.12)}#shop .bparts li.got em{color:#F6CF45}
 #shop .bprice s{opacity:.55;font-size:13px;margin-right:2px}#shop .bprice.own{color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A);border-color:#F6CF45}
 #shop .bown{margin:0;padding:8px 10px;border-radius:10px;background:rgba(242,194,48,.12);color:#FBE58A;text-align:center;font-size:14px;font-weight:700}
 #shop .bsnd{color:#FBE58A;font-weight:700}
 #shop .bndl .shopbuy.eq{background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45}
 #shop .pchint{font-size:12px;color:#FBE58A}
+/* Any 3 Bundles stretches across the top row: name, price and blurb on the left, the button on the right */
+#shop .bdeal{grid-column:1/-1}
+#shop .bdeal.wide{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"info btn" "blurb btn";align-items:center;column-gap:14px;row-gap:4px;padding:20px 14px 14px}
+#shop .bdeal.wide .binfo{grid-area:info;justify-content:flex-start;flex-wrap:wrap;gap:6px 12px;padding:0}#shop .bdeal.wide .bname{white-space:nowrap}
+#shop .bdeal.wide .bblurb{grid-area:blurb;padding:0;font-size:13px}
+#shop .bdeal.wide .shopbuy{grid-area:btn;min-width:0;align-self:center;padding:0 16px;max-width:130px;white-space:normal;line-height:1.1;min-height:48px}
+#shop .bdeal.wide .bname{font-size:clamp(17px,5vw,26px)}
+#shop .bdeal.wide .bprice{font-size:14px;padding:4px 9px}
+@media (min-width:640px){#shop .bdeal.wide .shopbuy{max-width:none;padding:0 26px}}
 /* Shop before launch: everyone but the owner sees one "coming soon" plaque */
 #shop.soon .shoptabs,#shop.soon .shopnote,#shop.soon .shoplk{display:none}
 .shopsoon.mq{gap:8px;padding:26px 18px 24px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
@@ -1666,7 +1675,6 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
   <section class="dock scroll" id="shop" hidden>
     <div class="headrow"><button type="button" class="link back" id="backShop">‹ Main menu</button><h1 class="screen-h">Degen Pig Shop</h1></div>
     <p class="cap shopnote" id="shopNote"></p>
-    <button type="button" class="link shoplk" id="shopLocker">My Locker ›</button>
     <div class="shoptabs" role="tablist"><button type="button" class="on" data-tab="bundles" role="tab">Bundles</button><button type="button" data-tab="dice" role="tab">Dice</button><button type="button" data-tab="tables" role="tab">Tables</button><button type="button" data-tab="borders" role="tab">Name Tag Borders</button><button type="button" data-tab="sounds" role="tab">Sound Effects</button></div>
     <p class="shopmsg" id="shopMsg" role="status" hidden></p>
     <div class="shopgrid" id="shopGrid"></div>
@@ -3636,7 +3644,7 @@ function renderShop(){
   if(SHOP.tab!=='bundles'){renderShopPieces(g);return}
   g.className='shopgrid bndls';
   var P=PICK3.ids,full=P.length>=3,slot=function(i){var B=P[i]&&BUNDLES.filter(function(x){return x.id===P[i]})[0];return '<li class="'+(B?'on':'')+'"><em>'+(i+1)+'</em>'+(B?esc(B.n):'Pick a bundle')+'</li>'};
-  var deal='<div class="bdeal mq"><div class="binfo"><b class="bname">Any 3 Bundles</b><span class="bprice">$29.99</span></div><p class="bblurb">Pick any 3 bundles in the Shop and get them all at once. Save up to $14.98.</p>'+
+  var deal='<div class="bdeal mq'+(PICK3.on?'':' wide')+'"><div class="binfo"><b class="bname">Any 3 Bundles</b><span class="bprice">$29.99</span></div><p class="bblurb">Pick any 3 bundles and get them all at once. Save up to $14.98.</p>'+
     (PICK3.on?'<ol class="bslots">'+slot(0)+slot(1)+slot(2)+'</ol><p class="bdealnote" id="pickNote">'+(PICK3.msg||(full?'All 3 picked. Tap a bundle again to swap it out.':'Tap Add to my 3 on any bundle below. '+(3-P.length)+' to go.'))+'</p>'+
       '<div class="bdealbtns"><button type="button" class="shopbuy" data-p3="buy"'+(full?'':' disabled')+'>Buy 3 for $'+p3Price()+'</button><button type="button" class="bghost" data-p3="cancel">Cancel</button></div>'
     :'<button type="button" class="shopbuy" data-p3="start">Choose 3 bundles</button>')+'</div>';
@@ -3751,7 +3759,6 @@ $('shop').addEventListener('click',function(e){if(!ON.admin)return;var t;
     shopMsg('Pretend purchase: the '+esc(B2.n)+' bundle for '+p+'. It’s all yours now.');var y=window.scrollY;renderShop();window.scrollTo(0,y);return}
   if((t=e.target.closest('.shopbuy[data-b]'))){var B3=BUNDLES.filter(function(x){return x.id===t.getAttribute('data-b')})[0];if(!B3)return;
     S.skin=B3.d;S.table=B3.t;S.tag=B3.b;S.snd=B3.s||'classic';savePrefs();var y2=window.scrollY;renderShop();window.scrollTo(0,y2);render()}});
-$('shopLocker').addEventListener('click',function(){openLocker('shop')});
 $('backSetup').addEventListener('click',function(){readSetup();toMenu()});
 $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
 $('backSettings').addEventListener('click',function(){S.phase='setup';render()});
