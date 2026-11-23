@@ -5,7 +5,7 @@
 
 export const DEF_RULES = { target: 100, golden: true, noDbl: false, reroll: false, verify: false, power: true, triple: false, prime: false, timer: 30, money: null };
 
-/* Prime One: the primes a player can claim, from 5 up to the target */
+/* Prime Pig: the primes a player can capture, from 5 up to the target */
 export function isPrime(n) { if (n < 2) return false; for (let d = 2; d * d <= n; d++) if (n % d === 0) return false; return true }
 export function primeList(target) { const a = []; for (let n = 5; n <= target; n++) if (isPrime(n)) a.push(n); return a }
 
@@ -131,7 +131,7 @@ export function Engine(S) {
   function beginOrder() {
     S.order = []; S.pos = 0; S.turn = 0; S.rolls = []; S.bust = false; S.finalDone = false; S.queue = []; S.trigger = -1; S.n = S.players.length; S.finalMode = 'turn';
     S.players.forEach(p => { p.score = 0; p.hot = false; p.rr = RL().reroll ? 3 : 0; p.pw = 0; p.pwReady = false; p.pwCarry = 0; p.g = { turns: 0, rolls: 0, busts: 0, burnMax: 0, finalDef: null, dbl: 0, six: 0, forced: 0, wireFail: false }; p.st = { f: [0, 0, 0, 0, 0, 0], d: 0, lost: 0, sn: 0 } });
-    S.pend = null; S.inReroll = false; S.rrFail = false; S.hotTurn = false; S.hotX = 1; S.powerTurn = false; S.snake = false; S.mustRoll = false; S.winners = []; S.primes = {}; S.primeHit = null;
+    S.pend = null; S.inReroll = false; S.rrFail = false; S.hotTurn = false; S.hotX = 1; S.powerTurn = false; S.snake = false; S.mustRoll = false; S.winners = []; S.primes = {}; S.primeHit = null; S.pr = false;
     /* Game 1 draws a random seating order. Every later game keeps that order and moves the first turn one seat along. */
     let all; const G = S.games || 0;
     if (G > 0 && S.baseOrder && S.baseOrder.length === S.players.length) { const r = G % S.baseOrder.length; all = S.baseOrder.slice(r).concat(S.baseOrder.slice(0, r)) }
@@ -141,7 +141,7 @@ export function Engine(S) {
     say((G > 0 ? 'Game ' + (G + 1) + ': ' : '') + P(S.order[0]).name + ' goes first');
   }
   function onDoubles(i) {
-    if (RL().noDbl) return false;
+    if (RL().noDbl || S.pr) return false;
     if (P(i).st && P(i).st.sn >= 2) return true;
     const mine = P(i).score, lead = Math.max.apply(null, S.players.map((q, j) => j === i ? -1 : q.score));
     if (mine === 0 && lead > 75) return true;
@@ -150,6 +150,7 @@ export function Engine(S) {
   /* how many separate reasons this player's turn is doubled: Five Ones 2x, two snake eyes this game, far behind (at 0 with someone over 75, or 75+ back on the final turn).
      With Enable 3x on, two or more reasons at once make it a ×3 turn instead of ×2. */
   function hotReasons(i) {
+    if (S.pr) return 0;                       /* Prime Pig bonus turns: no ×2 or ×3 turns */
     let n = S.powerTurn ? 1 : 0;
     if (RL().noDbl) return n;
     if (P(i).st && P(i).st.sn >= 2) n++;
@@ -160,15 +161,19 @@ export function Engine(S) {
   const MX = () => S.hotX || (S.hotTurn ? 2 : 1);
   function beginTurn() {
     const p = P(S.cur); S.pwFull = false; S.powerTurn = false; S.rrUsed = false;
-    if (p.g) { p.g.turns++; p.g.dbl = 0; p.g.six = 0; p.g.forced = 0; if (S.phase === 'final' && p.g.finalDef == null) p.g.finalDef = barScore() - p.score }
-    if (RL().power && p.pwReady) { p.pwReady = false; p.pw = Math.min(4, p.pwCarry || 0); p.pwCarry = 0; S.powerTurn = true }
+    if (p.g) { p.g.turns++; p.g.dbl = 0; p.g.six = 0; p.g.forced = 0; if (S.phase === 'final' && !S.pr && p.g.finalDef == null) p.g.finalDef = barScore() - p.score }
+    if (RL().power && p.pwReady && !S.pr) { p.pwReady = false; p.pw = Math.min(4, p.pwCarry || 0); p.pwCarry = 0; S.powerTurn = true }
     const why = hotReasons(S.cur); S.hotX = why === 0 ? 1 : (RL().triple && why >= 2 ? 3 : 2); S.hotTurn = S.hotX > 1;
     S.turnId = (S.turnId || 0) + 1;
     if (S.hotTurn) S.fx = { hot: true, x: S.hotX };
   }
   function nextPlayer() {
     S.turn = 0; S.rolls = []; S.bust = false; S.snake = false; S.pend = null; S.inReroll = false; S.rrFail = false; S.mustRoll = false; S.finalDone = false; S.marks = ['', '']; S.hotTurn = false; S.hotX = 1; say(null);
-    if (S.phase === 'final') { S.queue.shift(); if (!S.queue.length) { endGame(); return } S.cur = S.queue[0] }
+    if (S.phase === 'final') {
+      S.queue.shift();
+      if (!S.queue.length) { const q = primeQueue(); if (!q) { endGame(); return } S.pr = true; S.queue = q; S.fx = Object.assign(S.fx || {}, { primeRound: q.length }) }
+      S.cur = S.queue[0];
+    }
     else { S.pos = (S.pos + 1) % S.n; S.cur = S.order[S.pos]; if (S.pos === 0) achRound() }
     beginTurn();
   }
@@ -186,15 +191,24 @@ export function Engine(S) {
     S.fx.lock = amt; if (pr) S.fx.prime = pr;
     return true;
   }
-  /* Prime One: the first player to bank exactly an open prime (5 up to the target) claims it and gets a Five Ones dot.
+  /* Prime Pig: the first player to lock in exactly an open prime (5 up to the target) captures it and gets a Five Ones dot.
      With all 5 dots already filled, the dot starts their next row instead. */
-  function primeOpen(n) { return !!(RL().prime && RL().power && n >= 5 && n <= RL().target && isPrime(n) && !(S.primes && S.primes[n] != null)) }
+  function primeOpen(n) { return !!(RL().prime && RL().power && !S.pr && n >= 5 && n <= RL().target && isPrime(n) && !(S.primes && S.primes[n] != null)) }
   function primeBonus(i) {
     const p = P(i), n = p.score; S.primeHit = null; if (!primeOpen(n)) return null;
     (S.primes = S.primes || {})[n] = i; let full = false, carry = false;
     if (p.pwReady) { p.pwCarry = Math.min(4, (p.pwCarry || 0) + 1); carry = true }
     else { p.pw = (p.pw || 0) + 1; if (p.pw >= 5) { p.pw = 5; p.pwReady = true; full = true } }
     S.primeHit = { n, i, full, carry }; return S.primeHit;
+  }
+  /* Prime Pig: once everyone has had their final turn, each player gets one bonus turn for every prime they captured,
+     taken around the table in seating order. Normal busts, doubles still pay double, no ×2 or ×3 turns, no more captures. */
+  function primeQueue() {
+    if (!RL().prime || S.pr) return null;
+    const c = S.players.map(() => 0); for (const n in (S.primes || {})) { const w = S.primes[n]; if (w != null && c[w] != null) c[w]++ }
+    const q = [], mx = Math.max.apply(null, c);
+    for (let r = 0; r < mx; r++) S.order.forEach(i => { if (c[i] > r) q.push(i) });
+    return q.length ? q : null;
   }
   function rollText(a, b, pts, dbl, m) {
     if (dbl) return 'Doubles! ' + (a + b) + ' ×' + (2 * m) + ' = ' + pts;
@@ -294,7 +308,8 @@ export function Engine(S) {
     let thr = (240 * m - B) / 11 * k; const total = B + Tn;
     if (S.phase === 'final') {
       if (total <= maxO) return 'roll';
-      const goal = maxO + 1 + (S.queue.length > 1 ? Math.round(margin / 2) : 0);
+      const later = S.queue.slice(1).filter(j => j !== i).length;
+      const goal = maxO + 1 + (S.pr ? later * Math.round(margin * 0.7) : (S.queue.length > 1 ? Math.round(margin / 2) : 0));
       return (total >= goal || Tn >= thr * 1.5) ? 'lock' : 'roll';
     }
     if (maxO > 85 && total < maxO - 25) thr *= 1.3;
