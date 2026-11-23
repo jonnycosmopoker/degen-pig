@@ -17,12 +17,13 @@ const CHAT_KEEP = 60, CHAT_LEN = 200;
 /* player ids stay on the server: each phone just learns which messages are its own */
 const chatOut = (m, uid) => ({ id: m.id, name: m.name, seat: m.seat, text: m.text, at: m.at, me: m.uid === uid });
 /* what each player shows off at the table: dice, table and name tag. Free ones anyone can use; Shop items only the owner
-   (until the Shop opens, then whoever bought them). Anything else falls back to the house look. */
+   (until the Shop opens, then whoever bought them). s is the sound set. Anything else falls back to the house look. */
 const EMOTES = ['happy', 'angry', 'confused', 'amazed', 'sad', 'cocky', 'tired', 'crying'];
 const LOOKS = {
   d: { def: 'classic', free: ['classic', 'original', 'green', 'black', 'inferno', 'casino', 'snake', 'diamond', 'neon'], shop: ['ruby', 'candy', 'gold24', 'nebula', 'magma', 'seven', 'sand', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron', 'hog', 'arcade', 'craps', 'hiroll'] },
   t: { def: 'wood', free: ['wood'], shop: ['felt', 'purple', 'velvet', 'marble', 'neon', 'carbon', 'molten', 'space', 'xmas', 'vault', 'seven', 'lagoon', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron', 'hog', 'arcade', 'craps', 'hiroll'] },
-  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold', 'magma', 'nebula', 'seven', 'lagoon', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron', 'hog', 'arcade', 'craps', 'hiroll'] }
+  b: { def: 'plain', free: ['plain'], shop: ['rope', 'chip', 'pig', 'diamond', 'fire', 'crown', 'neon', 'cash', 'candy', 'gold', 'magma', 'nebula', 'seven', 'lagoon', 'npink', 'ngreen', 'usa', 'whimsy', 'gridiron', 'hog', 'arcade', 'craps', 'hiroll'] },
+  s: { def: 'classic', free: ['classic'], shop: ['xmas', 'gold', 'molten', 'space', 'lagoon', 'neon', 'craps', 'arcade'] }
 };
 export function cleanLook(l, admin, own) {
   l = l && typeof l === 'object' ? l : {}; own = own || {}; const out = {};

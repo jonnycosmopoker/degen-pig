@@ -1422,6 +1422,28 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #settings .seg label,#host .seg label{border:2px solid transparent;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45;font-family:var(--display);font-weight:400;letter-spacing:.4px;text-transform:uppercase}
 #settings .seg label:has(input:checked),#host .seg label:has(input:checked){background:linear-gradient(180deg,#FFF6C2 0%,#F6CF45 30%,#C8901A 62%,#F0D262 78%,#B97C12 100%) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#2A1702}
 
+/* the Shop's five tabs, piece cards, owned marks and the complete-the-bundle offer */
+#shop .shoptabs{flex-wrap:wrap}#shop .shoptabs button{flex:1 1 30%;min-width:0;padding:0 8px;line-height:1.1}
+#shop .shopmsg{margin:0;padding:10px 12px;border-radius:12px;background:rgba(242,194,48,.12);border:1px solid rgba(242,194,48,.45);color:#FBE58A;text-align:center;font-size:14px}
+#shop .shopgrid.pcs{grid-template-columns:repeat(2,minmax(0,1fr))}@media (min-width:640px){#shop .shopgrid.pcs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+#shop .shopitem.pc{position:relative;justify-content:flex-start}
+#shop .shopitem.pc.up{background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box}
+#shop .pcbadge{padding:2px 9px;border-radius:999px;font:400 10px/15px var(--display);font-style:normal;letter-spacing:.5px;text-transform:uppercase;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A)}
+#shop .pcfrom{font-size:12px;line-height:1.35;color:rgba(246,241,228,.7)}
+#shop .shopitem.pc .shopbuy{margin-top:auto;padding:0 14px;min-width:80%}
+#shop .shopnb .mini{width:58px;height:58px;padding:10px}
+#shop .sndth{display:flex;align-items:center;justify-content:center;color:#FBE58A}
+#shop .sndth svg,.lkit .sndth svg{padding:9px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.6);box-shadow:0 0 0 2px #C8901A}
+.lkit .sndth{color:#FBE58A}.lkit .sndth svg{width:36px;height:36px;padding:7px}
+#shop .bhear{display:inline-flex;align-items:center;justify-content:center;gap:8px;align-self:center}
+#shop .shopitem.pc .bhear{min-height:36px;padding:0 14px;font-size:12px}
+#shop .bparts.four{grid-template-columns:repeat(2,minmax(0,1fr))}@media (min-width:420px){#shop .bparts.four{grid-template-columns:repeat(4,minmax(0,1fr))}}
+#shop .bparts li.got{box-shadow:inset 0 0 0 1.5px #F6CF45;background:rgba(242,194,48,.12)}#shop .bparts li.got em{color:#F6CF45}
+#shop .bprice s{opacity:.55;font-size:13px;margin-right:2px}#shop .bprice.own{color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 40%,#C8901A);border-color:#F6CF45}
+#shop .bown{margin:0;padding:8px 10px;border-radius:10px;background:rgba(242,194,48,.12);color:#FBE58A;text-align:center;font-size:14px;font-weight:700}
+#shop .bsnd{color:#FBE58A;font-weight:700}
+#shop .bndl .shopbuy.eq{background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;color:#F6CF45}
+#shop .pchint{font-size:12px;color:#FBE58A}
 /* Shop before launch: everyone but the owner sees one "coming soon" plaque */
 #shop.soon .shoptabs,#shop.soon .shopnote,#shop.soon .shoplk{display:none}
 .shopsoon.mq{gap:8px;padding:26px 18px 24px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
@@ -1648,7 +1670,8 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="headrow"><button type="button" class="link back" id="backShop">‹ Main menu</button><h1 class="screen-h">Degen Pig Shop</h1></div>
     <p class="cap shopnote" id="shopNote"></p>
     <button type="button" class="link shoplk" id="shopLocker">My Locker ›</button>
-    <div class="shoptabs" role="tablist" hidden><button type="button" class="on" data-tab="tables">Tables</button><button type="button" data-tab="borders">Name Tags</button><button type="button" data-tab="dice">Dice</button></div>
+    <div class="shoptabs" role="tablist"><button type="button" class="on" data-tab="bundles" role="tab">Bundles</button><button type="button" data-tab="dice" role="tab">Dice</button><button type="button" data-tab="tables" role="tab">Tables</button><button type="button" data-tab="borders" role="tab">Name Tag Borders</button><button type="button" data-tab="sounds" role="tab">Sound Effects</button></div>
+    <p class="shopmsg" id="shopMsg" role="status" hidden></p>
     <div class="shopgrid" id="shopGrid"></div>
   </section>
 
@@ -1793,6 +1816,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="lksec" id="lkSecT"><h2><em>Tables</em><small id="lkNt"></small></h2><div class="lkrow" id="lkRowT"></div><p class="lknote" id="lkNoteT" role="status"></p></div>
     <div class="lksec" id="lkSecD"><h2><em>Dice</em><small id="lkNd"></small></h2><div class="lkrow" id="lkRowD"></div><p class="lknote" id="skinNote" role="status"></p></div>
     <div class="lksec" id="lkSecB"><h2><em>Name Tags</em><small id="lkNb"></small></h2><div class="lkrow" id="lkRowB"></div><p class="lknote" id="lkNoteB" role="status"></p></div>
+    <div class="lksec" id="lkSecS"><h2><em>Sound Effects</em><small id="lkNs"></small></h2><div class="lkrow" id="lkRowS"></div><p class="lknote" id="lkNoteS" role="status"></p></div>
   </section>
 
   <section class="dock scroll" id="setup" hidden>
@@ -1963,7 +1987,7 @@ function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u
 function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
 
 var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:30};
-var S={dsize:0.85,phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+var S={snd:'classic',dsize:0.85,phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic',youSeat:0};
 
@@ -2206,25 +2230,25 @@ function skinHave(sk){return !sk.need?0:sk.src==='pnp'?pnpGames():onlineGames()}
 function skinOpen(sk){if(ON.admin)return true;if(sk.shop)return !!(ON.rec&&ON.rec.own&&ON.rec.own['d:'+sk.id]);if(sk.ach)return achBest(sk).lv>=(sk.lv||1);return !sk.need||skinHave(sk)>=sk.need}
 function skinById(id){for(var i=0;i<SKINS.length;i++)if(SKINS[i].id===id)return SKINS[i];return SKINS[0]}
 function skinNow(){var sk=skinById(S.skin);return skinOpen(sk)&&!sk.hide?sk:SKINS[0]}
-function myLook(){return {d:skinNow().id,t:lkNow('t')[0],b:lkNow('b')[0]}}
+function myLook(){return {d:skinNow().id,t:lkNow('t')[0],b:lkNow('b')[0],s:lkNow('s')[0]}}
 /* the look on show: in a game the dice and table belong to whoever is rolling (a computer or guest seat gets the house look); otherwise your own */
-var HOUSE={d:'classic',t:'wood',b:'plain'};
+var HOUSE={d:'classic',t:'wood',b:'plain',s:'classic'};
 function seatLook(p){if(!p)return HOUSE;if(S.online)return p.look||HOUSE;return p.you&&!p.bot?myLook():HOUSE}
 function viewLook(){var ph=S.phase;if(ph==='order'||ph==='play'||ph==='final'){var i=activeIdx();if(i>=0)return seatLook(S.players[i])}return myLook()}
 function lookOk(k,id){if(k==='d')return SKINS.some(function(x){return x.id===id&&!x.hide});return lkList(k).some(function(x){return x[0]===id})}
-function applySkin(){var lk=viewLook(),id=lookOk('d',lk.d)?lk.d:'classic';if(id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=id}
+function applySkin(){var lk=viewLook(),id=lookOk('d',lk.d)?lk.d:'classic';if(id==='classic')delete $('app').dataset.skin;else $('app').dataset.skin=id;SND.cur=lk.s&&lookOk('s',lk.s)&&lk.s!=='classic'?lk.s:''}
 var MINI='<i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i>';
 /* ---------- Locker: the table, dice and name tag you play with ---------- */
 var LK={from:'menu'},MINI3='<i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i>';
-var LKDEF={t:'wood',b:'plain'};
+var LKDEF={t:'wood',b:'plain',s:'classic'};
 function lkSoon(){return '<div class="lkit lksoon"><span class="th">'+LOCK.replace(' aria-label="Private" role="img"',' aria-hidden="true"')+'</span><b>Coming soon</b><span class="st">New designs on the way</span></div>'}
-function lkList(k){return k==='t'?[['wood','Classic Wood',null]].concat(SHOP.items.tables):[['plain','Plain',null]].concat(SHOP.items.borders)}
+function lkList(k){return k==='t'?[['wood','Classic Wood',null]].concat(SHOP.items.tables):k==='s'?[['classic','Classic',null]].concat(SHOP.items.sounds):[['plain','Plain',null]].concat(SHOP.items.borders)}
 function lkOwns(k,id){return id===LKDEF[k]||!!ON.admin||!!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
-function lkNow(k){var id=k==='t'?S.table:S.tag,L=lkList(k);for(var i=0;i<L.length;i++)if(L[i][0]===id&&lkOwns(k,id))return L[i];return L[0]}
+function lkNow(k){var id=k==='t'?S.table:k==='s'?S.snd:S.tag,L=lkList(k);for(var i=0;i<L.length;i++)if(L[i][0]===id&&lkOwns(k,id))return L[i];return L[0]}
 function lkBg(id){return id==='wood'?'wood-table.jpg':'shop/t-'+id+'.jpg'}
 function lkTag(id,name){return '<span class="tile'+(id==='plain'?'':' nb-'+id)+'" style="--pc:var(--s1)"><span class="nm">'+esc(name)+'</span><span class="sc">82</span></span>'}
 function lkName(){return myId().name||(ON.user&&ON.user.name?ON.user.name.split(' ')[0].slice(0,10):'')||'You'}
-function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','skinNote','lkNoteB'].forEach(function(n){$(n).textContent=''});if(AUTH)loadMe();render();
+function openLocker(from,sec){LK.from=from||'menu';S.phase='dice';['lkNoteT','skinNote','lkNoteB','lkNoteS'].forEach(function(n){$(n).textContent=''});if(AUTH)loadMe();render();
   var sc=$('dice');sc.scrollTop=0;if(sec){var el=$('lkSec'+sec);if(el)sc.scrollTop=el.offsetTop-sc.offsetTop-8}}
 /* the equipped table goes under the dice; the two animated ones draw on a canvas, at most 30 frames a second, only while the table is on screen */
 var TBL={id:'wood',cv:null,skin:null,raf:0,last:0,load:null};
@@ -2255,11 +2279,11 @@ function renderSkins(){
   $('lkSign').hidden=!!AUTH&&!ON.admin;$('lkSign').querySelector('span').textContent=ON.admin?'Owner mode: every table, dice set and name tag is unlocked on your account for testing.':'Sign in to keep your unlocked dice on every phone.';$('lkSignBtn').hidden=!!AUTH;
   Array.prototype.forEach.call(document.querySelectorAll('.lkseg button'),function(b){var on=+b.getAttribute('data-ds')===(S.dsize||0.85);b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false')});
   function shopItems(k,on){var L=lkList(k).filter(function(it){return ON.admin||lkOwns(k,it[0])}),n=0;var h=L.map(function(it){var own=lkOwns(k,it[0]),is=on[0]===it[0];if(own)n++;
-      var th=k==='t'?'<span class="th" style="background-image:url('+lkBg(it[0])+')"></span>':'<span class="th">'+lkTag(it[0],nm)+'</span>';
+      var th=k==='t'?'<span class="th" style="background-image:url('+lkBg(it[0])+')"></span>':k==='s'?sndThumb(it[0],'th'):'<span class="th">'+lkTag(it[0],nm)+'</span>';
       var st=is?'<span class="st">Equipped</span>':own?'<span class="st use">Tap to equip</span>':'<span class="st">'+lockI+'In the '+it[2]+'</span>';
       return '<button type="button" class="lkit'+(is?' on':'')+(own?'':' locked')+'" data-k="'+k+'" data-id="'+it[0]+'" aria-pressed="'+(is?'true':'false')+'">'+th+'<b>'+esc(it[1])+'</b>'+st+'</button>'}).join('');
     $('lkN'+k).textContent=ON.admin?n+' of '+L.length+' owned':'More coming soon';return h+(ON.admin?'':lkSoon())}
-  $('lkRowT').innerHTML=shopItems('t',tb);$('lkRowB').innerHTML=shopItems('b',tg);
+  $('lkRowT').innerHTML=shopItems('t',tb);$('lkRowB').innerHTML=shopItems('b',tg);$('lkRowS').innerHTML=shopItems('s',lkNow('s'));
   var nd=0,DS=SKINS.filter(function(sk){return !sk.hide&&(ON.admin||!sk.shop)});
   $('lkRowD').innerHTML=DS.map(function(sk){
     var open=skinOpen(sk),on=cur.id===sk.id,st,bar='';if(open)nd++;
@@ -2274,9 +2298,9 @@ function renderSkins(){
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'null');if(!p)return;
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
-  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if([1,0.85,0.7].indexOf(p.dsz)>=0)S.dsize=p.dsz;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
+  if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if(typeof p.snd==='string')S.snd=p.snd;if([1,0.85,0.7].indexOf(p.dsz)>=0)S.dsize=p.dsz;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
   if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
-function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,dsz:S.dsize||0.85,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
+function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,snd:S.snd,dsz:S.dsize||0.85,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
 var PIPS={1:['c'],2:['tl','br'],3:['tl','c','br'],4:['tl','tr','bl','br'],5:['tl','tr','c','bl','br'],6:['tl','tr','ml','mr','bl','br']};
@@ -2766,7 +2790,9 @@ function tone(t,type,f0,f1,dur,peak,att){
   var g=AC.createGain();env(g,t,peak,att||0.003,dur);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+(att||0.003)+dur+0.08);
 }
 /* Some premium dice bring their own sound set, played while that player is rolling */
-function sndSet(){var k=$('app').dataset.skin;return k==='candy'?'xmas':k==='magma'?'molten':k==='npink'||k==='ngreen'?'neon':k==='ruby'?'craps':k==='nebula'?'space':k==='sand'?'lagoon':k==='arcade'?'arcade':k==='gold24'?'gold':''}
+/* the sound set on show belongs to whoever is rolling (set in applySkin); a Shop or Locker preview borrows one for a few seconds */
+var SND={cur:'',force:'',timer:0};
+function sndSet(){return SND.force?(SND.force==='classic'?'':SND.force):SND.cur}
 /* ---------- Christmas Eve sounds (played while the Christmas Lights dice are rolling) ---------- */
 function jingle(t,v){/* one sleigh bell: a handful of bright, slightly out-of-tune partials that die away fast */
   var f=rand(2600,3400);[1,1.47,2.09,2.76,3.3].forEach(function(m,i){tone(t+rand(0,0.004),'sine',f*m*rand(0.99,1.01),0,rand(0.05,0.12)*(1-i*0.12),(0.11-i*0.016)*v)});
@@ -3554,17 +3580,18 @@ $('chatBtn').addEventListener('click',function(){ON.chatOpen=!ON.chatOpen;chatUI
 $('chatForm').addEventListener('submit',function(e){e.preventDefault();var i=$('chatIn'),v=i.value.trim();if(!v)return;onSend('chat',{text:v.slice(0,200)});i.value=''});
 function toMenu(){S.phase='menu';render()}
 /* ---------- Degen Pig Shop (preview: nothing is for sale yet) ---------- */
-/* The Shop sells theme bundles: a table, a dice set and a name tag that match. Only pieces from a bundle are on sale. */
+/* The Shop sells theme bundles (a table, a dice set and a name tag that match, plus a sound set on the Ultra Premium ones),
+   and each piece on its own. Only pieces from a bundle are on sale. */
 var BUNDLES=[
-  {id:'xmas',n:'Christmas Eve',t:'xmas',d:'candy',b:'candy',price:'$14.99',anim:true,blurb:'Falling snow and twinkling holiday lights, snowy dice with Christmas-light pips that shed snow as they roll, and a candy cane tag under the mistletoe.'},
-  {id:'gold',n:'Gold Vault',t:'vault',d:'gold24',b:'gold',price:'$14.99',anim:true,blurb:'Quilted black leather wrapped in glinting gold chain, solid 24K dice, and a polished gold tag.'},
-  {id:'lava',n:'Molten Core',t:'molten',d:'magma',b:'magma',price:'$14.99',anim:true,blurb:'Flowing lava, basalt dice that throw sparks when they roll, and a lava-cracked tag with rising embers.'},
-  {id:'space',n:'Deep Space',t:'space',d:'nebula',b:'nebula',price:'$14.99',anim:true,blurb:'Drifting nebula and shooting stars, star-pipped Nebula dice, and a tag with an orbiting comet.'},
-  {id:'lagoon',n:'Tropical Lagoon',t:'lagoon',d:'sand',b:'lagoon',price:'$14.99',anim:true,blurb:'A shallow turquoise lagoon that ripples wherever the dice land, beach sand dice with pearl pips, and a water tag with a starfish.'},
-  {id:'npink',n:'Neon Pink',t:'npink',d:'npink',b:'npink',price:'$14.99',anim:true,blurb:'Black glass under a buzzing pink neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
-  {id:'ngreen',n:'Neon Green',t:'ngreen',d:'ngreen',b:'ngreen',price:'$14.99',anim:true,blurb:'Black glass under a buzzing green neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
-  {id:'craps',n:'High Roller',t:'craps',d:'ruby',b:'hiroll',price:'$14.99',anim:true,blurb:'A luxurious craps table with gold-foil lettering and a glinting brass rail, see-through Ruby Craps dice, and a marquee-lit tag.'},
-  {id:'arcade',n:'Arcade Retro',t:'arcade',d:'arcade',b:'arcade',price:'$14.99',anim:true,blurb:'A glowing CRT screen with a scrolling synthwave grid and arcade score pops on every roll, 8-Bit pixel dice, and a chasing-lights tag with a coin slot.'},
+  {id:'xmas',n:'Christmas Eve',t:'xmas',d:'candy',b:'candy',s:'xmas',price:'$14.99',anim:true,blurb:'Falling snow and twinkling holiday lights, snowy dice with Christmas-light pips that shed snow as they roll, and a candy cane tag under the mistletoe.'},
+  {id:'gold',n:'Gold Vault',t:'vault',d:'gold24',b:'gold',s:'gold',price:'$14.99',anim:true,blurb:'Quilted black leather wrapped in glinting gold chain, solid 24K dice, and a polished gold tag.'},
+  {id:'lava',n:'Molten Core',t:'molten',d:'magma',b:'magma',s:'molten',price:'$14.99',anim:true,blurb:'Flowing lava, basalt dice that throw sparks when they roll, and a lava-cracked tag that pulses with light.'},
+  {id:'space',n:'Deep Space',t:'space',d:'nebula',b:'nebula',s:'space',price:'$14.99',anim:true,blurb:'Drifting nebula and shooting stars, star-pipped Nebula dice, and a tag with an orbiting comet.'},
+  {id:'lagoon',n:'Tropical Lagoon',t:'lagoon',d:'sand',b:'lagoon',s:'lagoon',price:'$14.99',anim:true,blurb:'A shallow turquoise lagoon that ripples wherever the dice land, beach sand dice with pearl pips, and a water tag with a starfish.'},
+  {id:'npink',n:'Neon Pink',t:'npink',d:'npink',b:'npink',s:'neon',price:'$14.99',anim:true,blurb:'Black glass under a buzzing pink neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
+  {id:'ngreen',n:'Neon Green',t:'ngreen',d:'ngreen',b:'ngreen',s:'neon',price:'$14.99',anim:true,blurb:'Black glass under a buzzing green neon tube, neon dice that pulse when they hit the table, and a glowing neon tag.'},
+  {id:'craps',n:'High Roller',t:'craps',d:'ruby',b:'hiroll',s:'craps',price:'$14.99',anim:true,blurb:'A luxurious craps table with gold-foil lettering and a glinting brass rail, see-through Ruby Craps dice, and a marquee-lit tag.'},
+  {id:'arcade',n:'Arcade Retro',t:'arcade',d:'arcade',b:'arcade',s:'arcade',price:'$14.99',anim:true,blurb:'A glowing CRT screen with a scrolling synthwave grid and arcade score pops on every roll, 8-Bit pixel dice, and a chasing-lights tag with a coin slot.'},
   {id:'seven',n:'Seven Mile',t:'seven',d:'seven',b:'seven',price:'$4.99',anim:false,blurb:'The card-room felt with its suits rail, clay-chip dice, and the matching rail tag.'},
   {id:'usa',n:'Stars & Stripes',t:'usa',d:'usa',b:'usa',price:'$4.99',anim:false,blurb:'Star-spangled navy felt framed in red and white stripes, Liberty dice with star pips, and a striped tag with a star badge.'},
   {id:'whimsy',n:'Whimsical',t:'whimsy',d:'whimsy',b:'whimsy',price:'$4.99',anim:false,blurb:'A cotton-candy sky of fluffy clouds inside a pastel rainbow, Gumdrop dice in every colour, and a rainbow tag with its own cloud.'},
@@ -3573,23 +3600,43 @@ var BUNDLES=[
 function bndlOf(k,id){for(var i=0;i<BUNDLES.length;i++)if(BUNDLES[i][k]===id)return BUNDLES[i];return null}
 var SHOP={tab:'bundles',items:{
   tables:[['xmas','Christmas Eve','Christmas Eve bundle','Animated'],['vault','Gold Vault','Gold Vault bundle','Animated'],['molten','Molten Core','Molten Core bundle','Animated'],['space','Deep Space','Deep Space bundle','Animated'],['lagoon','Tropical Lagoon','Tropical Lagoon bundle','Animated'],['npink','Neon Pink','Neon Pink bundle','Animated'],['ngreen','Neon Green','Neon Green bundle','Animated'],['craps','Craps Table','High Roller bundle','Animated'],['arcade','Arcade Screen','Arcade Retro bundle','Animated'],['seven','Seven Mile','Seven Mile bundle'],['usa','Old Glory','Stars & Stripes bundle'],['whimsy','Cotton Candy Sky','Whimsical bundle'],['gridiron','Gridiron','Game Day bundle'],['hog','Pig Pen','Hog Heaven bundle']],
-  borders:[['candy','Candy Cane','Christmas Eve bundle'],['gold','Gold Plated','Gold Vault bundle'],['magma','Magma','Molten Core bundle'],['nebula','Nebula','Deep Space bundle'],['lagoon','Lagoon','Tropical Lagoon bundle'],['npink','Neon Pink','Neon Pink bundle'],['ngreen','Neon Green','Neon Green bundle'],['hiroll','Marquee Lights','High Roller bundle'],['arcade','Pixel Lights','Arcade Retro bundle'],['seven','Seven Mile','Seven Mile bundle'],['usa','Stars & Stripes','Stars & Stripes bundle'],['whimsy','Rainbow Cloud','Whimsical bundle'],['gridiron','Pigskin','Game Day bundle'],['hog','Picket Fence','Hog Heaven bundle']]}};
-/* Pieces with no theme bundle yet, off sale for now (their looks are still in the CSS):
-   SHOP_RETIRED={
-  tables:[['felt','Casino Felt','$1.99'],['purple','Royal Purple','$1.99'],['velvet','High Roller Velvet','$2.99'],['marble','Black Marble','$2.99'],['neon','Neon Nights','$2.99'],['carbon','Carbon Fiber','$2.99'],['molten','Molten Core','$4.99','Animated'],['space','Deep Space','$4.99','Animated'],['xmas','Christmas Eve','$4.99','Animated'],['vault','Gold Vault','$4.99','Animated'],['seven','Seven Mile','$3.99']],
-  borders:[['rope','Gold Rope','$1.99'],['chip','Poker Chip','$1.99'],['pig','Pig Ears','$1.99'],['diamond','Diamond','$2.99'],['fire','Inferno','$2.99'],['crown','Royal Crown','$2.99'],['neon','Neon','$2.99'],['cash','High Stakes','$2.99'],['candy','Candy Cane','$2.99'],['gold','Gold Plated','$3.99'],['magma','Magma','$3.99'],['nebula','Nebula','$3.99'],['seven','Seven Mile','$3.99']]}} */
+  borders:[['candy','Candy Cane','Christmas Eve bundle'],['gold','Gold Plated','Gold Vault bundle'],['magma','Magma','Molten Core bundle'],['nebula','Nebula','Deep Space bundle'],['lagoon','Lagoon','Tropical Lagoon bundle'],['npink','Neon Pink','Neon Pink bundle'],['ngreen','Neon Green','Neon Green bundle'],['hiroll','Marquee Lights','High Roller bundle'],['arcade','Pixel Lights','Arcade Retro bundle'],['seven','Seven Mile','Seven Mile bundle'],['usa','Stars & Stripes','Stars & Stripes bundle'],['whimsy','Rainbow Cloud','Whimsical bundle'],['gridiron','Pigskin','Game Day bundle'],['hog','Picket Fence','Hog Heaven bundle']],
+  /* sound sets: [id, name, bundle, blurb]. Neon Pink and Neon Green share the Nightclub set. */
+  sounds:[['xmas','Christmas Eve','Christmas Eve bundle','Dice crunch into soft snow, with jingle bells, a glockenspiel and handbells.'],['gold','Treasure Hoard','Gold Vault bundle','Dice that ring like gold coins, harp sweeps, spilling coins and a royal fanfare.'],['molten','Forge Fire','Molten Core bundle','Dice clank like an anvil, with hissing steam, flying sparks and a roaring forge.'],['space','Cosmic Drift','Deep Space bundle','Glassy chimes that echo off into space, shimmering synths and a supernova.'],['lagoon','Island Breeze','Tropical Lagoon bundle','Coconut knocks, ukulele, marimba, tiki drums and a tropical storm.'],['neon','Nightclub','Neon Pink and Neon Green bundles','Club kicks and hi-hats, record scratches and an air horn.'],['craps','High-Stakes Lounge','High Roller bundle','Acrylic dice on felt, clay chips, a vibraphone and a muted jazz trumpet.'],['arcade','8-Bit Console','Arcade Retro bundle','Chiptune blips, power-ups, coin pickups and a GAME OVER tune.']]}};
+/* Pieces with no theme bundle yet stay off sale (their looks are still in the CSS): felt, purple, velvet, marble, neon, carbon tables;
+   rope, chip, pig, diamond, fire, crown, neon, cash tags. */
 
-/* Until launch the Shop is a "coming soon" card for everyone except the owner, who sees every theme bundle with its price
-   and a preview video, and can equip a whole set to try it out */
-/* the Any 3 Bundles deal: the owner can pick three bundles to see how the deal will work (checkout isn't live yet) */
+/* prices: a piece from an Ultra Premium (animated) bundle is $5.99, a regular one $1.99, every sound set $5.99.
+   Own some of a bundle already and the rest of it is cheaper: Ultra Premium $9.99 with 1 of 4 owned, $4.99 with 2, $2.99 with 3;
+   regular $2.99 with 1 of 3 owned, $1.49 with 2. */
+var SHOPK={dice:'d',tables:'t',borders:'b',sounds:'s'};
+function pieceAnim(k,id){if(k==='s')return true;var B=bndlOf(k,id);return !!(B&&B.anim)}
+function piecePrice(k,id){return pieceAnim(k,id)?'$5.99':'$1.99'}
+function pieceName(k,id){if(k==='d')return skinById(id).n;var L=lkList(k);for(var i=0;i<L.length;i++)if(L[i][0]===id)return L[i][1];return id}
+/* Until checkout is live, the owner owns everything for testing, so the Shop keeps its own pretend purchases for him to try the
+   bundle discounts with (kept on this phone only) */
+var PREV={};try{PREV=JSON.parse(localStorage.getItem('degenpig-prevown')||'{}')||{}}catch(e){}
+function prevSave(){try{localStorage.setItem('degenpig-prevown',JSON.stringify(PREV))}catch(e){}}
+function shopOwns(k,id){if(ON.admin)return !!PREV[k+':'+id];return !!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
+function bParts(B){var p=[['t',B.t,'Table'],['d',B.d,'Dice'],['b',B.b,'Name tag']];if(B.s)p.push(['s',B.s,'Sounds']);return p}
+function bState(B){var P=bParts(B),n=P.filter(function(x){return shopOwns(x[0],x[1])}).length,tot=P.length,price=B.price;
+  if(n>=tot)price='';else if(n>0)price=B.anim?['$9.99','$4.99','$2.99'][n-1]:['$2.99','$1.49'][n-1];
+  return {n:n,tot:tot,price:price,full:n>=tot,part:n>0&&n<tot}}
+function money(p){return parseFloat(String(p).slice(1))||0}
+/* the Any 3 Bundles deal: pick three bundles (checkout isn't live yet). It's $29.99, or what the three cost on their own if that's less */
 var PICK3={on:false,ids:[],msg:''};
-/* the deal is $29.99, or what the three picked bundles cost on their own if that's less */
-function p3Price(){var t=0;PICK3.ids.forEach(function(id){var B=BUNDLES.filter(function(x){return x.id===id})[0];if(B)t+=parseFloat(B.price.slice(1))});return (PICK3.ids.length===3?Math.min(29.99,t):29.99).toFixed(2)}
+function p3Price(){var t=0;PICK3.ids.forEach(function(id){var B=BUNDLES.filter(function(x){return x.id===id})[0];if(B)t+=money(bState(B).price)});return (PICK3.ids.length===3?Math.min(29.99,t):29.99).toFixed(2)}
+var SPK='<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+function sndThumb(id,cls){var B=bndlOf('s',id);return '<span class="'+cls+' sndth" style="background-image:url('+(B?'shop/t-'+B.t+'.jpg':'wood-table.jpg')+')">'+SPK+'</span>'}
+function shopMsg(t){var m=$('shopMsg');m.hidden=!t;m.innerHTML=t||''}
+function shopTabsUI(){Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){var on=b.getAttribute('data-tab')===SHOP.tab;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')})}
 function renderShop(){
   var own=!!ON.admin,g=$('shopGrid');
   $('shop').classList.toggle('soon',!own);
-  $('shopNote').textContent=own?'Owner preview: only you can see the bundles and prices until launch. Tap Equip set to try one in a game.':'';
-  if(!own){g.className='shopgrid one';g.innerHTML='<div class="shopsoon mq"><span class="soonpig">'+dieLogo('soon')+'</span><b>Coming Soon</b><p>Theme bundles with a matching table, dice and name tag are on the way. Check back soon!</p></div>';return}
+  $('shopNote').innerHTML=own?'Owner preview: only you can see the Shop until launch. Checkout isn’t live, so Buy only pretends, to show how bundle discounts work.'+(Object.keys(PREV).length?' <button type="button" class="link inl" data-reset="1">Reset pretend purchases</button>':''):'';
+  if(!own){g.className='shopgrid one';g.innerHTML='<div class="shopsoon mq"><span class="soonpig">'+dieLogo('soon')+'</span><b>Coming Soon</b><p>Theme bundles with a matching table, dice, name tag and sound effects are on the way. Check back soon!</p></div>';return}
+  shopTabsUI();
+  if(SHOP.tab!=='bundles'){renderShopPieces(g);return}
   g.className='shopgrid bndls';
   var P=PICK3.ids,full=P.length>=3,slot=function(i){var B=P[i]&&BUNDLES.filter(function(x){return x.id===P[i]})[0];return '<li class="'+(B?'on':'')+'"><em>'+(i+1)+'</em>'+(B?esc(B.n):'Pick a bundle')+'</li>'};
   var deal='<div class="bdeal mq"><div class="binfo"><b class="bname">Any 3 Bundles</b><span class="bprice">$29.99</span></div><p class="bblurb">Pick any 3 bundles in the Shop and get them all at once. Save up to $14.98.</p>'+
@@ -3597,14 +3644,37 @@ function renderShop(){
       '<div class="bdealbtns"><button type="button" class="shopbuy" data-p3="buy"'+(full?'':' disabled')+'>Buy 3 for $'+p3Price()+'</button><button type="button" class="bghost" data-p3="cancel">Cancel</button></div>'
     :'<button type="button" class="shopbuy" data-p3="start">Choose 3 bundles</button>')+'</div>';
   g.innerHTML=deal+BUNDLES.map(function(B){
-    var sk=skinById(B.d),tb=lkList('t').filter(function(x){return x[0]===B.t})[0],tg=lkList('b').filter(function(x){return x[0]===B.b})[0];
-    var on=S.table===B.t&&skinNow().id===B.d&&S.tag===B.b;
-    return '<div class="bndl'+(B.anim?' anim':'')+'"><div class="binfo"><b class="bname">'+esc(B.n)+(B.anim?'<i class="banim">Animated</i>':'')+'</b><span class="bprice">'+B.price+'</span></div><p class="bblurb">'+esc(B.blurb)+'</p>'+
+    var st=bState(B),on=S.table===B.t&&skinNow().id===B.d&&S.tag===B.b&&(!B.s||S.snd===B.s);
+    var price=st.full?'<span class="bprice own">Owned</span>':st.part?'<span class="bprice"><s>'+B.price+'</s> '+st.price+'</span>':'<span class="bprice">'+B.price+'</span>';
+    var sn=B.s?pieceName('s',B.s):'';
+    return '<div class="bndl'+(B.anim?' anim':'')+'"><div class="binfo"><b class="bname">'+esc(B.n)+(B.anim?'<i class="banim">Ultra Premium</i>':'')+'</b>'+price+'</div><p class="bblurb">'+esc(B.blurb)+(B.s?' <b class="bsnd">Now with its own '+esc(sn)+' sound effects.</b>':'')+'</p>'+
       '<details class="bprev"><summary><span class="bplay" aria-hidden="true"></span>Preview<span class="bchev" aria-hidden="true"></span></summary><div class="bvid"><video data-src="shop/b-'+B.id+'.mp4" poster="shop/b-'+B.id+'.jpg" muted loop playsinline preload="none" aria-label="'+esc(B.n)+' bundle preview"></video></div></details>'+
-      '<ul class="bparts"><li><em>Table</em>'+esc(tb?tb[1]:B.t)+'</li><li><em>Dice</em>'+esc(sk?sk.n:B.d)+'</li><li><em>Name tag</em>'+esc(tg?tg[1]:B.b)+'</li></ul>'+
-      (PICK3.on?(function(){var pk=P.indexOf(B.id)>=0;return '<button type="button" class="bpick'+(pk?' on':'')+'" data-pick="'+B.id+'" aria-pressed="'+pk+'"'+(!pk&&full?' disabled':'')+'>'+(pk?'✓ In my 3':'+ Add to my 3')+'</button>'})():'')+
-      '<button type="button" class="shopbuy'+(on?' on':'')+'" data-b="'+B.id+'">'+(on?'Set equipped':'Equip set')+'</button></div>'}).join('');
+      '<ul class="bparts'+(B.s?' four':'')+'">'+bParts(B).map(function(x){var got=shopOwns(x[0],x[1]);return '<li'+(got?' class="got"':'')+'><em>'+x[2]+(got?' ✓':'')+'</em>'+esc(pieceName(x[0],x[1]))+'</li>'}).join('')+'</ul>'+
+      (st.part?'<p class="bown">You own '+st.n+' of '+st.tot+'. Get the rest of the bundle for '+st.price+'.</p>':'')+
+      (B.s?'<button type="button" class="bghost bhear" data-hear="'+B.s+'">'+SPK.replace('width="26" height="26"','width="18" height="18"')+'Hear the sounds</button>':'')+
+      (PICK3.on&&!st.full?(function(){var pk=P.indexOf(B.id)>=0;return '<button type="button" class="bpick'+(pk?' on':'')+'" data-pick="'+B.id+'" aria-pressed="'+pk+'"'+(!pk&&full?' disabled':'')+'>'+(pk?'✓ In my 3':'+ Add to my 3')+'</button>'})():'')+
+      (st.full?'':'<button type="button" class="shopbuy" data-bb="'+B.id+'">'+(st.part?'Complete bundle '+st.price:'Buy bundle '+B.price)+'</button>')+
+      '<button type="button" class="shopbuy eq'+(on?' on':'')+'" data-b="'+B.id+'">'+(on?'Set equipped':'Equip set')+'</button></div>'}).join('');
 }
+/* the Dice, Tables, Name Tag Borders and Sound Effects tabs: every piece on its own */
+function renderShopPieces(g){
+  var k=SHOPK[SHOP.tab],nm=lkName(),L;
+  if(k==='d')L=SKINS.filter(function(sk){return sk.shop&&bndlOf('d',sk.id)}).map(function(sk){var B=bndlOf('d',sk.id);return [sk.id,sk.n,B.n+' bundle']});
+  else L=lkList(k).filter(function(it){return it[2]&&(k==='s'||bndlOf(k,it[0]))});
+  L.sort(function(a,b){return (pieceAnim(k,b[0])?1:0)-(pieceAnim(k,a[0])?1:0)});
+  g.className='shopgrid pcs';
+  g.innerHTML=L.map(function(it){var id=it[0],up=pieceAnim(k,id),got=shopOwns(k,id),B=bndlOf(k,id);
+    var th=k==='t'?'<span class="shopthumb" style="background-image:url(shop/t-'+id+'.jpg)"></span>':k==='d'?'<span class="shopnb"><span class="mini '+id+'">'+MINI+'</span></span>':k==='b'?'<span class="shopnb">'+lkTag(id,nm)+'</span>':sndThumb(id,'shopthumb');
+    var hint='';if(got&&B){var st=bState(B);if(st.part)hint='<button type="button" class="link inl pchint" data-gob="'+B.id+'">Complete the '+esc(B.n)+' bundle for '+st.price+' ›</button>'}
+    return '<div class="shopitem pc'+(up?' up':'')+'">'+th+(up?'<i class="pcbadge">Ultra Premium</i>':'')+'<b>'+esc(it[1])+'</b><small class="pcfrom">'+(k==='s'?esc(it[3])+'<br>':'')+'From the '+esc(it[2])+'</small>'+
+      (k==='s'?'<button type="button" class="bghost bhear" data-hear="'+id+'">'+SPK.replace('width="26" height="26"','width="16" height="16"')+'Listen</button>':'')+
+      (got?'<button type="button" class="shopbuy on" disabled>Owned ✓</button>':'<button type="button" class="shopbuy" data-buy="'+k+':'+id+'">Buy '+piecePrice(k,id)+'</button>')+hint+'</div>'}).join('');
+}
+/* a quick listen: a roll, doubles and a lock-in in the chosen sound set */
+function sndDemo(id){if(!ac())return;clearTimeout(SND.timer);SND.force=id||'classic';
+  [[50,0.9,'drop'],[90,0.75,'drop'],[300,0.45,'drop'],[420,0.4,'tick'],[500,0.35,'tick'],[620,0.7,'wall'],[740,0.3,'tick'],[880,0.6,'clack'],[1200,0.2,'drop']].forEach(function(x){setTimeout(function(){if(SND.force)sfxKnock(x[1],x[2])},x[0])});
+  setTimeout(function(){if(SND.force)sfxDoubles(false)},1500);setTimeout(function(){if(SND.force)sfxLock(24)},3500);
+  SND.timer=setTimeout(function(){SND.force=''},5600)}
 /* ---------- the pig's tour of the rules, in the dice window on the main menu ---------- */
 var TUT={on:false,i:0,steps:[],seen:false,timer:0};
 try{TUT.seen=!!localStorage.getItem('degenpig-tut')}catch(e){}
@@ -3660,20 +3730,30 @@ $('setupSettings').addEventListener('click',function(){readSetup();S.phase='sett
 $('mAch').addEventListener('click',function(){S.phase='ach';$('ach').scrollTop=0;loadMe();render()});
 $('backAch').addEventListener('click',toMenu);
 $('achWho').addEventListener('click',function(e){var b=e.target.closest('button[data-k]');if(b){achSel=b.getAttribute('data-k');renderAch()}});
-$('mShop').addEventListener('click',function(){S.phase='shop';$('shop').scrollTop=0;renderShop();render()});
+$('mShop').addEventListener('click',function(){S.phase='shop';SHOP.tab='bundles';shopMsg('');$('shop').scrollTop=0;renderShop();render()});
 $('backShop').addEventListener('click',toMenu);
-document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;SHOP.tab=b.getAttribute('data-tab');renderShop()});
+document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;SHOP.tab=b.getAttribute('data-tab');shopMsg('');renderShop()});
 /* a bundle's preview video only loads and plays while its Preview drop-down is open */
 $('shopGrid').addEventListener('toggle',function(e){var d=e.target;if(!d.classList||!d.classList.contains('bprev'))return;var v=d.querySelector('video');if(!v)return;
   if(d.open){if(!v.getAttribute('src'))v.setAttribute('src',v.getAttribute('data-src'));var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}else v.pause()},true);
 $('shopGrid').addEventListener('click',function(e){var q=e.target.closest('[data-p3],[data-pick]');if(!q||!ON.admin)return;PICK3.msg='';
   var a=q.getAttribute('data-p3'),id=q.getAttribute('data-pick');
   if(a==='start'){PICK3.on=true;PICK3.ids=[]}else if(a==='cancel'){PICK3.on=false;PICK3.ids=[]}
-  else if(a==='buy'){PICK3.msg='Checkout isn’t live yet. When it is, this unlocks all 3 picked bundles.'}
+  else if(a==='buy'){PICK3.ids.forEach(function(x){var B=BUNDLES.filter(function(y){return y.id===x})[0];if(B)bParts(B).forEach(function(p){PREV[p[0]+':'+p[1]]=1})});prevSave();shopMsg('Pretend purchase: all 3 bundles are now marked as yours. When checkout is live, this is where the payment happens.');PICK3.on=false;PICK3.ids=[]}
   else if(id){var i=PICK3.ids.indexOf(id);if(i>=0)PICK3.ids.splice(i,1);else if(PICK3.ids.length<3)PICK3.ids.push(id)}
   var y=window.scrollY;renderShop();window.scrollTo(0,y);if(a==='start'){var d=document.querySelector('.bdeal');if(d)d.scrollIntoView({block:'nearest'})}});
-$('shopGrid').addEventListener('click',function(e){var b=e.target.closest('.shopbuy[data-b]');if(!b||!ON.admin)return;var B=BUNDLES.filter(function(x){return x.id===b.getAttribute('data-b')})[0];if(!B)return;
-  S.skin=B.d;S.table=B.t;S.tag=B.b;savePrefs();renderShop();render()});
+$('shop').addEventListener('click',function(e){if(!ON.admin)return;var t;
+  if((t=e.target.closest('[data-hear]'))){sndDemo(t.getAttribute('data-hear'));return}
+  if(e.target.closest('[data-reset]')){PREV={};prevSave();shopMsg('');renderShop();return}
+  if((t=e.target.closest('[data-gob]'))){SHOP.tab='bundles';shopMsg('');renderShop();var c=document.querySelector('[data-bb="'+t.getAttribute('data-gob')+'"]');if(c)c.closest('.bndl').scrollIntoView({block:'center'});return}
+  if((t=e.target.closest('[data-buy]'))){var kv=t.getAttribute('data-buy').split(':'),k=kv[0],id=kv[1],B=bndlOf(k,id);PREV[k+':'+id]=1;prevSave();
+    var st=B&&bState(B),m='Pretend purchase: '+esc(pieceName(k,id))+' for '+piecePrice(k,id)+'.';
+    if(st&&st.part)m+=' <button type="button" class="link inl" data-gob="'+B.id+'">Complete the '+esc(B.n)+' bundle for '+st.price+' ›</button>';
+    shopMsg(m);renderShop();return}
+  if((t=e.target.closest('[data-bb]'))){var B2=BUNDLES.filter(function(x){return x.id===t.getAttribute('data-bb')})[0];if(!B2)return;var p=bState(B2).price;bParts(B2).forEach(function(x){PREV[x[0]+':'+x[1]]=1});prevSave();
+    shopMsg('Pretend purchase: the '+esc(B2.n)+' bundle for '+p+'. It’s all yours now.');var y=window.scrollY;renderShop();window.scrollTo(0,y);return}
+  if((t=e.target.closest('.shopbuy[data-b]'))){var B3=BUNDLES.filter(function(x){return x.id===t.getAttribute('data-b')})[0];if(!B3)return;
+    S.skin=B3.d;S.table=B3.t;S.tag=B3.b;S.snd=B3.s||'classic';savePrefs();var y2=window.scrollY;renderShop();window.scrollTo(0,y2);render()}});
 $('shopLocker').addEventListener('click',function(){openLocker('shop')});
 $('backSetup').addEventListener('click',function(){readSetup();toMenu()});
 $('backOnline').addEventListener('click',function(){readOnName();toMenu()});
@@ -3686,13 +3766,13 @@ $('dice').addEventListener('click',function(e){
   var sh=e.target.closest('[data-shop]');if(sh){SHOP.tab=sh.getAttribute('data-shop');S.phase='shop';$('shop').scrollTop=0;renderShop();render();return}
   var b=e.target.closest('.lkit');if(!b)return;var k=b.getAttribute('data-k'),id=b.getAttribute('data-id');
   if(k==='d'){var sk=skinById(id),note=$('skinNote');
-    if(!skinOpen(sk)&&sk.shop){note.innerHTML='<b>'+esc(sk.n)+'</b> dice are '+sk.shop+' in the Shop. <button type="button" class="link inl" data-shop="dice">See them in the Shop</button>';return}
+    if(!skinOpen(sk)&&sk.shop){note.innerHTML='<b>'+esc(sk.n)+'</b> dice are part of the '+sk.shop+' in the Shop. <button type="button" class="link inl" data-shop="dice">See them in the Shop</button>';return}
     if(!skinOpen(sk)&&sk.ach){var a=ACHBY[sk.ach];note.textContent='Locked. Earn the Golden Pig level of '+a.n+' ('+(sk.lv?a.d(a.L[sk.lv-1]):a.d)+') to unlock '+sk.n+'.';return}
     if(!skinOpen(sk)){note.textContent='Locked. Play '+fmt(sk.need)+' '+(sk.src==='pnp'?'Pass & Play':'online')+' games to unlock '+sk.n+' ('+fmt(skinHave(sk))+' so far).';return}
     S.skin=sk.id;savePrefs();note.textContent=sk.n+' dice are on the table.';render();return}
-  var it=lkList(k).filter(function(x){return x[0]===id})[0],note2=$(k==='t'?'lkNoteT':'lkNoteB');if(!it)return;
-  if(!lkOwns(k,id)){note2.innerHTML='<b>'+esc(it[1])+'</b> is '+it[2]+' in the Shop. <button type="button" class="link inl" data-shop="'+(k==='t'?'tables':'borders')+'">See it in the Shop</button>';return}
-  if(k==='t')S.table=id;else S.tag=id;savePrefs();note2.textContent=it[1]+(k==='t'?' table is set.':' name tag is set.');render()});
+  var it=lkList(k).filter(function(x){return x[0]===id})[0],note2=$(k==='t'?'lkNoteT':k==='s'?'lkNoteS':'lkNoteB');if(!it)return;
+  if(!lkOwns(k,id)){note2.innerHTML='<b>'+esc(it[1])+'</b> is part of the '+it[2]+' in the Shop. <button type="button" class="link inl" data-shop="'+(k==='t'?'tables':k==='s'?'sounds':'borders')+'">See it in the Shop</button>';return}
+  if(k==='t')S.table=id;else if(k==='s'){S.snd=id;sndDemo(id)}else S.tag=id;savePrefs();note2.textContent=it[1]+(k==='t'?' table is set.':k==='s'?' sound effects are on.':' name tag is set.');render()});
 $('backDice').addEventListener('click',function(){S.phase=LK.from==='dice'?'menu':LK.from;if(S.phase==='shop')renderShop();if(S.phase==='online')onEnter();if(S.phase==='ach')loadMe();render()});
 $('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
