@@ -1610,6 +1610,10 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
 #board.many .tile .caps i{font-size:7.5px;line-height:10px;padding:0 1.5px}
 
 .tile .caps i{padding:0 2px;border-radius:4px;font:400 8.5px/11px var(--display);font-style:normal;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 45%,#C8901A);box-shadow:0 1px 2px rgba(0,0,0,.5)}
+.tile .caps i.used{background:rgba(120,120,120,.55);color:rgba(255,255,255,.45);box-shadow:none;text-decoration:line-through}
+.tile .caps i.now{box-shadow:0 0 0 1.5px #fff,0 0 8px rgba(246,207,69,.9);animation:capnow 1s ease-in-out infinite}
+@keyframes capnow{50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.tile .caps i.now{animation:none}}
 .tile .caps i.more{background:rgba(0,0,0,.45);color:#F6CF45}
 
 .primes{flex:none;display:grid;grid-template-columns:repeat(var(--pc,12),minmax(0,1fr));gap:3px;padding:5px;border-radius:12px;border:2px solid transparent;
@@ -3384,7 +3388,9 @@ function renderMain(){
     var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';if(p.pwReady&&p.pwCarry)pw+='<b class="pwc">+'+p.pwCarry+'</b>';pw+='</span>'}
     var capH='';if(RL().prime&&ph!=='order'){var cp=primeCaps(i);if(cp.length){
       /* captured primes stack down the left edge of the tag (up to 4), then the right edge (up to 4 more) */
-      var chip=function(n){return '<i>'+n+'</i>'},L4=cp.slice(0,4),R4=cp.length>8?cp.slice(4,7).map(chip).join('')+'<i class="more">+'+(cp.length-7)+'</i>':cp.slice(4,8).map(chip).join('');
+      /* in the Prime Round, each bonus turn used greys out one prime (from the first), and the one being played now glows */
+      var left=S.pr&&ph==='final'?S.queue.filter(function(j){return j===i}).length:(S.pr&&ph==='over'?0:cp.length),used=cp.length-left,now=S.pr&&ph==='final'&&i===S.cur?used:-1;
+      var chip=function(n){var k=cp.indexOf(n);return '<i'+(k<used?' class="used"':k===now?' class="now"':'')+'>'+n+'</i>'},L4=cp.slice(0,4),R4=cp.length>8?cp.slice(4,7).map(chip).join('')+'<i class="more">+'+(cp.length-7)+'</i>':cp.slice(4,8).map(chip).join('');
       cls+=' hascap'+(cp.length>4?' hascap2':'');
       capH='<span class="caps l" aria-label="Captured primes: '+cp.join(', ')+'">'+L4.map(chip).join('')+'</span>'+(R4?'<span class="caps r" aria-hidden="true">'+R4+'</span>':'')}}
     var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
