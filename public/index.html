@@ -1771,8 +1771,8 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
       <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it and get a Five Ones dot. After the final round, everyone gets a bonus turn for each prime they captured. Turns on Five Ones 2x.</small></span><button class="tog" data-k="prime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
-      <div class="opt"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
-      <div class="opt"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
+      <div class="opt" style="display:none"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
+      <div class="opt" style="display:none"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
     </div>
     <p class="cap" id="hRules"></p>
     <button class="mrow gold" id="hCreate" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h8l6 6v12z"/><path d="M14 3v6h6M12 12v6M9 15h6"/></svg></span><span class="mtx"><b>Open the Table</b><small>Players can join once it’s open</small></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
@@ -1828,8 +1828,8 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
       <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it and get an extra Five Ones dot. After everyone's final turn, each player gets a bonus turn for every prime they captured. Turns on Five Ones 2x.</small></span><button class="tog" id="tPrime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>Turns off every ×2: doubles score face value, and no catch-up or snake-eyes bonuses.</small></span><button class="tog" id="tNoDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
-      <div class="opt"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
-      <div class="opt"><span><b>Verify Double</b><small>After rolling a double, a player cannot lock in. They must keep rolling until a roll is not a double.</small></span><button class="tog" id="tVerify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
+      <div class="opt" style="display:none"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
+      <div class="opt" style="display:none"><span><b>Verify Double</b><small>After rolling a double, a player cannot lock in. They must keep rolling until a roll is not a double.</small></span><button class="tog" id="tVerify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
     </div>
   </section>
 
@@ -2323,7 +2323,7 @@ function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
   if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if(typeof p.snd==='string')S.snd=p.snd;if([1,0.85,0.7].indexOf(p.dsz)>=0)S.dsize=p.dsz;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
-  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}}}catch(e){}}
+  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}};S.cfg.reroll=false;S.cfg.verify=false}catch(e){}}
 function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,snd:S.snd,dsz:S.dsize||0.85,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
@@ -2545,7 +2545,7 @@ function botReroll(i){
 }
 function botThrow(){return {dx:rand(-0.6,0.6),dy:1,x:T.w/2+rand(-T.w*0.15,T.w*0.15),y:margin(),speed:rand(1.05,1.4)}}
 function startGame(){
-  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:S.cfg.reroll,verify:!!S.cfg.verify,power:!!S.cfg.power||!!S.cfg.prime,triple:!!S.cfg.triple,prime:!!S.cfg.prime};
+  S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:false,verify:false,power:!!S.cfg.power||!!S.cfg.prime,triple:!!S.cfg.triple,prime:!!S.cfg.prime};
   S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):(i===S.youSeat&&myId().name)||'P'+(i+1)),score:0,wins:0,hot:false,bot:bot,you:!bot&&i===S.youSeat})}
   S.games=0;S.ledger=[];S.baseOrder=null;S.sess=S.players.map(function(){return {f:[0,0,0,0,0,0],d:0,lost:0,rolls:0}});
   beginOrder();
@@ -3726,6 +3726,7 @@ function sndDemo(id){if(!ac())return;clearTimeout(SND.timer);SND.force=id||'clas
   [[50,0.9,'drop'],[90,0.75,'drop'],[300,0.45,'drop'],[420,0.4,'tick'],[500,0.35,'tick'],[620,0.7,'wall'],[740,0.3,'tick'],[880,0.6,'clack'],[1200,0.2,'drop']].forEach(function(x){setTimeout(function(){if(SND.force)sfxKnock(x[1],x[2])},x[0])});
   setTimeout(function(){if(SND.force)sfxDoubles(false)},1500);setTimeout(function(){if(SND.force)sfxLock(24)},3500);
   SND.timer=setTimeout(function(){SND.force=''},5600)}
+/* Re-roll Pig and Verify Double are switched off for now: their settings are hidden and both are forced off (also on the server) */
 /* ---------- the pig's tour of the rules, in the dice window on the main menu ---------- */
 var TUT={on:false,i:0,steps:[],seen:false,timer:0};
 try{TUT.seen=!!localStorage.getItem('degenpig-tut')}catch(e){}
@@ -4012,7 +4013,7 @@ function ordinalN(n){return n+ordinal(n)}
 /* online tables start from their own defaults (Golden Points and Five Ones 2x on, no timer); a host's last choices are remembered */
 var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:0,track:{on:false,game:'',point:'',golden:''}};
 function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k]&&typeof ONLINE_DEF[k]==='object'?Object.assign({},ONLINE_DEF[k]):ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
-  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];return c}
+  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];c.reroll=false;c.verify=false;return c}
 /* Track $: the amounts the host typed, as numbers (or null when off or empty) */
 function trackMoney(c){var t=c&&c.track;if(!t||!t.on)return null;var v=function(x){var n=Math.round(parseFloat(String(x||'').replace(/[^0-9.]/g,''))*100)/100;return isFinite(n)&&n>0?Math.min(n,100000):0};
   var m={game:v(t.game),point:v(t.point),golden:c.golden?v(t.golden):0};return m.game||m.point||m.golden?m:null}
