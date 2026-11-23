@@ -2645,7 +2645,7 @@ var PRIMEFX={n:null,t:0};
 function primeFx(pr){PRIMEFX={n:pr.n,i:pr.i,t:Date.now()};setTimeout(sfxPrime,380);setTimeout(function(){if(PRIMEFX.n===pr.n){PRIMEFX.n=null;render()}},1800)}
 function sfxPrime(){if(sndSet()==='xmas')return xPrime();if(sndSet()==='molten')return mPrime();if(sndSet()==='neon')return nPrime();if(sndSet()==='craps')return hPrime();if(sndSet()==='space')return sbPrime();if(sndSet()==='lagoon')return lbPrime();if(sndSet()==='arcade')return raPrime();if(sndSet()==='gold')return gbPrime();if(!ac())return;var t=AC.currentTime+0.02;[784,988,1175,1568].forEach(function(f,i){tone(t+i*.075,'triangle',f,0,.32,.12);tone(t+i*.075,'sine',f*2,0,.18,.04)});tone(t+.34,'sine',2093,0,.5,.07)}
 function renderPrimes(){
-  var el=$('primes'),R=RL(),ph=S.phase,on=!!(R&&R.prime&&R.power&&(ph==='play'||ph==='final'||ph==='over')&&!(S.pr&&ph==='final'));   /* the Prime Round banner takes its place */el.hidden=!on;if(!on)return;
+  var el=$('primes'),R=RL(),ph=S.phase,on=!!(R&&R.prime&&R.power&&(ph==='play'||ph==='final')&&!(S.pr&&ph==='final'));   /* the Prime Round banner takes its place */el.hidden=!on;if(!on)return;
   var L=primeList(R.target),cols=Math.min(16,Math.ceil(L.length/(L.length>30?3:2))),p=P(S.cur),hint=null;
   if((ph==='play'||ph==='final')&&!S.bust&&!S.pend&&S.turn>0&&p&&primeOpen(p.score+S.turn))hint=p.score+S.turn;
   el.style.setProperty('--pc',cols);
