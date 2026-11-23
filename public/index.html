@@ -1604,8 +1604,12 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
 #board .tile.nb-magma:not(.active)::before{opacity:.35}#board .tile.nb-magma:not(.active)::after{opacity:.3}
 #board .tile.nb-npink:not(.active)::after,#board .tile.nb-ngreen:not(.active)::after{opacity:.6}
 /* Prime Pig: the strip of primes under the name tags, and the captured primes on each name tag */
-.tile .caps{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;max-width:100%;min-height:12px}
-.tile .caps i{padding:0 3px;border-radius:4px;font:400 9px/12px var(--display);font-style:normal;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 45%,#C8901A);box-shadow:0 1px 2px rgba(0,0,0,.5)}
+.tile .caps{position:absolute;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:2px;z-index:2;pointer-events:none}
+.tile .caps.l{left:2px}.tile .caps.r{right:2px}
+.tile .caps.r{top:auto;bottom:3px;transform:none}
+#board.many .tile .caps i{font-size:7.5px;line-height:10px;padding:0 1.5px}
+
+.tile .caps i{padding:0 2px;border-radius:4px;font:400 8.5px/11px var(--display);font-style:normal;color:#2A1702;background:linear-gradient(180deg,#FFF6C2,#F6CF45 45%,#C8901A);box-shadow:0 1px 2px rgba(0,0,0,.5)}
 .tile .caps i.more{background:rgba(0,0,0,.45);color:#F6CF45}
 
 .primes{flex:none;display:grid;grid-template-columns:repeat(var(--pc,12),minmax(0,1fr));gap:3px;padding:5px;border-radius:12px;border:2px solid transparent;
@@ -2628,7 +2632,7 @@ var PRIMEFX={n:null,t:0};
 function primeFx(pr){PRIMEFX={n:pr.n,i:pr.i,t:Date.now()};setTimeout(sfxPrime,380);setTimeout(function(){if(PRIMEFX.n===pr.n){PRIMEFX.n=null;render()}},1800)}
 function sfxPrime(){if(sndSet()==='xmas')return xPrime();if(sndSet()==='molten')return mPrime();if(sndSet()==='neon')return nPrime();if(sndSet()==='craps')return hPrime();if(sndSet()==='space')return sbPrime();if(sndSet()==='lagoon')return lbPrime();if(sndSet()==='arcade')return raPrime();if(sndSet()==='gold')return gbPrime();if(!ac())return;var t=AC.currentTime+0.02;[784,988,1175,1568].forEach(function(f,i){tone(t+i*.075,'triangle',f,0,.32,.12);tone(t+i*.075,'sine',f*2,0,.18,.04)});tone(t+.34,'sine',2093,0,.5,.07)}
 function renderPrimes(){
-  var el=$('primes'),R=RL(),ph=S.phase,on=!!(R&&R.prime&&R.power&&(ph==='play'||ph==='final'||ph==='over'));el.hidden=!on;if(!on)return;
+  var el=$('primes'),R=RL(),ph=S.phase,on=!!(R&&R.prime&&R.power&&(ph==='play'||ph==='final'||ph==='over')&&!(S.pr&&ph==='final'));   /* the Prime Round banner takes its place */el.hidden=!on;if(!on)return;
   var L=primeList(R.target),cols=Math.min(16,Math.ceil(L.length/(L.length>30?3:2))),p=P(S.cur),hint=null;
   if((ph==='play'||ph==='final')&&!S.bust&&!S.pend&&S.turn>0&&p&&primeOpen(p.score+S.turn))hint=p.score+S.turn;
   el.style.setProperty('--pc',cols);
@@ -3357,7 +3361,7 @@ function renderMain(){
 
   /* scoreboard */
   var list=S.order.length?S.order:S.players.map(function(_,i){return i}),act=activeIdx(),lead=(ph==='final'||ph==='over')?leaders():[];
-  var b=$('board');b.hidden=ph==='over';b.style.setProperty('--n',S.n);
+  var b=$('board');b.hidden=ph==='over';b.style.setProperty('--n',S.n);b.classList.toggle('many',S.n>=5);
   b.innerHTML=list.map(function(i){
     var p=P(i),cls='tile',val,foot,em=canEmote(i),mu=isMuted(i);
     if(i===act)cls+=' active';if(em||canMute(i))cls+=' emo-ok';
@@ -3378,9 +3382,13 @@ function renderMain(){
     }
     var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
     var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';if(p.pwReady&&p.pwCarry)pw+='<b class="pwc">+'+p.pwCarry+'</b>';pw+='</span>'}
-    if(RL().prime&&ph!=='order'){var cp=primeCaps(i);if(cp.length)pw+='<span class="caps" aria-label="Captured primes: '+cp.join(', ')+'">'+cp.slice(0,cp.length>3?2:3).map(function(n){return '<i>'+n+'</i>'}).join('')+(cp.length>3?'<i class="more">+'+(cp.length-2)+'</i>':'')+'</span>'}
+    var capH='';if(RL().prime&&ph!=='order'){var cp=primeCaps(i);if(cp.length){
+      /* captured primes stack down the left edge of the tag (up to 4), then the right edge (up to 4 more) */
+      var chip=function(n){return '<i>'+n+'</i>'},L4=cp.slice(0,4),R4=cp.length>8?cp.slice(4,7).map(chip).join('')+'<i class="more">+'+(cp.length-7)+'</i>':cp.slice(4,8).map(chip).join('');
+      cls+=' hascap'+(cp.length>4?' hascap2':'');
+      capH='<span class="caps l" aria-label="Captured primes: '+cp.join(', ')+'">'+L4.map(chip).join('')+'</span>'+(R4?'<span class="caps r" aria-hidden="true">'+R4+'</span>':'')}}
     var hx=i===act&&hotNow?MX():pending?hotMult(hotReasons(i,RL().power&&p.pwReady)):0,hb=hx?'<span class="hotb'+(hx>2?' x3':'')+'">×'+hx+'</span>':'';
-    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+hb+(mu?'<span class="emochip mut" title="Emotes muted"><svg viewBox="0 0 20 20"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="#3B2305"/><path d="M13 7.5l4.5 5M17.5 7.5l-4.5 5" stroke="#3B2305" stroke-width="1.9" stroke-linecap="round"/></svg></span>':'')+(em&&(S.online||p.you)?'<span class="emochip" title="Send an emote"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="1.6" fill="#3B2305"/><circle cx="13" cy="8" r="1.6" fill="#3B2305"/><path d="M5.5 11.5q4.5 5 9 0" fill="none" stroke="#3B2305" stroke-width="1.8" stroke-linecap="round"/></svg></span>':'')+'</div>';
+    return '<div class="'+cls+'" data-i="'+i+'" style="--pc:var(--s'+(i+1)+')"><span class="nm">'+esc(p.name)+'</span><span class="sc'+(RL().golden&&p.score>RL().target?' au':'')+'">'+val+'</span>'+pw+foot+capH+hb+(mu?'<span class="emochip mut" title="Emotes muted"><svg viewBox="0 0 20 20"><path d="M3 8h3l4-3.5v11L6 12H3z" fill="#3B2305"/><path d="M13 7.5l4.5 5M17.5 7.5l-4.5 5" stroke="#3B2305" stroke-width="1.9" stroke-linecap="round"/></svg></span>':'')+(em&&(S.online||p.you)?'<span class="emochip" title="Send an emote"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="1.6" fill="#3B2305"/><circle cx="13" cy="8" r="1.6" fill="#3B2305"/><path d="M5.5 11.5q4.5 5 9 0" fill="none" stroke="#3B2305" stroke-width="1.8" stroke-linecap="round"/></svg></span>':'')+'</div>';
   }).join('');
 
   var bn=$('banner');bn.hidden=ph!=='final';bn.classList.toggle('prb',!!S.pr);
