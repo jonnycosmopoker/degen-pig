@@ -2618,6 +2618,8 @@ function primeQueue(){
   var q=[],mx=Math.max.apply(null,c);for(var r=0;r<mx;r++)S.order.forEach(function(i){if(c[i]>r)q.push(i)});
   return q.length?q:null;
 }
+/* the button after the last final turn: in Prime Pig it starts the Prime Round when anyone captured a prime */
+function endBtnText(){return S.phase==='final'&&!S.pr&&primeQueue()?'Roll Prime Rounds':'See who won'}
 function primeCount(i){var k=0;for(var n in (S.primes||{}))if(S.primes[n]===i)k++;return k}
 function primeCaps(i){var a=[];for(var n in (S.primes||{}))if(S.primes[n]===i)a.push(+n);return a.sort(function(x,y){return x-y})}
 /* ---------- Prime Pig: the first player to lock in exactly an open prime (5 up to the target) captures it and gets a Five Ones dot.
@@ -3467,7 +3469,7 @@ function renderMain(){
     $('l3').textContent='To beat';$('v3').textContent=bar;
     if(S.finalDone){
       setWho(S.finalMsg);$('l2').textContent='Rolled';$('v2').textContent=S.rolls[0].pts;
-      rb.textContent=nx>=0?'Next: '+P(nx).name:'See who won';
+      rb.textContent=nx>=0?'Next: '+P(nx).name:endBtnText();
       note.textContent=leaders().indexOf(S.cur)>=0?p.name+' now holds the lead.':'';
     }else{
       setWho(p.name+': one final roll');$('l2').textContent='Needs';$('v2').textContent=need+'+';
@@ -3499,7 +3501,7 @@ function renderMain(){
   }
   if(S.bust){
     setWho(p.name+(S.rrFail?' busted on the re-roll':S.snake?' rolled snake eyes':' busted'));
-    rb.textContent=nx>=0?'Pass the dice to '+P(nx).name:'See who won';
+    rb.textContent=nx>=0?'Pass the dice to '+P(nx).name:endBtnText();
     var sn2=S.snake&&p.st&&p.st.sn>=2?' That is '+(p.st.sn===2?'a second':'another')+' snake eyes, so every roll pays double for the rest of the game.':'';
     var pwn=S.pwFull?' That fills all 5 dots, so '+p.name+'’s next turn is doubled.':'';
     if(S.rrFail)note.textContent='The re-roll came up with a 1, so the score drops to 0'+(S.lostBank>0?' and the '+S.lostBank+' banked is gone':'')+'. It does not count as snake eyes.';
