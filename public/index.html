@@ -2581,7 +2581,7 @@ function primeBonus(i){
 }
 var PRIMEFX={n:null,t:0};
 function primeFx(pr){PRIMEFX={n:pr.n,i:pr.i,t:Date.now()};setTimeout(sfxPrime,380);setTimeout(function(){if(PRIMEFX.n===pr.n){PRIMEFX.n=null;render()}},1800)}
-function sfxPrime(){if(sndSet()==='xmas')return xPrime();if(sndSet()==='molten')return mPrime();if(sndSet()==='neon')return nPrime();if(sndSet()==='craps')return hPrime();if(!ac())return;var t=AC.currentTime+0.02;[784,988,1175,1568].forEach(function(f,i){tone(t+i*.075,'triangle',f,0,.32,.12);tone(t+i*.075,'sine',f*2,0,.18,.04)});tone(t+.34,'sine',2093,0,.5,.07)}
+function sfxPrime(){if(sndSet()==='xmas')return xPrime();if(sndSet()==='molten')return mPrime();if(sndSet()==='neon')return nPrime();if(sndSet()==='craps')return hPrime();if(sndSet()==='space')return sbPrime();if(sndSet()==='lagoon')return lbPrime();if(sndSet()==='arcade')return raPrime();if(sndSet()==='gold')return gbPrime();if(!ac())return;var t=AC.currentTime+0.02;[784,988,1175,1568].forEach(function(f,i){tone(t+i*.075,'triangle',f,0,.32,.12);tone(t+i*.075,'sine',f*2,0,.18,.04)});tone(t+.34,'sine',2093,0,.5,.07)}
 function renderPrimes(){
   var el=$('primes'),R=RL(),ph=S.phase,on=!!(R&&R.prime&&R.power&&(ph==='play'||ph==='final'||ph==='over'));el.hidden=!on;if(!on)return;
   var L=primeList(R.target),cols=Math.min(16,Math.ceil(L.length/(L.length>30?3:2))),p=P(S.cur),hint=null;
@@ -2673,7 +2673,7 @@ function sfxChip(){if(!ac())return;var t=AC.currentTime+0.01;noise(t,.03,'bandpa
 function sfxRewind(d){
   if(sndSet()==='xmas')return xRewind(d);
   if(sndSet()==='molten')return mRewind(d);
-  if(sndSet()==='neon')return nRewind(d);if(sndSet()==='craps')return hRewind(d);
+  if(sndSet()==='neon')return nRewind(d);if(sndSet()==='craps')return hRewind(d);if(sndSet()==='space')return sbRewind(d);if(sndSet()==='lagoon')return lbRewind(d);if(sndSet()==='arcade')return raRewind(d);if(sndSet()==='gold')return gbRewind(d);
   if(!ac())return;var t=AC.currentTime+0.01;
   var o=AC.createOscillator();o.type='square';o.frequency.setValueAtTime(1500,t);o.frequency.exponentialRampToValueAtTime(420,t+d);
   var bp=AC.createBiquadFilter();bp.type='bandpass';bp.Q.value=2.5;bp.frequency.setValueAtTime(2400,t);bp.frequency.exponentialRampToValueAtTime(900,t+d);
@@ -2766,7 +2766,7 @@ function tone(t,type,f0,f1,dur,peak,att){
   var g=AC.createGain();env(g,t,peak,att||0.003,dur);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+(att||0.003)+dur+0.08);
 }
 /* Some premium dice bring their own sound set, played while that player is rolling */
-function sndSet(){var k=$('app').dataset.skin;return k==='candy'?'xmas':k==='magma'?'molten':k==='npink'||k==='ngreen'?'neon':k==='ruby'?'craps':''}
+function sndSet(){var k=$('app').dataset.skin;return k==='candy'?'xmas':k==='magma'?'molten':k==='npink'||k==='ngreen'?'neon':k==='ruby'?'craps':k==='nebula'?'space':k==='sand'?'lagoon':k==='arcade'?'arcade':k==='gold24'?'gold':''}
 /* ---------- Christmas Eve sounds (played while the Christmas Lights dice are rolling) ---------- */
 function jingle(t,v){/* one sleigh bell: a handful of bright, slightly out-of-tune partials that die away fast */
   var f=rand(2600,3400);[1,1.47,2.09,2.76,3.3].forEach(function(m,i){tone(t+rand(0,0.004),'sine',f*m*rand(0.99,1.01),0,rand(0.05,0.12)*(1-i*0.12),(0.11-i*0.016)*v)});
@@ -2960,11 +2960,105 @@ function hBell(){if(!ac())return;var t=AC.currentTime+0.35;
   /* the final round: three rich vibraphone chords with a cymbal swell */
   [0,0.4,0.8].forEach(function(o,k){[392,494,587,740].forEach(function(f){vibe(t+o,f*(k===2?1.335:1),0.6,1.4)})});noise(t,1.4,'highpass',6000,0.6,0.12,0.6)}
 
+/* ---- shared helpers for the Deep Space, Tropical Lagoon, Arcade Retro and Gold Vault sound sets ---- */
+function ping(t,f,v,dec){dec=dec||0.8;tone(t,'sine',f,0,dec,0.16*v,0.002);tone(t,'sine',f*2.01,0,dec*0.5,0.05*v,0.002);tone(t,'sine',f*3.98,0,dec*0.25,0.025*v,0.002)}
+function echoes(t,n,gap,fall,fn){for(var i=0;i<n;i++)fn(t+i*gap,Math.pow(fall,i))}
+function pad(t,fs,dur,v,cut,att){att=att||dur*0.35;fs.forEach(function(f){[-4,4].forEach(function(c){var o=AC.createOscillator();o.type='sawtooth';o.frequency.value=f;o.detune.value=c;
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=cut||1800;var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.035*v,t+att);g.gain.setValueAtTime(0.035*v,t+dur*0.7);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(lp);lp.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+0.05)})})}
+function steel(t,f,v){tone(t,'sine',f*1.02,f,0.6,0.25*v,0.003);tone(t,'sine',f*2,0,0.35,0.1*v);tone(t,'sine',f*3.01,0,0.2,0.05*v);noise(t,0.01,'bandpass',f*4,2,0.08*v)}
+function marim(t,f,v){tone(t,'sine',f,0,0.5,0.28*v,0.002);tone(t,'sine',f*3.93,0,0.08,0.08*v,0.002);noise(t,0.006,'bandpass',2000,2,0.06*v)}
+function pluck(t,f,v){tone(t,'triangle',f,0,0.7,0.2*v,0.002);tone(t,'sawtooth',f,0,0.08,0.04*v,0.002)}
+function conch(t,f,dur,v){var o=AC.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(f*0.9,t);o.frequency.linearRampToValueAtTime(f,t+0.12);
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=850;lp.Q.value=2;var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.22*v,t+0.08);g.gain.setValueAtTime(0.22*v,t+dur*0.75);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(lp);lp.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+0.05);noise(t,dur*0.8,'bandpass',f*3,1,0.06*v,0.06)}
+function blip8(t,f,dur,v,f1,type){var o=AC.createOscillator();o.type=type||'square';o.frequency.setValueAtTime(f,t);if(f1)o.frequency.linearRampToValueAtTime(f1,t+dur);
+  var g=AC.createGain(),p=(type==='triangle'?0.24:0.1)*v;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(p,t+0.002);g.gain.setValueAtTime(p,t+Math.max(0.003,dur-0.006));g.gain.linearRampToValueAtTime(0,t+dur);o.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+0.02)}
+function noise8(t,dur,v,rate){var sr=AC.sampleRate,n=Math.ceil(sr*dur),b=AC.createBuffer(1,n,sr),c=b.getChannelData(0),h=Math.max(1,Math.round(sr/(rate||4000))),x=0;for(var i=0;i<n;i++){if(i%h===0)x=Math.random()<0.5?-1:1;c[i]=x}
+  var s=AC.createBufferSource();s.buffer=b;var g=AC.createGain();g.gain.setValueAtTime(0.11*v,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);s.connect(g);g.connect(OUT);s.start(t)}
+function gcoin(t,f,v){tone(t,'sine',f,0,0.4,0.1*v,0.001);tone(t,'sine',f*2.32,0,0.25,0.06*v,0.001);tone(t,'sine',f*4.25,0,0.15,0.04*v,0.001);noise(t,0.008,'highpass',6000,0.7,0.12*v)}
+function thunk(t,v){tone(t,'sine',95,45,0.25,0.7*v,0.003);noise(t,0.12,'lowpass',400,0.8,0.4*v);noise(t,0.015,'bandpass',1800,2,0.25*v)}
+function ratchet(t,n,dur,v,slow){if(!ac())return;for(var i=0;i<n;i++){var u=i/n,a=t+dur*(slow?Math.pow(u,0.6):u);noise(a,0.006,'bandpass',3200,4,0.3*v);tone(a,'triangle',1800,0,0.01,0.06*v)}}
+function siren(t,dur,v){var o=AC.createOscillator();o.type='sawtooth';for(var a=0;a<dur;a+=0.5){o.frequency.setValueAtTime(650,t+a);o.frequency.linearRampToValueAtTime(1100,t+a+0.5)}
+  var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=2000;var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.1*v,t+0.05);g.gain.setValueAtTime(0.1*v,t+dur-0.1);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(lp);lp.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+0.05)}
+function chime(t,f,v,dec){dec=dec||1.2;[[1,1],[2,0.4],[3,0.2],[4.2,0.1]].forEach(function(p){tone(t,'sine',f*p[0],0,dec/p[0],0.15*v*p[1],0.002)})}
+function brass(t,f,dur,v){[1,1.004].forEach(function(m){var o=AC.createOscillator();o.type='sawtooth';o.frequency.value=f*m;var lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(400,t);lp.frequency.exponentialRampToValueAtTime(2600,t+0.06);lp.frequency.exponentialRampToValueAtTime(1400,t+dur);
+  var g=AC.createGain();g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.08*v,t+0.03);g.gain.setValueAtTime(0.08*v,t+dur*0.8);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);o.connect(lp);lp.connect(g);g.connect(OUT);o.start(t);o.stop(t+dur+0.05)})}
+function tom(t,f,v){tone(t,'sine',f*1.5,f,0.3,0.6*v,0.002);noise(t,0.05,'lowpass',600,0.8,0.2*v)}
+function whoop(t,f0,f1,dur,v){tone(t,'sine',f0,f1,dur,0.3*v,0.01)}
+
+/* ---- Deep Space B "Cosmic Drift": glassy chimes that echo off into space, shimmering pads, a supernova ---- */
+var SPN=[880,988,1175,1319,1568,1760];
+function sbKnock(v,kind){if(!ac())return;var t=AC.currentTime;v=clamp(v,0.05,1);
+  if(kind==='tick'){if(t-lastTick<0.04)return;lastTick=t;ping(t,SPN[Math.floor(rand(3,6))]*2,0.12*v,0.2);return}
+  if(kind==='clack'){ping(t,2637,0.5*v,0.6);return}
+  if(kind==='wall'){echoes(t,3,0.13,0.4,function(a,k){ping(a,440,0.6*v*k,0.8)});return}
+  var f=SPN[Math.floor(Math.random()*SPN.length)];tone(t,'sine',130,80,0.05,0.25*v);echoes(t,3,0.11,0.4,function(a,k){ping(a,f,0.55*v*k,0.9)})}
+function sbDoubles(big){if(!ac())return;var t=AC.currentTime+0.05;pad(t,[392,494,587,784],big?2:1.6,1.6,2400,0.25);for(var i=0;i<(big?14:10);i++)ping(t+rand(0,1.2),rand(1800,4200),0.6,0.5)}
+function sbBust(){if(!ac())return;var t=AC.currentTime+0.02;sweepN(t,0.6,'lowpass',2000,100,1,0.35);tone(t,'sine',220,55,0.8,0.45);echoes(t+0.2,3,0.18,0.45,function(a,k){tone(a,'sine',110,55,0.3,0.3*k)})}
+function sbRewind(d){if(!ac())return;var t=AC.currentTime+0.01;noise(t,d*0.15,'bandpass',2000,1,0.25,d*0.8);var n=Math.max(6,Math.round(d*9));for(var i=0;i<n;i++)ping(t+d*i/n,1760*Math.pow(0.5,i/n*1.5),0.7,0.5)}
+function sbFire(ms){if(!ac())return;var t=AC.currentTime,d=ms/1000;
+  /* a star collapses and goes supernova */
+  sweepN(t,d*0.6,'lowpass',100,700,1,0.5,d*0.5,0.05);tone(t,'sawtooth',55,110,d*0.6,0.08,d*0.5);
+  var e=t+d*0.6;boom(e,0.85,1.1);noise(e,0.5,'highpass',3000,0.7,0.2);for(var i=0;i<12;i++)ping(e+0.1+i*0.08,3000*Math.pow(0.85,i),0.5,0.4);pad(e+0.2,[110,131,165],d*0.4,1,700,0.1)}
+function sbLock(){if(!ac())return;var t=AC.currentTime+0.01;[1319,1760,2217,2637].forEach(function(f,i){echoes(t+i*0.045,2,0.14,0.4,function(a,k){ping(a,f,1.1*k,0.9)})})}
+function sbPrime(){if(!ac())return;var t=AC.currentTime+0.02;[2093,2637,3136].forEach(function(f,i){echoes(t+i*0.06,3,0.1,0.45,function(a,k){ping(a,f,1.7*k,0.5)})})}
+function sbBell(){if(!ac())return;var t=AC.currentTime+0.35;[[220,330,440,523],[175,262,349,440],[196,294,392,494]].forEach(function(c,i){pad(t+i*0.5,c,0.9,2.2,2000,0.12);ping(t+i*0.5,c[3]*4,1.2,0.6)})}
+/* ---- Tropical Lagoon B "Island Breeze": coconut knocks, ukulele, marimba, tiki drums, a tropical storm ---- */
+function lbKnock(v,kind){if(!ac())return;var t=AC.currentTime;v=clamp(v,0.05,1);
+  if(kind==='tick'){if(t-lastTick<0.03)return;lastTick=t;noise(t,0.025,'bandpass',2600,1,0.07*v);return}
+  if(kind==='clack'){tone(t,'sine',900,700,0.05,0.35*v);noise(t,0.01,'bandpass',1800,2,0.2*v);return}
+  if(kind==='wall'){tone(t,'sine',300,250,0.1,0.5*v);tone(t,'sine',750,0,0.05,0.15*v);return}
+  noise(t,0.06,'bandpass',2500,0.8,0.14*v);tone(t,'sine',120,85,0.05,0.3*v)}
+function lbDoubles(big){if(!ac())return;var t=AC.currentTime+0.05,c=[392,262,330,440];c.forEach(function(f,i){pluck(t+i*0.025,f,1.5)});c.slice().reverse().forEach(function(f,i){pluck(t+0.22+i*0.02,f*(big?1.5:1),1.3)});[1047,1319,1568].forEach(function(f,i){marim(t+0.45+i*0.07,f,1)})}
+function lbBust(){if(!ac())return;var t=AC.currentTime+0.02;[659,523,392].forEach(function(f,i){marim(t+i*0.12,f,1.6)});bubble(t+0.4,150,1.5)}
+function lbRewind(d){if(!ac())return;var t=AC.currentTime+0.01,n=Math.max(6,Math.round(d*12));for(var i=0;i<n;i++)marim(t+d*i/n,1568*Math.pow(0.5,i/n*1.4),0.8);sweepN(t,d,'lowpass',1800,300,1,0.15,0.05,0.4)}
+function lbFire(ms){if(!ac())return;var t=AC.currentTime,d=ms/1000;
+  /* a tropical storm rolls in: rain, a lightning crack, rolling thunder */
+  noise(t,d,'highpass',3500,0.6,0.15,d*0.3);for(var i=0;i<d*30;i++)noise(t+rand(0,d),0.01,'bandpass',rand(2000,5000),2,0.1);
+  var c=t+d*0.35;noise(c,0.08,'highpass',1500,0.6,0.5,0.002);noise(c+0.05,d*0.6,'lowpass',180,0.8,0.7,0.05);tone(c+0.05,'sine',60,35,d*0.5,0.6)}
+function lbLock(){if(!ac())return;var t=AC.currentTime+0.01;[0,0.06,0.12].forEach(function(o){noise(t+o,0.04,'highpass',5000,0.8,0.14)});marim(t+0.14,784,1.7);marim(t+0.25,1175,1.7)}
+function lbPrime(){if(!ac())return;var t=AC.currentTime+0.02;[1047,1319,1568].forEach(function(f,i){marim(t+i*0.075,f,2)})}
+function lbBell(){if(!ac())return;var t=AC.currentTime+0.35;for(var i=0;i<10;i++)tom(t+i*0.07,i%2?150:110,0.5+i*0.04);[0.8,1.15,1.5].forEach(function(o){tom(t+o,90,1.0);tom(t+o,140,0.8)})}
+/* ---- Arcade Retro A "8-Bit Console": chiptune blips, power-ups, coin pickups, a game over ---- */
+function raKnock(v,kind){if(!ac())return;var t=AC.currentTime;v=clamp(v,0.05,1);
+  if(kind==='tick'){if(t-lastTick<0.04)return;lastTick=t;blip8(t,1200,0.012,0.4*v);return}
+  if(kind==='clack'){blip8(t,1800,0.025,0.9*v);return}
+  if(kind==='wall'){blip8(t,220,0.06,1.2*v,110,'triangle');return}
+  blip8(t,300,0.04,1.1*v,150);noise8(t,0.04,0.6*v,3000)}
+function raDoubles(big){if(!ac())return;var t=AC.currentTime+0.05,n=[523,659,784,1047,1319,1568];(big?[0,1,2]:[0,1]).forEach(function(r){n.forEach(function(f,i){blip8(t+(r*6+i)*0.04,f*(r===2?2:1),0.04,1.4)})})}
+function raBust(){if(!ac())return;var t=AC.currentTime+0.02;[494,466,440,415].forEach(function(f,i){blip8(t+i*0.13,f,0.12,1.4)});blip8(t+0.55,400,0.35,1.4,100);blip8(t,124,0.6,1,0,'triangle')}
+function raRewind(d){if(!ac())return;var t=AC.currentTime+0.01,n=Math.max(8,Math.round(d*30));for(var i=0;i<n;i++)blip8(t+d*i/n,(i%2?1400:1200)*Math.pow(0.35,i/n),d/n*0.9,1)}
+function raFire(ms){if(!ac())return;var t=AC.currentTime,d=ms/1000;
+  /* a chain of explosions, then the GAME OVER tune */
+  for(var i=0;i<4;i++)noise8(t+i*d*0.1,0.5,1.6-i*0.2,2000-i*300);var g=t+d*0.5;
+  [523,392,330,262].forEach(function(f,i){blip8(g+i*d*0.1,f,d*0.09,1.5);blip8(g+i*d*0.1,f/2,d*0.09,1,0,'triangle')})}
+function raLock(){if(!ac())return;var t=AC.currentTime+0.01;blip8(t,988,0.07,1.6);blip8(t+0.07,1319,0.35,1.6)}
+function raPrime(){if(!ac())return;var t=AC.currentTime+0.02;[659,784,1319,1047,1175,1568].forEach(function(f,i){blip8(t+i*0.07,f,0.07,1.6)})}
+function raBell(){if(!ac())return;var t=AC.currentTime+0.35;[0,1,2].forEach(function(r){[784,988,1175,988].forEach(function(f,i){blip8(t+r*0.36+i*0.08,f*Math.pow(1.06,r*2),0.07,1.7)});blip8(t+r*0.36,196*Math.pow(1.06,r*2),0.3,1.2,0,'triangle')})}
+
+/* ---- Gold Vault B "Treasure Hoard": dice that ring like gold, harp glissandos, spilling coins, a royal fanfare ---- */
+function gbKnock(v,kind){if(!ac())return;var t=AC.currentTime;v=clamp(v,0.05,1);
+  if(kind==='tick'){if(t-lastTick<0.03)return;lastTick=t;gcoin(t,rand(4000,5000),0.2*v);return}
+  if(kind==='clack'){gcoin(t,rand(2800,3400),0.9*v);return}
+  if(kind==='wall'){tone(t,'sine',140,100,0.1,0.45*v);noise(t,0.04,'lowpass',600,0.8,0.25*v);return}
+  tone(t,'sine',140,90,0.06,0.35*v);gcoin(t,rand(2200,2800),0.55*v)}
+function gbDoubles(big){if(!ac())return;var t=AC.currentTime+0.05,s=[523,587,659,784,880,1047,1175,1319,1568,1760];(big?s.concat([2093,2349]):s).forEach(function(f,i){pluck(t+i*0.035,f,1.1)});for(var i=0;i<8;i++)ping(t+0.3+rand(0,0.6),rand(3000,5000),0.6,0.4)}
+function gbBust(){if(!ac())return;var t=AC.currentTime+0.02;for(var i=0;i<10;i++)gcoin(t+rand(0,0.25),rand(2000,4000),1);/* one coin spins down on the floor */var a=t+0.3;for(var k=0;k<16;k++){var g=0.08*Math.pow(0.85,k);gcoin(a,2600+k*60,0.5);a+=g}}
+function gbRewind(d){if(!ac())return;var t=AC.currentTime+0.01,s=[1760,1568,1319,1175,1047,880,784,659,587,523],n=Math.max(s.length,Math.round(d*10));for(var i=0;i<n;i++)pluck(t+d*i/n,s[Math.floor(i/n*s.length)],1)}
+function gbFire(ms){if(!ac())return;var t=AC.currentTime,d=ms/1000;
+  /* the gold melts: a sizzle, coins dropping into the fire, a low groan */
+  hiss(t,d,1.2,3500);noise(t,d,'lowpass',300,0.8,0.25,d*0.3);for(var i=0;i<14;i++)gcoin(t+rand(0,d*0.7),rand(1500,3500),0.8);tone(t+d*0.3,'sawtooth',110,45,d*0.65,0.12);boom(t+d*0.85,0.6,0.6)}
+function gbLock(){if(!ac())return;var t=AC.currentTime+0.01;thunk(t,0.6);chime(t+0.08,2093,1.5,1.2);chime(t+0.08,2637,0.8,1);for(var i=0;i<6;i++)gcoin(t+0.15+i*0.04,rand(2800,4000),0.7)}
+function gbPrime(){if(!ac())return;var t=AC.currentTime+0.02;[2093,2637,3136].forEach(function(f,i){chime(t+i*0.07,f,1.8,0.6)})}
+function gbBell(){if(!ac())return;var t=AC.currentTime+0.35;[[392,0,0.18],[523,0.2,0.18],[659,0.4,0.18],[784,0.6,0.7]].forEach(function(n){brass(t+n[1],n[0],n[2],2.2);brass(t+n[1],n[0]/2,n[2],1.2)});[0,0.6].forEach(function(o){tom(t+o,70,1.2)})}
+
 /* One die-on-wood contact. kind: drop (landing), wall (rail), tick (edge tumbling), clack (die against die). */
 function sfxKnock(v,kind){
   if(sndSet()==='xmas')return xKnock(v,kind);
   if(sndSet()==='molten')return mKnock(v,kind);
-  if(sndSet()==='neon')return nKnock(v,kind);if(sndSet()==='craps')return hKnock(v,kind);
+  if(sndSet()==='neon')return nKnock(v,kind);if(sndSet()==='craps')return hKnock(v,kind);if(sndSet()==='space')return sbKnock(v,kind);if(sndSet()==='lagoon')return lbKnock(v,kind);if(sndSet()==='arcade')return raKnock(v,kind);if(sndSet()==='gold')return gbKnock(v,kind);
   if(!ac())return;var t=AC.currentTime,w=woodNow||WOOD[0],dt=rand(0.94,1.07);v=clamp(v,0.05,1);
   if(kind==='tick'){if(t-lastTick<0.03)return;lastTick=t}
   if(kind==='clack'){noise(t,0.03,'bandpass',rand(3200,4600),5,0.5*v);tone(t,'triangle',rand(1900,2500),0,0.035,0.18*v);return}
@@ -2977,7 +3071,7 @@ function sfxKnock(v,kind){
 function sfxDoubles(big){
   if(sndSet()==='xmas')return xDoubles(big);
   if(sndSet()==='molten')return mDoubles(big);
-  if(sndSet()==='neon')return nDoubles(big);if(sndSet()==='craps')return hDoubles(big);
+  if(sndSet()==='neon')return nDoubles(big);if(sndSet()==='craps')return hDoubles(big);if(sndSet()==='space')return sbDoubles(big);if(sndSet()==='lagoon')return lbDoubles(big);if(sndSet()==='arcade')return raDoubles(big);if(sndSet()==='gold')return gbDoubles(big);
   if(!ac())return;var t=AC.currentTime+0.05,notes=big?[659,831,988,1319,1661]:[659,831,988,1319];
   notes.forEach(function(f,i){var tt=t+i*0.075;tone(tt,'triangle',f,0,0.42,0.22);tone(tt,'sine',f*2,0,0.3,0.1)});
   noise(t+notes.length*0.075,0.5,'highpass',6000,0.7,0.07,0.01);
@@ -2994,7 +3088,7 @@ function sfxBell(){
   if(window.__dp)window.__dp.bells=(window.__dp.bells||0)+1;   /* counted by the local tests */
   if(sndSet()==='xmas')return xBell();
   if(sndSet()==='molten')return mBell();
-  if(sndSet()==='neon')return nBell();if(sndSet()==='craps')return hBell();
+  if(sndSet()==='neon')return nBell();if(sndSet()==='craps')return hBell();if(sndSet()==='space')return sbBell();if(sndSet()==='lagoon')return lbBell();if(sndSet()==='arcade')return raBell();if(sndSet()==='gold')return gbBell();
   if(!ac())return;var t0=AC.currentTime+0.35;
   [0,0.32,0.64].forEach(function(at,k){var t=t0+at,amp=(1-0.06*k)*0.16;
     BELL.forEach(function(p){var o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(1180*p[0],t);
@@ -3008,7 +3102,7 @@ var bellPh=null;
 function sfxLock(amt){
   if(sndSet()==='xmas')return xLock(amt);
   if(sndSet()==='molten')return mLock(amt);
-  if(sndSet()==='neon')return nLock(amt);if(sndSet()==='craps')return hLock(amt);
+  if(sndSet()==='neon')return nLock(amt);if(sndSet()==='craps')return hLock(amt);if(sndSet()==='space')return sbLock(amt);if(sndSet()==='lagoon')return lbLock(amt);if(sndSet()==='arcade')return raLock(amt);if(sndSet()==='gold')return gbLock(amt);
   if(!ac())return;var t=AC.currentTime+0.01,n=clamp(Math.round((amt||24)/6),4,10);
   for(var i=0;i<n;i++){coin(t,1-i*0.04);t+=rand(0.045,0.075)}
   tone(t+0.03,'sine',1319,0,0.5,0.3);tone(t+0.03,'sine',1976,0,0.4,0.17);tone(t+0.11,'sine',2637,0,0.55,0.2);
@@ -3018,7 +3112,7 @@ function sfxLock(amt){
 function sfxBust(){
   if(sndSet()==='xmas')return xBust();
   if(sndSet()==='molten')return mBust();
-  if(sndSet()==='neon')return nBust();if(sndSet()==='craps')return hBust();
+  if(sndSet()==='neon')return nBust();if(sndSet()==='craps')return hBust();if(sndSet()==='space')return sbBust();if(sndSet()==='lagoon')return lbBust();if(sndSet()==='arcade')return raBust();if(sndSet()==='gold')return gbBust();
   if(!ac())return;
   var t=AC.currentTime+0.03,dur=0.2,base=300*rand(0.97,1.03),pk=0.4;
   function sweep(param,v){param.setValueAtTime(v[0],t);param.linearRampToValueAtTime(v[1],t+dur*pk);param.linearRampToValueAtTime(v[2],t+dur)}
@@ -3041,7 +3135,7 @@ function sfxHot(){if(!ac())return;var t=AC.currentTime;tone(t,'triangle',330,660
 function sfxFire(ms){
   if(sndSet()==='xmas')return xFire(ms);
   if(sndSet()==='molten')return mFire(ms);
-  if(sndSet()==='neon')return nFire(ms);if(sndSet()==='craps')return hFire(ms);
+  if(sndSet()==='neon')return nFire(ms);if(sndSet()==='craps')return hFire(ms);if(sndSet()==='space')return sbFire(ms);if(sndSet()==='lagoon')return lbFire(ms);if(sndSet()==='arcade')return raFire(ms);if(sndSet()==='gold')return gbFire(ms);
   if(!ac())return;var t=AC.currentTime,d=ms/1000;
   var src=AC.createBufferSource();src.buffer=NOISE;src.loop=true;
   var f=AC.createBiquadFilter();f.type='lowpass';f.Q.value=0.8;f.frequency.setValueAtTime(500,t);f.frequency.linearRampToValueAtTime(1500,t+d*0.35);f.frequency.linearRampToValueAtTime(260,t+d);
