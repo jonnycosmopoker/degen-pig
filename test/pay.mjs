@@ -67,9 +67,9 @@ const B = new AccountsLogic(new MemStorage());
 const objs = { '/v1/checkout/sessions/cs_9': { id: 'cs_9', payment_status: 'paid', payment_intent: 'pi_9', amount_total: 599, metadata: { uid: 'sb:u2', keys: 'd:magma' } },
   '/v1/charges/ch_9': { id: 'ch_9', refunded: true, payment_intent: 'pi_9', metadata: {} } };
 const tapi = { getUrl: async u => objs[u], getIntent: async id => ({ id, metadata: { uid: 'sb:u2' } }) };
-ok(await onEvent({ object: 'v2.core.event', type: 'checkout.session.completed', related_object: { id: 'cs_9', type: 'checkout.session', url: '/v1/checkout/sessions/cs_9' } }, B, tapi) === 'granted', 'thin checkout event grants');
+ok(await onEvent({ object: 'v2.core.event', type: 'v1.checkout.session.completed', related_object: { id: 'cs_9', type: 'checkout.session', url: '/v1/checkout/sessions/cs_9' } }, B, tapi) === 'granted', 'thin checkout event grants');
 ok((await B.get('sb:u2')).own['d:magma'], 'thin grant owned');
-ok(await onEvent({ object: 'v2.core.event', type: 'charge.refunded', related_object: { id: 'ch_9', type: 'charge', url: '/v1/charges/ch_9' } }, B, tapi) === 'revoked', 'thin refund revokes');
+ok(await onEvent({ object: 'v2.core.event', type: 'v1.charge.refunded', related_object: { id: 'ch_9', type: 'charge', url: '/v1/charges/ch_9' } }, B, tapi) === 'revoked', 'thin refund revokes');
 ok(!(await B.get('sb:u2')).own['d:magma'], 'thin refund removed it');
 ok(await onEvent({ type: 'charge.refunded', related_object: { url: 'https://evil.example/x' } }, B, tapi) === 'ignored', 'odd addresses are not fetched');
 

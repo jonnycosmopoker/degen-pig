@@ -140,6 +140,8 @@ export async function onEvent(ev, accounts, api) {
   /* Stripe's newer event destinations can send "thin" events: just the type and which object it's about, no details */
   if (!o && ev && ev.related_object && /^\/v1\/(checkout\/sessions|charges|disputes)\/[A-Za-z0-9_]+$/.test(ev.related_object.url || '')) o = await api.getUrl(ev.related_object.url);
   o = o || {};
+  /* thin events name their type with a "v1." in front (v1.charge.refunded) */
+  ev = Object.assign({}, ev, { type: String(ev.type || '').replace(/^v1\./, '') });
   if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
     if (o.payment_status !== 'paid') return 'waiting for payment';
     const p = purchaseOf(o); if (!p.uid || !p.keys.length) return 'no purchase in it';
