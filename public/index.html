@@ -2385,10 +2385,10 @@ function layout(){
   var r=tray.getBoundingClientRect();if(r.width<10||r.height<10)return;
   T={w:r.width,h:r.height};
   if(tray.classList.contains('tutting')){var bb=$('tutBub');T.h=Math.max(120,r.height-(bb.hidden?0:bb.offsetHeight)-54)}   /* the pig's speech bubble owns the bottom of the table */
-  D=dice.length>2?clamp(Math.min(T.w*0.155,T.h*0.27)*(S.dsize||0.85),26,88):clamp(Math.min(T.w*0.25,T.h*0.44)*(S.dsize||0.85),36,124);   /* Dice size in the Locker shrinks them on this phone only; Flips' 5 dice are smaller */
+  D=dice.length>2?clamp(Math.min(T.w*0.18,T.h*0.31)*(S.dsize||0.85),30,100):clamp(Math.min(T.w*0.25,T.h*0.44)*(S.dsize||0.85),36,124);   /* Dice size in the Locker shrinks them on this phone only; Flips' 5 dice are smaller */
   tray.style.setProperty('--d',D+'px');
   var m=margin();
-  if(!placed){placed=true;if(dice.length>2)dice.forEach(function(d,k){d.x=T.w/2+(k-2)*D*1.3;d.y=T.h/2+(k%2?-1:1)*D*0.32});else{dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}}
+  if(!placed){placed=true;if(dice.length>2)dice.forEach(function(d,k){d.x=T.w/2+(k-2)*D*1.1;d.y=T.h/2+(k%2?-1:1)*D*0.32});else{dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}}
   dice.forEach(function(d){d.x=clamp(d.x,m,Math.max(m,T.w-m));d.y=clamp(d.y,m,Math.max(m,T.h-m));draw(d)});
 }
 function collide(){var best=0;for(var i=0;i<dice.length;i++)for(var j=i+1;j<dice.length;j++){var c=collide2(dice[i],dice[j]);if(c>best)best=c}return best}
