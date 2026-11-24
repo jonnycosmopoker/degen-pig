@@ -141,6 +141,27 @@ export class AccountsLogic {
     return { period, since: period === 'week' ? weekKey(now) : period === 'month' ? monthKey(now) : null, players: all.length,
       wins: top('wins', 'points'), points: top('points', 'wins'), lost: top('lost', 'games') };
   }
+  /* Shop purchases: rec.own lists what the player owns ('d:magma', 't:molten', ...), rec.buys each paid purchase by its Stripe
+     payment (so the same payment is never counted twice, and a refund knows what to take back) */
+  async grant(uid, keys, buy) {
+    if (!uid || !Array.isArray(keys) || !keys.length || !buy || !buy.ref) return null;
+    const rec = (await this.s.get('u:' + uid)) || { v: {}, opp: {}, history: [], created: Date.now() };
+    rec.own = rec.own || {}; rec.buys = rec.buys || {};
+    if (rec.buys[buy.ref]) return { own: rec.own, dup: true };
+    keys.forEach(k => { rec.own[String(k).slice(0, 40)] = 1 });
+    rec.buys[buy.ref] = { keys: keys.slice(0, 20), sid: buy.sid || null, amt: buy.amt || 0, t: Date.now() };
+    await this.s.put('u:' + uid, rec);
+    return { own: rec.own };
+  }
+  async revoke(uid, ref) {
+    const rec = uid && await this.s.get('u:' + uid); if (!rec || !rec.buys || !rec.buys[ref] || rec.buys[ref].refunded) return false;
+    const b = rec.buys[ref]; b.refunded = Date.now();
+    /* keep anything another (unrefunded) purchase also paid for */
+    const still = new Set(); for (const r in rec.buys) if (!rec.buys[r].refunded) rec.buys[r].keys.forEach(k => still.add(k));
+    b.keys.forEach(k => { if (!still.has(k)) delete rec.own[k] });
+    await this.s.put('u:' + uid, rec);
+    return true;
+  }
   async top() {
     const all = await this.s.list({ prefix: 'u:sb:' }), out = [];
     for (const [k, r] of all) {

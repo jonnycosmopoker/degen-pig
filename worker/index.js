@@ -5,6 +5,7 @@
 import { TableRoom, newCode } from './room.js';
 import { LobbyLogic, AccountsLogic } from './store.js';
 import { handleApi } from './api.js';
+import { stripeApi, verifySig, onEvent } from './pay.js';
 
 const J = (o, s = 200) => new Response(JSON.stringify(o), { status: s, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 
@@ -26,8 +27,11 @@ function rpc(ns) {
   const stub = ns.get(ns.idFromName('main'));
   return new Proxy({}, { get: (_, m) => (...args) => stub.fetch('https://do/rpc', { method: 'POST', body: JSON.stringify({ m, args }) }).then(r => r.json()).then(x => x.r) });
 }
-function deps(env) {
+function deps(env, origin) {
+  const api = env.STRIPE_SECRET_KEY ? stripeApi(env.STRIPE_SECRET_KEY) : null;
   return {
+    /* the Shop's payments (worker/pay.js): on once the Stripe secret key is set */
+    pay: { on: !!api, test: String(env.STRIPE_SECRET_KEY || '').startsWith('sk_test_'), open: env.SHOP_OPEN === '1', invoices: env.STRIPE_INVOICES === '1', origin, api },
     verify: t => verifyToken(env, t),
     lobby: rpc(env.LOBBY),
     accounts: rpc(env.ACCOUNTS),
@@ -49,10 +53,18 @@ function deps(env) {
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), p = url.pathname;
+    /* Stripe's webhook: check Stripe's signature on the raw body before believing any of it */
+    if (p === '/api/pay/webhook' && req.method === 'POST') {
+      const raw = await req.text();
+      if (!(await verifySig(raw, req.headers.get('Stripe-Signature'), env.STRIPE_WEBHOOK_SECRET))) return J({ error: 'bad signature' }, 400);
+      let ev = null; try { ev = JSON.parse(raw) } catch (e) { return J({ error: 'bad body' }, 400) }
+      try { return J({ ok: true, did: await onEvent(ev, rpc(env.ACCOUNTS), stripeApi(env.STRIPE_SECRET_KEY)) }) }
+      catch (e) { return J({ error: String(e.message || e) }, 500) }   /* Stripe retries failed webhooks */
+    }
     if (p.startsWith('/api/')) {
       const body = req.method === 'POST' ? await req.json().catch(() => null) : null;
       const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-      const [status, out] = await handleApi(deps(env), req.method, p, token, body);
+      const [status, out] = await handleApi(deps(env, url.origin), req.method, p, token, body);
       return J(out, status);
     }
     const m = p.match(/^\/ws\/table\/([A-Z0-9]{6})$/);
@@ -100,7 +112,7 @@ export class Lobby {
 }
 
 /* Player records: achievements, rivals and table history, keyed by player id. */
-const ACC_METHODS = ['get', 'put', 'del', 'claim', 'touch', 'top', 'lbAdd', 'board', 'achMerge'];
+const ACC_METHODS = ['get', 'put', 'del', 'claim', 'touch', 'top', 'lbAdd', 'board', 'achMerge', 'grant', 'revoke'];
 export class Accounts {
   constructor(state) { this.A = new AccountsLogic(state.storage) }
   async fetch(req) {

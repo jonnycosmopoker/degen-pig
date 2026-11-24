@@ -1457,6 +1457,10 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 @media (min-width:640px){#shop .bndl .bname{font-size:20px}}
 #shop .bndl .bprice{margin-left:auto;white-space:nowrap;text-align:center}
 #shop .bprice s{display:block;margin:0 0 3px;font-size:11px}
+/* policy links under the main menu and the Shop */
+.legal{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin:18px auto 6px;font-size:12px}
+.legal a{color:rgba(246,241,228,.6);text-decoration:none}.legal a:hover,.legal a:focus-visible{color:#F6CF45;text-decoration:underline}
+#shop .shoppay{text-align:center;font-size:12px;opacity:.75;margin:14px 0 0}
 /* Shop before launch: everyone but the owner sees one "coming soon" plaque */
 #shop.soon .shoptabs,#shop.soon .shopnote,#shop.soon .shoplk{display:none}
 .shopsoon.mq{gap:8px;padding:26px 18px 24px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
@@ -1689,6 +1693,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <button class="mrow" id="mAch" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg></span><span class="mtx"><b>Achievements</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="mrow" id="mShop" type="button"><span class="coin"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16l-1.4 12.1a2 2 0 0 1-2 1.9H7.4a2 2 0 0 1-2-1.9z"/><path d="M8.5 9V6.5a3.5 3.5 0 0 1 7 0V9"/></svg></span><span class="mtx"><b>Degen Pig Shop</b></span><svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
+    <nav class="legal" aria-label="Policies"><a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a><a href="/refunds.html">Refunds</a><a href="mailto:support@degenpig.com">Support</a></nav>
   </section>
 
   <section class="dock scroll" id="shop" hidden>
@@ -1697,6 +1702,8 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="shoptabs" role="tablist"><button type="button" class="on" data-tab="bundles" role="tab">Bundles</button><button type="button" data-tab="dice" role="tab">Dice</button><button type="button" data-tab="tables" role="tab">Tables</button><button type="button" data-tab="borders" role="tab">Name Tag Borders</button><button type="button" data-tab="sounds" role="tab">Sound Effects</button></div>
     <p class="shopmsg" id="shopMsg" role="status" hidden></p>
     <div class="shopgrid" id="shopGrid"></div>
+    <p class="cap shoppay" id="shopPay" hidden>Secure checkout by Stripe. Prices in US dollars. Cosmetic items only: they never change your odds of winning.</p>
+    <nav class="legal" aria-label="Policies"><a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a><a href="/refunds.html">Refunds</a><a href="mailto:support@degenpig.com">Support</a></nav>
   </section>
 
   <section class="dock scroll" id="online" hidden>
@@ -3668,7 +3675,29 @@ function pieceName(k,id){if(k==='d')return skinById(id).n;var L=lkList(k);for(va
    bundle discounts with (kept on this phone only) */
 var PREV={};try{PREV=JSON.parse(localStorage.getItem('degenpig-prevown')||'{}')||{}}catch(e){}
 function prevSave(){try{localStorage.setItem('degenpig-prevown',JSON.stringify(PREV))}catch(e){}}
-function shopOwns(k,id){if(ON.admin)return !!PREV[k+':'+id];return !!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
+/* Checkout (worker/pay.js): PAY says whether Stripe is connected, in test mode, and whether the Shop is open to everyone */
+var PAY={on:false,test:false,open:false};
+function payLoad(){return fetch('/api/pay/config').then(function(r){return r.json()}).then(function(d){PAY={on:!!d.on,test:!!d.test,open:!!d.open};if(S.phase==='shop')renderShop()}).catch(function(){})}
+function shopOpen(){return !!ON.admin||PAY.open}
+function shopOwns(k,id){if(ON.admin&&!PAY.on)return !!PREV[k+':'+id];return !!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
+/* Buy: off to Stripe's checkout page; the server works out the price */
+function payGo(req){
+  if(!AUTH){shopMsg('Sign in to buy from the Shop, so your items are saved to your account. <button type="button" class="link inl" data-signin="1">Sign in</button>');return}
+  shopMsg('Opening secure checkout…');
+  token().then(function(t){if(!t)throw new Error('signin');return fetch('/api/pay/checkout',{method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify(req)})})
+    .then(function(r){return r.json().then(function(j){if(!r.ok||!j.url)throw new Error(j.error||'Checkout didn’t open. Please try again.');location.href=j.url})})
+    .catch(function(e){shopMsg(e.message==='signin'?'Please sign in again to buy.':esc(e.message))})}
+/* back from Stripe: /?paid=SESSION (paid) or /?shop=back (they left checkout) */
+function payReturn(sid,back){
+  if(back){shopMsg('Checkout canceled. Nothing was charged.');return}
+  shopMsg('Payment received. Adding your items…');
+  var tries=0,go=function(){token().then(function(t){if(!t)throw new Error('signin');return fetch('/api/pay/confirm',{method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({sid:sid})})})
+    .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Couldn’t check that payment.');return j})})
+    .then(function(j){if(j.pending){if(++tries<6){setTimeout(go,2500);return}shopMsg('Your payment is still processing. Your items will show up as soon as it clears.');return}
+      ON.rec=ON.rec||{};ON.rec.own=j.own||ON.rec.own;var KL={t:' table',d:' dice',b:' name tag',s:' sound effects'},names=(j.keys||[]).map(function(k){return esc(pieceName(k[0],k.slice(2)))+KL[k[0]]});
+      shopMsg('Thank you! '+(names.length&&names.length<=4?names.join(', ')+(names.length>1?' are':' is'):'Everything you bought is')+' in your Locker now. <button type="button" class="link inl" data-locker="1">Open my Locker ›</button>');renderShop()})
+    .catch(function(e){shopMsg(e.message==='signin'?'Sign in to see your purchase.':esc(e.message)+' Your items will arrive in a minute; check your Locker.')})};
+  go()}
 function bParts(B){var p=[['t',B.t,'Table'],['d',B.d,'Dice'],['b',B.b,'Name tag']];if(B.s)p.push(['s',B.s,'Sounds']);return p}
 function bState(B){var P=bParts(B),n=P.filter(function(x){return shopOwns(x[0],x[1])}).length,tot=P.length,price=B.price;
   if(n>=tot)price='';else if(n>0)price=B.anim?['$9.99','$4.99','$2.99'][n-1]:['$2.99','$1.49'][n-1];
@@ -3682,9 +3711,11 @@ function sndThumb(id,cls){var B=bndlOf('s',id);return '<span class="'+cls+' sndt
 function shopMsg(t){var m=$('shopMsg');m.hidden=!t;m.innerHTML=t||''}
 function shopTabsUI(){Array.prototype.forEach.call(document.querySelectorAll('.shoptabs button'),function(b){var on=b.getAttribute('data-tab')===SHOP.tab;b.classList.toggle('on',on);b.setAttribute('aria-selected',on?'true':'false')})}
 function renderShop(){
-  var own=!!ON.admin,g=$('shopGrid');
+  var own=shopOpen(),g=$('shopGrid');
   $('shop').classList.toggle('soon',!own);
-  $('shopNote').innerHTML=own?'Owner preview: only you can see the Shop until launch. Checkout isn’t live, so Buy only pretends, to show how bundle discounts work.'+(Object.keys(PREV).length?' <button type="button" class="link inl" data-reset="1">Reset pretend purchases</button>':''):'';
+  $('shopNote').innerHTML=!own?'':!PAY.on?'Owner preview: only you can see the Shop until launch. Checkout isn’t live, so Buy only pretends, to show how bundle discounts work.'+(Object.keys(PREV).length?' <button type="button" class="link inl" data-reset="1">Reset pretend purchases</button>':'')
+    :(PAY.test?'<b>Test mode:</b> pay with Stripe’s test card 4242 4242 4242 4242, any future date and any CVC. No real money moves.'+(PAY.open?'':' Only you can see the Shop until launch.'):(PAY.open?'':'Only you can see the Shop until launch.'));
+  $('shopPay').hidden=!(own&&PAY.on);
   if(!own){g.className='shopgrid one';g.innerHTML='<div class="shopsoon mq"><span class="soonpig">'+dieLogo('soon')+'</span><b>Coming Soon</b><p>Theme bundles with a matching table, dice, name tag and sound effects are on the way. Check back soon!</p></div>';return}
   shopTabsUI();
   if(SHOP.tab!=='bundles'){renderShopPieces(g);return}
@@ -3705,7 +3736,7 @@ function renderShop(){
       (B.s?'<button type="button" class="bghost bhear" data-hear="'+B.s+'">'+SPK.replace('width="26" height="26"','width="18" height="18"')+'Hear the sounds</button>':'')+
       (PICK3.on&&!st.full?(function(){var pk=P.indexOf(B.id)>=0;return '<button type="button" class="bpick'+(pk?' on':'')+'" data-pick="'+B.id+'" aria-pressed="'+pk+'"'+(!pk&&full?' disabled':'')+'>'+(pk?'✓ In my 3':'+ Add to my 3')+'</button>'})():'')+
       (st.full?'':'<button type="button" class="shopbuy" data-bb="'+B.id+'">'+(st.part?'Complete bundle '+st.price:'Buy bundle '+B.price)+'</button>')+
-      '<button type="button" class="shopbuy eq'+(on?' on':'')+'" data-b="'+B.id+'">'+(on?'Set equipped':'Equip set')+'</button></div>'}).join('');
+      (ON.admin||st.full?'<button type="button" class="shopbuy eq'+(on?' on':'')+'" data-b="'+B.id+'">'+(on?'Set equipped':'Equip set')+'</button>':'')+'</div>'}).join('');
 }
 /* the Dice, Tables, Name Tag Borders and Sound Effects tabs: every piece on its own */
 function renderShopPieces(g){
@@ -3789,16 +3820,25 @@ document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e
 /* a bundle's preview video only loads and plays while its Preview drop-down is open */
 $('shopGrid').addEventListener('toggle',function(e){var d=e.target;if(!d.classList||!d.classList.contains('bprev'))return;var v=d.querySelector('video');if(!v)return;
   if(d.open){if(!v.getAttribute('src'))v.setAttribute('src',v.getAttribute('data-src'));var pr=v.play();if(pr&&pr.catch)pr.catch(function(){})}else v.pause()},true);
-$('shopGrid').addEventListener('click',function(e){var q=e.target.closest('[data-p3],[data-pick]');if(!q||!ON.admin)return;PICK3.msg='';
+$('shopGrid').addEventListener('click',function(e){var q=e.target.closest('[data-p3],[data-pick]');if(!q||!shopOpen())return;PICK3.msg='';
   var a=q.getAttribute('data-p3'),id=q.getAttribute('data-pick');
   if(a==='start'){PICK3.on=true;PICK3.ids=[]}else if(a==='cancel'){PICK3.on=false;PICK3.ids=[]}
+  else if(a==='buy'&&PAY.on){payGo({kind:'pick3',ids:PICK3.ids.slice()});return}
   else if(a==='buy'){PICK3.ids.forEach(function(x){var B=BUNDLES.filter(function(y){return y.id===x})[0];if(B)bParts(B).forEach(function(p){PREV[p[0]+':'+p[1]]=1})});prevSave();shopMsg('Pretend purchase: all 3 bundles are now marked as yours. When checkout is live, this is where the payment happens.');PICK3.on=false;PICK3.ids=[]}
   else if(id){var i=PICK3.ids.indexOf(id);if(i>=0)PICK3.ids.splice(i,1);else if(PICK3.ids.length<3)PICK3.ids.push(id)}
   var y=window.scrollY;renderShop();window.scrollTo(0,y);if(a==='start'){var d=document.querySelector('.bdeal');if(d)d.scrollIntoView({block:'nearest'})}});
-$('shop').addEventListener('click',function(e){if(!ON.admin)return;var t;
+$('shop').addEventListener('click',function(e){var t;
+  if(e.target.closest('[data-signin]')){acctOpen();return}
+  if(e.target.closest('[data-locker]')){openLocker('shop');return}
+  if(!shopOpen())return;
   if((t=e.target.closest('[data-hear]'))){sndDemo(t.getAttribute('data-hear'));return}
-  if(e.target.closest('[data-reset]')){PREV={};prevSave();shopMsg('');renderShop();return}
+  if(PAY.on&&(t=e.target.closest('[data-buy]'))){var kv0=t.getAttribute('data-buy');payGo({kind:'piece',key:kv0});return}
+  if(PAY.on&&(t=e.target.closest('[data-bb]'))){payGo({kind:'bundle',id:t.getAttribute('data-bb')});return}
+  if(e.target.closest('[data-reset]')&&ON.admin){PREV={};prevSave();shopMsg('');renderShop();return}
   if((t=e.target.closest('[data-gob]'))){SHOP.tab='bundles';shopMsg('');renderShop();var c=document.querySelector('[data-bb="'+t.getAttribute('data-gob')+'"]');if(c)c.closest('.bndl').scrollIntoView({block:'center'});return}
+  if((t=e.target.closest('.shopbuy[data-b]'))){var B4=BUNDLES.filter(function(x){return x.id===t.getAttribute('data-b')})[0];if(!B4)return;
+    S.skin=B4.d;S.table=B4.t;S.tag=B4.b;S.snd=B4.s||'classic';savePrefs();var y4=window.scrollY;renderShop();window.scrollTo(0,y4);render();return}
+  if(!ON.admin)return;
   if((t=e.target.closest('[data-buy]'))){var kv=t.getAttribute('data-buy').split(':'),k=kv[0],id=kv[1],B=bndlOf(k,id);PREV[k+':'+id]=1;prevSave();
     var st=B&&bState(B),m='Pretend purchase: '+esc(pieceName(k,id))+' for '+piecePrice(k,id)+'.';
     if(st&&st.part)m+=' <button type="button" class="link inl" data-gob="'+B.id+'">Complete the '+esc(B.n)+' bundle for '+st.price+' ›</button>';
@@ -4384,11 +4424,12 @@ function start(data){
   /* Android and others need no permission for the motion sensor; iPhones wait for the first tap */
   if(!(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'))shakeAsk();
   showFaces();render();layout();
-  authLoad();var back=authFromHash();acctUI();if(AUTH&&S.phase==='menu')loadMe();
+  authLoad();var back=authFromHash();acctUI();if(AUTH&&S.phase==='menu')loadMe();payLoad();
   /* an invite link opens straight into the table: /?t=CODE&p=password */
   try{var q=new URLSearchParams(location.search),tc=q.get('t');
     if(!tc&&AUTH){var pend=JSON.parse(localStorage.getItem('degenpig-pending')||'null');if(pend&&pend.code){localStorage.removeItem('degenpig-pending');tc=pend.code;q.set('p',pend.pw||'')}}
     if(!tc&&q.get('ach')){history.replaceState(null,'',location.pathname);S.phase='ach';loadMe();render()}
+    else if(!tc&&(q.get('paid')||q.get('shop')==='back')){var paid=q.get('paid');history.replaceState(null,'',location.pathname);S.phase='shop';SHOP.tab='bundles';loadMe();render();renderShop();payReturn(paid,!paid)}
     else if(!tc&&GO.indexOf(q.get('go'))>=0){history.replaceState(null,'',location.pathname);S.phase=q.get('go');if(S.phase==='shop')renderShop();loadMe();render();if(ON.authErr){acctOpen();emNote('Sign-in problem: '+ON.authErr,true);ON.authErr=null}else if(back&&AUTH)netNote('You’re signed in',2500)}
     else if(!tc&&(back||q.get('online'))){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render()}if(tc){history.replaceState(null,'',location.pathname);S.phase='online';onEnter();render();
     if(myId().name||!AUTH)onJoin(tc,q.get('p')||'');else{$('onMsg').className='onmsg ok';$('onMsg').textContent='Type your name, then tap Join to sit at table '+tc.toUpperCase()+'.';$('joinCode').value=tc.toUpperCase();ON.pw=q.get('p')||''}}

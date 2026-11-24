@@ -17,7 +17,13 @@ const lobby = new LobbyLogic(new MemStorage()), accounts = new AccountsLogic(new
 const verify = async t => (typeof t === 'string' && /^dev-[a-z0-9]{1,20}$/.test(t)) ? { id: 'sb:' + t.slice(4), sbid: t.slice(4), email: t.slice(4) + '@example.com', name: t.slice(4)[0].toUpperCase() + t.slice(5) + ' Tester' } : null;
 const store = code => { if (!stores.has(code)) stores.set(code, new MemStorage()); return stores.get(code) };
 const newRoom = code => new TableRoom({ lobby, accounts, verify, speed, storage: store(code), admins: String(process.env.ADMIN_EMAILS || 'ace@example.com').toLowerCase().split(',') });
+/* DP_FAKE_PAY=1: a pretend Stripe, so the Shop's checkout can be tried without Stripe (every checkout "pays" at once) */
+const fakeSessions = new Map();
+const fakePay = { on: true, test: true, open: process.env.SHOP_OPEN === '1', invoices: false, origin: '', api: {
+  createSession: async p => { const id = 'cs_test_fake' + crypto.randomBytes(8).toString('hex'); fakeSessions.set(id, { id, url: '/?paid=' + id, payment_status: 'paid', payment_intent: 'pi_fake' + crypto.randomBytes(6).toString('hex'), client_reference_id: p.client_reference_id, metadata: p.metadata, amount_total: p.line_items[0].price_data.unit_amount, params: p }); return fakeSessions.get(id) },
+  getSession: async id => { const s = fakeSessions.get(id); if (!s) throw new Error('No such session'); return s } } };
 const deps = {
+  pay: process.env.DP_FAKE_PAY ? fakePay : null,
   verify, lobby, accounts, admins: String(process.env.ADMIN_EMAILS || 'ace@example.com').toLowerCase().split(','),
   createTable: async b => { const code = newCode(), room = newRoom(code); tables.set(code, room); await room.init(Object.assign({}, b, { code })); return code }
 };
@@ -31,6 +37,7 @@ const server = http.createServer(async (req, res) => {
     const [status, out] = await handleApi(deps, req.method, p, (req.headers.authorization || '').replace(/^Bearer\s+/i, ''), body);
     res.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store' }); return res.end(JSON.stringify(out));
   }
+  if (p === '/dev/sessions' && process.env.DP_FAKE_PAY) { res.writeHead(200, { 'content-type': 'application/json' }); return res.end(JSON.stringify([...fakeSessions.values()])) }
   if (p === '/admin') { res.writeHead(302, { location: '/admin.html' }); return res.end() }
   /* test hook: act like an update restarted every table (drop all connections, rebuild each table from its saved state) */
   if (p === '/dev/restart' && process.env.DP_DEV) {
