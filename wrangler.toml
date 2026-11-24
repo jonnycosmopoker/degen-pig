@@ -8,6 +8,10 @@ SUPABASE_URL = "https://fdaysgypgzyexilqfyrx.supabase.co"
 SUPABASE_KEY = "sb_publishable_GAe1m_PFF3WV_Cp2vv5h-A_ca3ANUms"
 # Google accounts allowed to open the stats page at /admin (comma-separated)
 ADMIN_EMAILS = "jonnycosmopoker@gmail.com"
+# The Shop (worker/pay.js): "1" opens it to everyone (until then only the owner sees it); STRIPE_INVOICES "1" adds Stripe invoices (0.4% each).
+# The Stripe keys are never here: STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are Cloudflare secrets (Settings > Variables and Secrets, type Secret).
+SHOP_OPEN = "0"
+STRIPE_INVOICES = "0"
 
 # The game page, pictures and badges. Requests that match no file go to the worker.
 [assets]
