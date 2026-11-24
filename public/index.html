@@ -1284,6 +1284,7 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #online .lrow .lt span{color:rgba(246,241,228,.7)}
 #liveList .lrow{background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box}
 #online .delacct{color:rgba(246,241,228,.5)}
+#host .moneybox .gopt{padding:10px 0 2px;border-top:1px solid rgba(246,207,69,.2)}
 #host .moneybox{border:2px solid transparent;border-radius:16px;background:linear-gradient(180deg,#1B3A31,#0D1F19) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box}
 #host .mrowin>span:first-child{color:#F6CF45}
 #host .dollar .txt{font-family:var(--display);font-weight:400;color:#F6CF45}
@@ -1754,6 +1755,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <p class="cap">The game does the math after every game: the winner collects from each other player.</p>
       <label class="mrowin"><span>Game<small>Paid by each player to the winner</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgame" inputmode="decimal" placeholder="50" maxlength="8"></span></label>
       <label class="mrowin"><span>Point<small>For each point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMpoint" inputmode="decimal" placeholder="1" maxlength="8"></span></label>
+      <div class="opt gopt"><span><b>Golden Points</b><small>Points past the target count as Golden Points, paid at their own amount.</small></span><button class="tog" id="hGoldTog" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <label class="mrowin" id="hMgoldRow"><span>Golden Point<small>For each Golden Point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgolden" inputmode="decimal" placeholder="3" maxlength="8"></span></label>
       <p class="cap" id="hMnote"></p>
     </div>
@@ -1781,11 +1783,10 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       </div>
     </fieldset>
     <div class="opts" id="hOpts">
-      <div class="opt"><span><b>Golden Points</b><small>Points above the target are counted as golden points.</small></span><button class="tog" data-k="golden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
       <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it and get a Five Ones dot. After the final round, everyone gets a bonus turn for each prime they captured. Turns on Five Ones 2x.</small></span><button class="tog" data-k="prime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
-      <div class="opt"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
+      <div class="opt" style="display:none"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt" style="display:none"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt" style="display:none"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
     </div>
@@ -4065,10 +4066,11 @@ function renderHist(){
 }
 document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&&t.classList.contains('hist')&&t.dataset.sid){ON.histOpen=ON.histOpen||{};if(t.open)ON.histOpen[t.dataset.sid]=1;else delete ON.histOpen[t.dataset.sid];$('histList')._html=null}},true);
 function ordinalN(n){return n+ordinal(n)}
-/* online tables start from their own defaults (Golden Points and Five Ones 2x on, no timer); a host's last choices are remembered */
-var ONLINE_DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:0,track:{on:false,game:'',point:'',golden:''}};
+/* online tables start from their own defaults (Five Ones 2x on, no timer); a host's last choices are remembered.
+   Golden Points are part of Track $ when hosting: on only with Track $ on and its Golden Points switch on. */
+var ONLINE_DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:0,track:{on:false,game:'',point:'',golden:'',gold:false}};
 function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k]&&typeof ONLINE_DEF[k]==='object'?Object.assign({},ONLINE_DEF[k]):ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
-  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];c.reroll=false;c.verify=false;return c}
+  if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];c.reroll=false;c.verify=false;c.noDbl=false;c.track=Object.assign({on:false,game:'',point:'',golden:'',gold:false},c.track);c.track.gold=!!c.track.gold;c.golden=!!(c.track.on&&c.track.gold);return c}
 /* Track $: the amounts the host typed, as numbers (or null when off or empty) */
 function trackMoney(c){var t=c&&c.track;if(!t||!t.on)return null;var v=function(x){var n=Math.round(parseFloat(String(x||'').replace(/[^0-9.]/g,''))*100)/100;return isFinite(n)&&n>0?Math.min(n,100000):0};
   var m={game:v(t.game),point:v(t.point),golden:c.golden?v(t.golden):0};return m.game||m.point||m.golden?m:null}
@@ -4084,12 +4086,13 @@ function renderHost(){
   $('ht80').checked=c.target===80;$('ht100').checked=c.target===100;$('ht150').checked=c.target===150;$('ht200').checked=c.target===200;
   $('hm0').checked=c.timer===0;$('hm15').checked=c.timer===15;$('hm30').checked=c.timer===30;$('hm60').checked=c.timer===60;
   Array.prototype.forEach.call(document.querySelectorAll('#hOpts .tog'),function(b){b.setAttribute('aria-checked',c[b.getAttribute('data-k')]?'true':'false')});
-  $('hRules').textContent='Online tables start with Golden Points and Five Ones 2x on and no timer. Your choices here are remembered for next time.';
-  var tk=c.track||(c.track={on:false,game:'',point:'',golden:''});
+  $('hRules').textContent='Online tables start with Five Ones 2x on and no timer. Golden Points are part of Track $. Your choices here are remembered for next time.';
+  var tk=c.track||(c.track={on:false,game:'',point:'',golden:'',gold:false});c.golden=!!(tk.on&&tk.gold);
   $('hTrack').classList.toggle('on',!!tk.on);$('hTrack').setAttribute('aria-expanded',tk.on?'true':'false');$('hMoney').hidden=!tk.on;
   var mo=trackMoney(c);$('hName').placeholder=mo?trackName(mo,c.golden):'Monday night pigs';$('hTrackSub').textContent=!tk.on?'Off':mo?'On · '+cash(Math.round(mo.game*100))+' a game':'Fill in amounts';
   ['game','point','golden'].forEach(function(k){var el=$('hM'+k);if(document.activeElement!==el)el.value=tk[k]||''});
-  $('hMgoldRow').hidden=!c.golden;$('hMnote').textContent=c.golden?'':'Golden Points is off, so points are counted on full scores.';
+  $('hGoldTog').setAttribute('aria-checked',tk.gold?'true':'false');$('hMgoldRow').hidden=!c.golden;
+  $('hMnote').textContent=c.golden?'Points are paid on scores up to '+c.target+'; anything past '+c.target+' is paid at the Golden Point amount.':'';$('hMnote').hidden=!c.golden;
 }
 function renderRoom(){
   var m=ON.meta;if(!m)return;
@@ -4374,7 +4377,8 @@ $('backHost').addEventListener('click',function(){S.phase='online';onEnter();ren
 $('hLess').addEventListener('click',function(){ON.hostSeats=Math.max(2,ON.hostSeats-1);renderHost()});
 $('hMore').addEventListener('click',function(){ON.hostSeats=Math.min(6,ON.hostSeats+1);renderHost()});
 $('hPub').addEventListener('change',renderHost);
-$('hTrack').addEventListener('click',function(){var c=ON.hcfg,tk=c.track||(c.track={on:false,game:'',point:'',golden:''});tk.on=!tk.on;renderHost();if(tk.on&&!tk.game)setTimeout(function(){$('hMgame').focus()},50)});
+$('hGoldTog').addEventListener('click',function(){var tk=ON.hcfg.track;tk.gold=!tk.gold;renderHost();if(tk.gold&&!tk.golden)setTimeout(function(){$('hMgolden').focus()},50)});
+$('hTrack').addEventListener('click',function(){var c=ON.hcfg,tk=c.track||(c.track={on:false,game:'',point:'',golden:'',gold:false});tk.on=!tk.on;renderHost();if(tk.on&&!tk.game)setTimeout(function(){$('hMgame').focus()},50)});
 ['game','point','golden'].forEach(function(k){$('hM'+k).addEventListener('input',function(){var c=ON.hcfg;c.track[k]=this.value.replace(/[^0-9.]/g,'').slice(0,8);if(this.value!==c.track[k])this.value=c.track[k];renderHost()})});
 $('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');if(!b)return;var k=b.getAttribute('data-k');ON.hcfg[k]=!ON.hcfg[k];if(k==='prime'&&ON.hcfg.prime)ON.hcfg.power=true;if(k==='power'&&!ON.hcfg.power)ON.hcfg.prime=false;renderHost()});
 ['ht80','ht100','ht150','ht200'].forEach(function(id){$(id).addEventListener('change',function(){ON.hcfg.target=+$(id).value;renderHost()})});
@@ -4382,6 +4386,7 @@ $('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');i
 $('hCreate').addEventListener('click',function(){
   var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
   if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
+  ON.hcfg.golden=!!(ON.hcfg.track&&ON.hcfg.track.on&&ON.hcfg.track.gold);
   if(ON.hcfg.track&&ON.hcfg.track.on&&!trackMoney(ON.hcfg)){$('hMsg').textContent='Fill in at least one Track $ amount, or turn Track $ off.';$('hMgame').focus();return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
   try{localStorage.setItem('degenpig-hostcfg',JSON.stringify(ON.hcfg))}catch(e){}
