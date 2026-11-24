@@ -65,7 +65,7 @@ export async function handleApi(d, method, path, token, body) {
     if (pu.uid !== user.id) return [403, { error: 'That purchase belongs to another account.' }];
     if (s.payment_status !== 'paid') return [200, { ok: false, pending: true }];
     const g = await d.accounts.grant(user.id, pu.keys, { ref: pu.ref, sid: pu.sid, pi: pu.pi, amt: pu.amt });
-    return [200, { ok: true, keys: pu.keys, own: g && g.own }];
+    return [200, { ok: true, keys: pu.keys, own: g && g.own, buys: g && g.buys }];
   }
   if (path === '/api/admin') {
     if (!admin) return [403, { error: 'This page is only for the owner.' }];

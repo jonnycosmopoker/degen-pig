@@ -1461,6 +1461,13 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 .legal{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin:18px auto 6px;font-size:12px}
 .legal a{color:rgba(246,241,228,.6);text-decoration:none}.legal a:hover,.legal a:focus-visible{color:#F6CF45;text-decoration:underline}
 #shop .shoppay{text-align:center;font-size:12px;opacity:.75;margin:14px 0 0}
+#shop .mybuys{margin:22px 0 0;padding:14px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid rgba(246,207,69,.25)}
+#shop .mybuys h2{margin:0 0 8px;font:400 16px/1.2 var(--display);color:#F6CF45;text-transform:uppercase;letter-spacing:.5px}
+#shop .mybuys ul{list-style:none;margin:0;padding:0}
+#shop .mybuys li{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08);font-size:13px;align-items:baseline}
+#shop .mybuys li:first-child{border-top:0}#shop .mybuys .bd{opacity:.7;white-space:nowrap}#shop .mybuys .ba{white-space:nowrap;font-weight:700}
+#shop .mybuys li.ref .bi,#shop .mybuys li.ref .bd{opacity:.45;text-decoration:line-through}#shop .mybuys li.ref .ba{color:#E89A9A}
+#shop .mybuys .cap{margin:8px 0 0;font-size:12px;opacity:.7}#shop .mybuys a{color:#F6CF45}
 /* Shop before launch: everyone but the owner sees one "coming soon" plaque */
 #shop.soon .shoptabs,#shop.soon .shopnote,#shop.soon .shoplk{display:none}
 .shopsoon.mq{gap:8px;padding:26px 18px 24px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
@@ -1702,6 +1709,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="shoptabs" role="tablist"><button type="button" class="on" data-tab="bundles" role="tab">Bundles</button><button type="button" data-tab="dice" role="tab">Dice</button><button type="button" data-tab="tables" role="tab">Tables</button><button type="button" data-tab="borders" role="tab">Name Tag Borders</button><button type="button" data-tab="sounds" role="tab">Sound Effects</button></div>
     <p class="shopmsg" id="shopMsg" role="status" hidden></p>
     <div class="shopgrid" id="shopGrid"></div>
+    <div class="mybuys" id="myBuys" hidden></div>
     <p class="cap shoppay" id="shopPay" hidden>Secure checkout by Stripe. Prices in US dollars. Cosmetic items only: they never change your odds of winning.</p>
     <nav class="legal" aria-label="Policies"><a href="/terms.html">Terms</a><a href="/privacy.html">Privacy</a><a href="/refunds.html">Refunds</a><a href="mailto:support@degenpig.com">Support</a></nav>
   </section>
@@ -3681,6 +3689,13 @@ function payLoad(){return fetch('/api/pay/config').then(function(r){return r.jso
 function shopOpen(){return !!ON.admin||PAY.open}
 function shopOwns(k,id){if(ON.admin&&!PAY.on)return !!PREV[k+':'+id];return !!(ON.rec&&ON.rec.own&&ON.rec.own[k+':'+id])}
 /* Buy: off to Stripe's checkout page; the server works out the price */
+/* the player's own purchases, newest first (from their account record) */
+function renderBuys(show){
+  var el=$('myBuys'),B=ON.rec&&ON.rec.buys,L=B?Object.keys(B).map(function(k){return B[k]}).sort(function(a,b){return b.t-a.t}):[];
+  el.hidden=!show||!L.length;if(el.hidden){el.innerHTML='';return}
+  var KL={t:' table',d:' dice',b:' name tag',s:' sound effects'};
+  el.innerHTML='<h2>Your purchases</h2><ul>'+L.map(function(x){var d=new Date(x.t);
+    return '<li'+(x.refunded?' class="ref"':'')+'><span class="bd">'+d.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+'</span><span class="bi">'+(x.keys||[]).map(function(k){return esc(pieceName(k[0],k.slice(2)))+KL[k[0]]}).join(', ')+'</span><span class="ba">$'+((x.amt||0)/100).toFixed(2)+(x.refunded?' · Refunded':'')+'</span></li>'}).join('')+'</ul><p class="cap">Questions about a purchase? <a href="mailto:support@degenpig.com">support@degenpig.com</a></p>'}
 function payGo(req){
   if(!AUTH){shopMsg('Sign in to buy from the Shop, so your items are saved to your account. <button type="button" class="link inl" data-signin="1">Sign in</button>');return}
   shopMsg('Opening secure checkout…');
@@ -3694,7 +3709,7 @@ function payReturn(sid,back){
   var tries=0,go=function(){token().then(function(t){if(!t)throw new Error('signin');return fetch('/api/pay/confirm',{method:'POST',headers:{'content-type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({sid:sid})})})
     .then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'Couldn’t check that payment.');return j})})
     .then(function(j){if(j.pending){if(++tries<6){setTimeout(go,2500);return}shopMsg('Your payment is still processing. Your items will show up as soon as it clears.');return}
-      ON.rec=ON.rec||{};ON.rec.own=j.own||ON.rec.own;var KL={t:' table',d:' dice',b:' name tag',s:' sound effects'},names=(j.keys||[]).map(function(k){return esc(pieceName(k[0],k.slice(2)))+KL[k[0]]});
+      ON.rec=ON.rec||{};ON.rec.own=j.own||ON.rec.own;if(j.buys)ON.rec.buys=j.buys;var KL={t:' table',d:' dice',b:' name tag',s:' sound effects'},names=(j.keys||[]).map(function(k){return esc(pieceName(k[0],k.slice(2)))+KL[k[0]]});
       shopMsg('Thank you! '+(names.length&&names.length<=4?names.join(', ')+(names.length>1?' are':' is'):'Everything you bought is')+' in your Locker now. <button type="button" class="link inl" data-locker="1">Open my Locker ›</button>');renderShop()})
     .catch(function(e){shopMsg(e.message==='signin'?'Sign in to see your purchase.':esc(e.message)+' Your items will arrive in a minute; check your Locker.')})};
   go()}
@@ -3715,7 +3730,7 @@ function renderShop(){
   $('shop').classList.toggle('soon',!own);
   $('shopNote').innerHTML=!own?'':!PAY.on?'Owner preview: only you can see the Shop until launch. Checkout isn’t live, so Buy only pretends, to show how bundle discounts work.'+(Object.keys(PREV).length?' <button type="button" class="link inl" data-reset="1">Reset pretend purchases</button>':'')
     :(PAY.test?'<b>Test mode:</b> pay with Stripe’s test card 4242 4242 4242 4242, any future date and any CVC. No real money moves.'+(PAY.open?'':' Only you can see the Shop until launch.'):(PAY.open?'':'Only you can see the Shop until launch.'));
-  $('shopPay').hidden=!(own&&PAY.on);
+  $('shopPay').hidden=!(own&&PAY.on);renderBuys(own);
   if(!own){g.className='shopgrid one';g.innerHTML='<div class="shopsoon mq"><span class="soonpig">'+dieLogo('soon')+'</span><b>Coming Soon</b><p>Theme bundles with a matching table, dice, name tag and sound effects are on the way. Check back soon!</p></div>';return}
   shopTabsUI();
   if(SHOP.tab!=='bundles'){renderShopPieces(g);return}
