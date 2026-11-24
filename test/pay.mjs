@@ -62,5 +62,16 @@ r = await A.get('sb:u1'); ok(!r.own['d:candy'] && !r.own['t:xmas'] && r.own['d:m
 ok(await onEvent({ type: 'charge.dispute.closed', data: { object: { status: 'lost', payment_intent: 'pi_2' } } }, A, api) === 'revoked', 'lost dispute revokes');
 r = await A.get('sb:u1'); ok(!r.own['d:magma'], 'dispute removed the dice');
 
+/* thin events: only the type and the object's address; the details are fetched from Stripe */
+const B = new AccountsLogic(new MemStorage());
+const objs = { '/v1/checkout/sessions/cs_9': { id: 'cs_9', payment_status: 'paid', payment_intent: 'pi_9', amount_total: 599, metadata: { uid: 'sb:u2', keys: 'd:magma' } },
+  '/v1/charges/ch_9': { id: 'ch_9', refunded: true, payment_intent: 'pi_9', metadata: {} } };
+const tapi = { getUrl: async u => objs[u], getIntent: async id => ({ id, metadata: { uid: 'sb:u2' } }) };
+ok(await onEvent({ object: 'v2.core.event', type: 'checkout.session.completed', related_object: { id: 'cs_9', type: 'checkout.session', url: '/v1/checkout/sessions/cs_9' } }, B, tapi) === 'granted', 'thin checkout event grants');
+ok((await B.get('sb:u2')).own['d:magma'], 'thin grant owned');
+ok(await onEvent({ object: 'v2.core.event', type: 'charge.refunded', related_object: { id: 'ch_9', type: 'charge', url: '/v1/charges/ch_9' } }, B, tapi) === 'revoked', 'thin refund revokes');
+ok(!(await B.get('sb:u2')).own['d:magma'], 'thin refund removed it');
+ok(await onEvent({ type: 'charge.refunded', related_object: { url: 'https://evil.example/x' } }, B, tapi) === 'ignored', 'odd addresses are not fetched');
+
 console.log(fails ? fails + ' failed' : 'pay: all passed');
 process.exit(fails ? 1 : 0);

@@ -91,7 +91,9 @@ export function stripeApi(secret) {
   return {
     createSession: p => call('POST', 'checkout/sessions', p),
     getSession: id => call('GET', 'checkout/sessions/' + encodeURIComponent(id)),
-    getIntent: id => call('GET', 'payment_intents/' + encodeURIComponent(id))
+    getIntent: id => call('GET', 'payment_intents/' + encodeURIComponent(id)),
+    /* a "thin" event only names the object it's about (e.g. /v1/charges/ch_...): fetch the object itself */
+    getUrl: url => call('GET', String(url).replace(/^\/v1\//, ''))
   };
 }
 
@@ -134,7 +136,10 @@ export async function verifySig(raw, header, secret, now) {
 
 /* what to do with one webhook event. accounts = the Accounts store; api = stripeApi(...) */
 export async function onEvent(ev, accounts, api) {
-  const o = (ev && ev.data && ev.data.object) || {};
+  let o = (ev && ev.data && ev.data.object) || null;
+  /* Stripe's newer event destinations can send "thin" events: just the type and which object it's about, no details */
+  if (!o && ev && ev.related_object && /^\/v1\/(checkout\/sessions|charges|disputes)\/[A-Za-z0-9_]+$/.test(ev.related_object.url || '')) o = await api.getUrl(ev.related_object.url);
+  o = o || {};
   if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
     if (o.payment_status !== 'paid') return 'waiting for payment';
     const p = purchaseOf(o); if (!p.uid || !p.keys.length) return 'no purchase in it';
