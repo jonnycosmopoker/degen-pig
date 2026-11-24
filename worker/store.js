@@ -147,15 +147,19 @@ export class AccountsLogic {
     if (!uid || !Array.isArray(keys) || !keys.length || !buy || !buy.ref) return null;
     const rec = (await this.s.get('u:' + uid)) || { v: {}, opp: {}, history: [], created: Date.now() };
     rec.own = rec.own || {}; rec.buys = rec.buys || {};
-    if (rec.buys[buy.ref]) return { own: rec.own, dup: true };
+    if (rec.buys[buy.ref] || Object.values(rec.buys).some(x => (buy.sid && x.sid === buy.sid) || (buy.pi && x.pi === buy.pi))) return { own: rec.own, dup: true };
     keys.forEach(k => { rec.own[String(k).slice(0, 40)] = 1 });
-    rec.buys[buy.ref] = { keys: keys.slice(0, 20), sid: buy.sid || null, amt: buy.amt || 0, t: Date.now() };
+    rec.buys[buy.ref] = { keys: keys.slice(0, 20), sid: buy.sid || null, pi: buy.pi || null, amt: buy.amt || 0, t: Date.now() };
     await this.s.put('u:' + uid, rec);
     return { own: rec.own };
   }
   async revoke(uid, ref) {
-    const rec = uid && await this.s.get('u:' + uid); if (!rec || !rec.buys || !rec.buys[ref] || rec.buys[ref].refunded) return false;
-    const b = rec.buys[ref]; b.refunded = Date.now();
+    const rec = uid && await this.s.get('u:' + uid); if (!rec || !rec.buys) return false;
+    /* a purchase is filed under its Stripe payment (pi_...) or, if Stripe hadn't made one yet, its checkout (cs_...) */
+    const refs = Array.isArray(ref) ? ref.filter(Boolean) : [ref];
+    let key = Object.keys(rec.buys).find(k => refs.includes(k) || refs.includes(rec.buys[k].sid) || refs.includes(rec.buys[k].pi));
+    if (!key || rec.buys[key].refunded) return false;
+    const b = rec.buys[key]; b.refunded = Date.now();
     /* keep anything another (unrefunded) purchase also paid for */
     const still = new Set(); for (const r in rec.buys) if (!rec.buys[r].refunded) rec.buys[r].keys.forEach(k => still.add(k));
     b.keys.forEach(k => { if (!still.has(k)) delete rec.own[k] });

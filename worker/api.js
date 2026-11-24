@@ -64,7 +64,7 @@ export async function handleApi(d, method, path, token, body) {
     const pu = purchaseOf(s);
     if (pu.uid !== user.id) return [403, { error: 'That purchase belongs to another account.' }];
     if (s.payment_status !== 'paid') return [200, { ok: false, pending: true }];
-    const g = await d.accounts.grant(user.id, pu.keys, { ref: pu.ref, sid: pu.sid, amt: pu.amt });
+    const g = await d.accounts.grant(user.id, pu.keys, { ref: pu.ref, sid: pu.sid, pi: pu.pi, amt: pu.amt });
     return [200, { ok: true, keys: pu.keys, own: g && g.own }];
   }
   if (path === '/api/admin') {

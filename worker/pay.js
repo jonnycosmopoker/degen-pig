@@ -93,6 +93,7 @@ export function stripeApi(secret) {
     getSession: id => call('GET', 'checkout/sessions/' + encodeURIComponent(id)),
     getIntent: id => call('GET', 'payment_intents/' + encodeURIComponent(id)),
     /* a "thin" event only names the object it's about (e.g. /v1/charges/ch_...): fetch the object itself */
+    sessionsFor: pi => call('GET', 'checkout/sessions', { payment_intent: pi, limit: 3 }),
     getUrl: url => call('GET', String(url).replace(/^\/v1\//, ''))
   };
 }
@@ -117,7 +118,7 @@ export function sessionParams(q, user, origin, invoices) {
 export function purchaseOf(s) {
   const md = s.metadata || {}, keys = String(md.keys || '').split(',').filter(Boolean);
   const pi = typeof s.payment_intent === 'string' ? s.payment_intent : (s.payment_intent && s.payment_intent.id) || null;
-  return { uid: md.uid || s.client_reference_id || null, keys, ref: pi || s.id, sid: s.id, amt: s.amount_total || 0 };
+  return { uid: md.uid || s.client_reference_id || null, keys, ref: pi || s.id, sid: s.id, pi, amt: s.amount_total || 0 };
 }
 
 /* ---------- Stripe's webhook ---------- */
@@ -145,7 +146,7 @@ export async function onEvent(ev, accounts, api) {
   if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') {
     if (o.payment_status !== 'paid') return 'waiting for payment';
     const p = purchaseOf(o); if (!p.uid || !p.keys.length) return 'no purchase in it';
-    await accounts.grant(p.uid, p.keys, { ref: p.ref, sid: p.sid, amt: p.amt }); return 'granted';
+    await accounts.grant(p.uid, p.keys, { ref: p.ref, sid: p.sid, pi: p.pi, amt: p.amt }); return 'granted';
   }
   /* a full refund, or a dispute the seller lost: take that purchase back */
   let pi = null;
@@ -154,7 +155,11 @@ export async function onEvent(ev, accounts, api) {
   if (pi) {
     let uid = o.metadata && o.metadata.uid;
     if (!uid) { const intent = await api.getIntent(pi); uid = intent.metadata && intent.metadata.uid }
-    if (uid) { await accounts.revoke(uid, pi); return 'revoked' }
+    if (!uid) return 'no player on that payment';
+    /* match the purchase by its payment, or by the checkout it came from */
+    let refs = [pi];
+    if (api && api.sessionsFor) { try { const l = await api.sessionsFor(pi); (l.data || []).forEach(x => refs.push(x.id)) } catch (e) {} }
+    return (await accounts.revoke(uid, refs)) ? 'revoked' : 'no matching purchase (already taken back?)';
   }
   return 'ignored';
 }

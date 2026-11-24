@@ -73,5 +73,16 @@ ok(await onEvent({ object: 'v2.core.event', type: 'v1.charge.refunded', related_
 ok(!(await B.get('sb:u2')).own['d:magma'], 'thin refund removed it');
 ok(await onEvent({ type: 'charge.refunded', related_object: { url: 'https://evil.example/x' } }, B, tapi) === 'ignored', 'odd addresses are not fetched');
 
+/* bought before Stripe named the payment (filed under the checkout), refunded later by payment */
+const C = new AccountsLogic(new MemStorage());
+await C.grant('sb:u3', ['t:vault', 'd:gold24'], { ref: 'cs_7', sid: 'cs_7', pi: null, amt: 1499 });
+const capi = { getIntent: async id => ({ id, metadata: { uid: 'sb:u3' } }), sessionsFor: async pi => ({ data: [{ id: 'cs_7' }] }) };
+ok(await onEvent({ type: 'charge.refunded', data: { object: { refunded: true, payment_intent: 'pi_7', metadata: { uid: 'sb:u3' } } } }, C, capi) === 'revoked', 'refund finds a purchase filed by checkout');
+ok(!(await C.get('sb:u3')).own['t:vault'], 'and takes it back');
+ok((await onEvent({ type: 'charge.refunded', data: { object: { refunded: true, payment_intent: 'pi_7', metadata: { uid: 'sb:u3' } } } }, C, capi)).startsWith('no matching'), 'a second refund message changes nothing');
+/* the webhook and the return from Stripe both report the same purchase: counted once */
+await C.grant('sb:u3', ['d:magma'], { ref: 'pi_8', sid: 'cs_8', pi: 'pi_8', amt: 599 });
+ok((await C.grant('sb:u3', ['d:magma'], { ref: 'cs_8', sid: 'cs_8', pi: null, amt: 599 })).dup, 'same checkout not counted twice');
+
 console.log(fails ? fails + ' failed' : 'pay: all passed');
 process.exit(fails ? 1 : 0);
