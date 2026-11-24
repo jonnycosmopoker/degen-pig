@@ -141,7 +141,7 @@ export function Engine(S) {
     say((G > 0 ? 'Game ' + (G + 1) + ': ' : '') + P(S.order[0]).name + ' goes first');
   }
   function onDoubles(i) {
-    if (RL().noDbl || S.pr) return false;
+    if (RL().noDbl) return false;
     if (P(i).st && P(i).st.sn >= 2) return true;
     const mine = P(i).score, lead = Math.max.apply(null, S.players.map((q, j) => j === i ? -1 : q.score));
     if (mine === 0 && lead > 75) return true;
@@ -150,7 +150,6 @@ export function Engine(S) {
   /* how many separate reasons this player's turn is doubled: Five Ones 2x, two snake eyes this game, far behind (at 0 with someone over 75, or 75+ back on the final turn).
      With Enable 3x on, two or more reasons at once make it a ×3 turn instead of ×2. */
   function hotReasons(i) {
-    if (S.pr) return 0;                       /* Prime Pig bonus turns: no ×2 or ×3 turns */
     let n = S.powerTurn ? 1 : 0;
     if (RL().noDbl) return n;
     if (P(i).st && P(i).st.sn >= 2) n++;
@@ -162,7 +161,7 @@ export function Engine(S) {
   function beginTurn() {
     const p = P(S.cur); S.pwFull = false; S.powerTurn = false; S.rrUsed = false;
     if (p.g) { p.g.turns++; p.g.dbl = 0; p.g.six = 0; p.g.forced = 0; if (S.phase === 'final' && !S.pr && p.g.finalDef == null) p.g.finalDef = barScore() - p.score }
-    if (RL().power && p.pwReady && !S.pr) { p.pwReady = false; p.pw = Math.min(4, p.pwCarry || 0); p.pwCarry = 0; S.powerTurn = true }
+    if (RL().power && p.pwReady) { p.pwReady = false; p.pw = Math.min(4, p.pwCarry || 0); p.pwCarry = 0; S.powerTurn = true }
     const why = hotReasons(S.cur); S.hotX = why === 0 ? 1 : (RL().triple && why >= 2 ? 3 : 2); S.hotTurn = S.hotX > 1;
     S.turnId = (S.turnId || 0) + 1;
     if (S.hotTurn) S.fx = { hot: true, x: S.hotX };
@@ -191,18 +190,16 @@ export function Engine(S) {
     S.fx.lock = amt; if (pr) S.fx.prime = pr;
     return true;
   }
-  /* Prime Pig: the first player to lock in exactly an open prime (5 up to the target) captures it and gets a Five Ones dot.
+  /* Prime Pig: the first player to lock in exactly an open prime (5 up to the target) captures it (a bonus turn in the Prime Round).
      With all 5 dots already filled, the dot starts their next row instead. */
   function primeOpen(n) { return !!(RL().prime && RL().power && !S.pr && n >= 5 && n <= RL().target && isPrime(n) && !(S.primes && S.primes[n] != null)) }
   function primeBonus(i) {
     const p = P(i), n = p.score; S.primeHit = null; if (!primeOpen(n)) return null;
-    (S.primes = S.primes || {})[n] = i; let full = false, carry = false;
-    if (p.pwReady) { p.pwCarry = Math.min(4, (p.pwCarry || 0) + 1); carry = true }
-    else { p.pw = (p.pw || 0) + 1; if (p.pw >= 5) { p.pw = 5; p.pwReady = true; full = true } }
-    S.primeHit = { n, i, full, carry }; return S.primeHit;
+    (S.primes = S.primes || {})[n] = i;   /* a capture is its own reward: a bonus turn in the Prime Round (no Five Ones dot) */
+    S.primeHit = { n, i, full: false, carry: false }; return S.primeHit;
   }
   /* Prime Pig: once everyone has had their final turn, each player gets one bonus turn for every prime they captured,
-     taken around the table in seating order. Normal busts, doubles still pay double, no ×2 or ×3 turns, no more captures. */
+     taken around the table in seating order. Normal busts, doubles and ×2/×3 turns all count as usual; no more captures. */
   function primeQueue() {
     if (!RL().prime || S.pr) return null;
     const c = S.players.map(() => 0); for (const n in (S.primes || {})) { const w = S.primes[n]; if (w != null && c[w] != null) c[w]++ }

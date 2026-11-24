@@ -1785,7 +1785,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <div class="opts" id="hOpts">
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
-      <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it and get a Five Ones dot. After the final round, everyone gets a bonus turn for each prime they captured. Turns on Five Ones 2x.</small></span><button class="tog" data-k="prime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
+      <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it. After the final round, everyone gets a bonus turn for each prime they captured, with ×2 and ×3 turns still counting. Turns on Five Ones 2x.</small></span><button class="tog" data-k="prime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
       <div class="opt" style="display:none"><span><b>Disable Doubles</b><small>No ×2 anywhere: doubles score face value, no catch-up or snake-eyes bonuses.</small></span><button class="tog" data-k="noDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt" style="display:none"><span><b>Re-roll Pig</b><small>3 re-rolls a game for a single 1 on the first roll of a turn. A 1 on the re-roll drops the score to 0.</small></span><button class="tog" data-k="reroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt" style="display:none"><span><b>Verify Double</b><small>After a double you must roll again before you can lock in.</small></span><button class="tog" data-k="verify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
@@ -1842,7 +1842,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <div class="opt"><span><b>Golden Points</b><small>Every point a player has above the target counts as a golden point, shown on the score boxes and in the summary.</small></span><button class="tog" id="tGolden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
-      <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it and get an extra Five Ones dot. After everyone's final turn, each player gets a bonus turn for every prime they captured. Turns on Five Ones 2x.</small></span><button class="tog" id="tPrime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
+      <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it. After everyone's final turn, each player gets a bonus turn for every prime they captured, with ×2 and ×3 turns still counting. Turns on Five Ones 2x.</small></span><button class="tog" id="tPrime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
       <div class="opt"><span><b>Disable Doubles</b><small>Turns off every ×2: doubles score face value, and no catch-up or snake-eyes bonuses.</small></span><button class="tog" id="tNoDbl" type="button" role="switch" aria-checked="false" aria-label="Disable Doubles"></button></div>
       <div class="opt" style="display:none"><span><b>Re-roll Pig</b><small>Each player gets 3 re-rolls a game. One can be used only when the first roll of a turn has a single 1 (not snake eyes). A 1 on the re-roll drops the score to 0, but does not count as snake eyes.</small></span><button class="tog" id="tReroll" type="button" role="switch" aria-checked="false" aria-label="Re-roll Pig"></button></div>
       <div class="opt" style="display:none"><span><b>Verify Double</b><small>After rolling a double, a player cannot lock in. They must keep rolling until a roll is not a double.</small></span><button class="tog" id="tVerify" type="button" role="switch" aria-checked="false" aria-label="Verify Double"></button></div>
@@ -2592,7 +2592,7 @@ function startPlay(){S.phase='play';S.pos=0;S.cur=S.order[0];S.turn=0;S.rolls=[]
 /* Catch-up, checked as a turn starts: every roll is doubled for a player on zero once the leader has more than 75 banked,
    and for any player going into their final turn more than 75 behind the leader. */
 function onDoubles(i){
-  if(RL().noDbl||S.pr)return false;                 /* Disable Doubles turns off every x2 */
+  if(RL().noDbl)return false;                 /* Disable Doubles turns off every x2 */
   if(P(i).st&&P(i).st.sn>=2)return true;   /* two snake eyes in one game: doubled for the rest of it */
   var mine=P(i).score,lead=Math.max.apply(null,S.players.map(function(q,j){return j===i?-1:q.score}));
   if(mine===0&&lead>75)return true;
@@ -2601,7 +2601,6 @@ function onDoubles(i){
 function checkCatchUp(){}
 /* how many separate reasons a turn is doubled (Five Ones 2x, two snake eyes, far behind). With Enable 3x, two or more make it ×3 */
 function hotReasons(i,power){
-  if(S.pr)return 0;   /* Prime Pig bonus turns: no ×2 or ×3 turns */
   var n=power?1:0;if(RL().noDbl)return n;
   if(P(i).st&&P(i).st.sn>=2)n++;
   var mine=P(i).score,lead=Math.max.apply(null,S.players.map(function(q,j){return j===i?-1:q.score}));
@@ -2612,7 +2611,7 @@ function hotMult(n){return n===0?1:(RL().triple&&n>=2?3:2)}
 function MX(){return S.hotX||(S.hotTurn?2:1)}
 function beginTurn(){var p=P(S.cur);S.pwFull=false;S.powerTurn=false;S.rrUsed=false;
   if(p.g){p.g.turns++;p.g.dbl=0;p.g.six=0;p.g.forced=0;if(S.phase==='final'&&!S.pr&&p.g.finalDef==null)p.g.finalDef=barScore()-p.score}
-  if(RL().power&&p.pwReady&&!S.pr){p.pwReady=false;p.pw=Math.min(4,p.pwCarry||0);p.pwCarry=0;S.powerTurn=true}   /* Five Ones 2x: a full row of dots doubles this turn, then resets */
+  if(RL().power&&p.pwReady){p.pwReady=false;p.pw=Math.min(4,p.pwCarry||0);p.pwCarry=0;S.powerTurn=true}   /* Five Ones 2x: a full row of dots doubles this turn, then resets */
   S.hotX=hotMult(hotReasons(S.cur,S.powerTurn));S.hotTurn=S.hotX>1;if(S.hotTurn)setTimeout(sfxHot,450)}
 function nextPlayer(){
   checkCatchUp();
@@ -2634,7 +2633,7 @@ function lockIn(){
   if(pr){primeFx(pr);if(S.callout)say(S.callout.text+' · captures prime '+pr.n,'gold')}
 }
 /* Prime Pig: once everyone has had their final turn, each player gets one bonus turn for every prime they captured,
-   taken around the table in seating order. Normal busts, doubles still pay double, no ×2 or ×3 turns, no more captures. */
+   taken around the table in seating order. Normal busts, doubles and ×2/×3 turns all count as usual; no more captures. */
 function primeQueue(){
   if(!RL().prime||S.pr)return null;
   var c=S.players.map(function(){return 0});for(var n in (S.primes||{})){var w=S.primes[n];if(w!=null&&c[w]!=null)c[w]++}
@@ -2645,17 +2644,15 @@ function primeQueue(){
 function endBtnText(){return S.phase==='final'&&!S.pr&&primeQueue()?'Roll Prime Rounds':'See who won'}
 function primeCount(i){var k=0;for(var n in (S.primes||{}))if(S.primes[n]===i)k++;return k}
 function primeCaps(i){var a=[];for(var n in (S.primes||{}))if(S.primes[n]===i)a.push(+n);return a.sort(function(x,y){return x-y})}
-/* ---------- Prime Pig: the first player to lock in exactly an open prime (5 up to the target) captures it and gets a Five Ones dot.
+/* ---------- Prime Pig: the first player to lock in exactly an open prime (5 up to the target) captures it (a bonus turn in the Prime Round).
    With all 5 dots already filled, the dot starts their next row instead. ---------- */
 function isPrime(n){if(n<2)return false;for(var d=2;d*d<=n;d++)if(n%d===0)return false;return true}
 function primeList(t){var a=[];for(var n=5;n<=t;n++)if(isPrime(n))a.push(n);return a}
 function primeOpen(n){return !!(RL()&&RL().prime&&RL().power&&!S.pr&&n>=5&&n<=RL().target&&isPrime(n)&&!(S.primes&&S.primes[n]!=null))}
 function primeBonus(i){
   var p=P(i),n=p.score;S.primeHit=null;if(!primeOpen(n))return null;
-  (S.primes=S.primes||{})[n]=i;var full=false,carry=false;
-  if(p.pwReady){p.pwCarry=Math.min(4,(p.pwCarry||0)+1);carry=true}
-  else{p.pw=(p.pw||0)+1;if(p.pw>=5){p.pw=5;p.pwReady=true;full=true}}
-  S.primeHit={n:n,i:i,full:full,carry:carry};return S.primeHit;
+  (S.primes=S.primes||{})[n]=i;   /* a capture is its own reward: a bonus turn in the Prime Round (no Five Ones dot) */
+  S.primeHit={n:n,i:i,full:false,carry:false};return S.primeHit;
 }
 var PRIMEFX={n:null,t:0};
 function primeFx(pr){PRIMEFX={n:pr.n,i:pr.i,t:Date.now()};setTimeout(sfxPrime,380);setTimeout(function(){if(PRIMEFX.n===pr.n){PRIMEFX.n=null;render()}},1800)}
@@ -3423,7 +3420,7 @@ function renderMain(){
   }).join('');
 
   var bn=$('banner');bn.hidden=ph!=='final';bn.classList.toggle('prb',!!S.pr);
-  if(ph==='final'&&S.pr){bn.innerHTML='<b>PRIME ROUND</b>One bonus turn for every prime captured. Doubles still pay double, but no ×2 or ×3 turns. Most points wins.'}
+  if(ph==='final'&&S.pr){bn.innerHTML='<b>PRIME ROUND</b>One bonus turn for every prime captured. Doubles and ×2/×3 turns count as usual. Most points wins.'}
   else if(ph==='final'){bn.innerHTML='<b>'+(S.finalMode==='roll'?'FINAL ROLL':'FINAL TURN')+'</b>'+esc(P(S.trigger).name)+' reached '+RL().target+'. Everyone else gets one '+(S.finalMode==='roll'?'roll':'turn')+' to beat '+barScore()+'.'}
 
   if(ph==='over'){
@@ -3574,7 +3571,7 @@ function rulesHTML(){
   if(dbl){hot.push('Stuck at zero while someone’s past 75? Your rolls pay double.','Down 75+ on your last turn? Double.','Burned by snake eyes twice? Every roll pays double for the rest of the game.')}
   if(hot.length)h+='<h3>Getting hot (×2 turns)</h3><ul><li>'+hot.join('</li><li>')+'</li></ul>';
   if(c.golden)h+='<p>Points past '+T+' are <b>Golden Points</b>, pure flex.</p>';
-  if(c.prime)h+='<p><b>Prime Pig:</b> be the first to lock in on exactly a prime score (5 up to '+T+') and you capture it. It goes on your name tag and you get an extra Five Ones dot. Each prime can only be captured once, so watch the strip above the table.</p><p><b>Prime Round:</b> after everyone has had their final turn, each player gets one bonus turn for every prime they captured, taken around the table. Roll as long as you like and lock in. A 1 and snake eyes work as normal, and doubles still pay double, but there are no ×2 or ×3 turns. Whoever has the most points after the Prime Round wins.</p>';
+  if(c.prime)h+='<p><b>Prime Pig:</b> be the first to lock in on exactly a prime score (5 up to '+T+') and you capture it. It goes on your name tag. Each prime can only be captured once, so watch the strip above the table.</p><p><b>Prime Round:</b> after everyone has had their final turn, each player gets one bonus turn for every prime they captured, taken around the table. Roll as long as you like and lock in. A 1 and snake eyes work as normal, and doubles, Five Ones 2x and ×3 turns all count as usual. Whoever has the most points after the Prime Round wins.</p>';
   var ex=[];
   if(c.triple&&(c.power||dbl))ex.push('<b>Enable 3x:</b> two ×2 reasons on the same turn make it ×3. Doubles on a ×3 turn pay ×6.');
   if(c.reroll)ex.push('<b>Re-roll Pig:</b> 3 chances a game to re-roll a single 1 on your first roll of a turn. A 1 on the re-roll drops your score to 0. Snake eyes can’t be re-rolled.');
