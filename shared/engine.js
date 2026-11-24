@@ -137,8 +137,43 @@ export function Engine(S) {
     if (G > 0 && S.baseOrder && S.baseOrder.length === S.players.length) { const r = G % S.baseOrder.length; all = S.baseOrder.slice(r).concat(S.baseOrder.slice(0, r)) }
     else { all = S.players.map((_, i) => i); for (let k = all.length - 1; k > 0; k--) { const j = rint(k + 1), t = all[k]; all[k] = all[j]; all[j] = t } S.baseOrder = all.slice() }
     S.order = all; S.hist = S.players.map(() => []);
+    if (RL().flips) { beginFlips(); return }
     S.phase = 'play'; S.cur = S.order[0]; S.marks = ['', '']; say(null); beginTurn();
     say((G > 0 ? 'Game ' + (G + 1) + ': ' : '') + P(S.order[0]).name + ' goes first');
+  }
+  /* ---- Flips: a different game. Everyone rolls 5 dice once (no doubles, a 1 counts as 1); the total locks in by itself.
+     Highest total wins the flip; players tied at the top flip again until one wins. S.fl holds the flip, p.fw each player's flip wins,
+     S.fl.net each player's Track $ result in cents (the winner collects the flip amount from every other player). ---- */
+  function beginFlips() {
+    S.phase = 'play'; S.dice = [1, 2, 3, 4, 5]; S.marks = ['', '', '', '', ''];
+    S.players.forEach(p => { p.fw = p.fw || 0 });
+    S.fl = { round: 0, start: -1, q: [], cand: [], tot: {}, win: -1, tie: null, re: 0, net: S.players.map(() => 0) };
+    flipNext(true);
+  }
+  function flipNext(first) {
+    const f = S.fl; if (!f || (!first && f.win < 0)) return false;
+    f.round++; f.start = (f.start + 1) % S.n;
+    const q = S.order.slice(f.start).concat(S.order.slice(0, f.start));
+    f.q = q.slice(); f.cand = q.slice(); f.tot = {}; f.win = -1; f.tie = null; f.re = 0;
+    S.cur = q[0]; S.turnId = (S.turnId || 0) + 1; S.fx = { flipNext: f.round };
+    say('Flip ' + f.round + ': ' + P(q[0]).name + ' flips first');
+    return true;
+  }
+  function flipResult(vals) {
+    const f = S.fl, i = S.cur, t = vals.reduce((x, y) => x + y, 0), p = P(i);
+    f.tot[i] = t; f.q.shift();
+    if (p.st) vals.forEach(v => { p.st.f[v - 1]++ });
+    if (f.q.length) { S.cur = f.q[0]; S.turnId = (S.turnId || 0) + 1; say(p.name + ' flipped ' + t); return { flip: t } }
+    const top = Math.max.apply(null, f.cand.map(c => f.tot[c])), tied = f.cand.filter(c => f.tot[c] === top);
+    if (tied.length > 1) {
+      f.tie = tied.slice(); f.cand = tied.slice(); f.q = tied.slice(); f.re++; S.cur = f.q[0]; S.turnId = (S.turnId || 0) + 1;
+      say('TIE AT ' + top + ' · ' + tied.map(c => P(c).name).join(' & ') + ' flip again', 'gold'); return { flip: t, tie: tied };
+    }
+    const w = tied[0]; f.win = w; f.tie = null; P(w).fw = (P(w).fw || 0) + 1;
+    const M = RL().money, c = M ? Math.round((+M.game || 0) * 100) : 0;
+    if (c > 0) S.players.forEach((_, j) => { if (j !== w) { f.net[j] -= c; f.net[w] += c } });
+    S.cur = w; say(P(w).name + ' wins the flip with ' + top + '!', 'gold');
+    return { flip: t, win: w };
   }
   function onDoubles(i) {
     if (RL().noDbl) return false;
@@ -274,9 +309,10 @@ export function Engine(S) {
   }
 
   /* ---- actions; each returns false when it is not allowed right now ---- */
-  function canRoll() { if (S.pend) return false; if (S.phase === 'play' || S.phase === 'final') return !S.bust; return false }
+  function canRoll() { if (RL().flips) return S.phase === 'play' && !!S.fl && S.fl.win < 0; if (S.pend) return false; if (S.phase === 'play' || S.phase === 'final') return !S.bust; return false }
   function roll() {
     if (!canRoll()) return null;
+    if (RL().flips) { const v = [d6(), d6(), d6(), d6(), d6()]; S.dice = v; S.marks = ['', '', '', '', '']; S.fx = null; const fx = flipResult(v); S.fx = fx; return { a: v[0], b: v[1], vals: v, fx } }
     const vals = [d6(), d6()]; S.dice = vals; S.fx = null;
     const fx = rollResult(vals[0], vals[1]) || {};
     return { a: vals[0], b: vals[1], fx };
@@ -291,6 +327,7 @@ export function Engine(S) {
   /* turn timer ran out: bank whatever is on the table (even mid Verify Double), take a pending bust, or pass */
   function timeout() {
     if (S.phase !== 'play' && S.phase !== 'final') return false;
+    if (RL().flips) return S.fl.win < 0 ? roll() : flipNext();
     if (S.pend) { takeBust(); nextPlayer(); return true }
     if (S.bust) { nextPlayer(); return true }
     if (S.turn > 0) return lockIn(true);
@@ -323,11 +360,12 @@ export function Engine(S) {
   /* one computer move for the seat whose turn it is: returns {kind, result} */
   function botMove() {
     const i = S.cur;
+    if (RL().flips) { if (S.fl.win >= 0) return { kind: 'next', result: flipNext() }; return { kind: 'roll', result: roll() } }
     if (S.bust) { nextPlayer(); return { kind: 'pass' } }
     if (S.pend) { if (botReroll(i)) return { kind: 'roll', result: reroll() }; const fx = takeBust(); return { kind: 'take', result: fx } }
     if (botDecide(i) === 'lock') { lockIn(); return { kind: 'lock' } }
     return { kind: 'roll', result: roll() };
   }
 
-  return { newSession, beginOrder, roll, reroll, takeBust, lockIn, pass, timeout, botMove, ctrl, golden, regular, leaders, settle };
+  return { newSession, beginOrder, flipNext, roll, reroll, takeBust, lockIn, pass, timeout, botMove, ctrl, golden, regular, leaders, settle };
 }

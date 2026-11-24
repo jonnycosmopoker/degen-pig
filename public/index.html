@@ -1469,6 +1469,15 @@ dialog.acctdlg{width:min(92vw,420px);padding:24px 18px 18px;border:2px solid tra
 #shop .mybuys li:first-child{border-top:0}#shop .mybuys .bd{opacity:.7;white-space:nowrap}#shop .mybuys .ba{white-space:nowrap;font-weight:700}
 #shop .mybuys li.ref .bi,#shop .mybuys li.ref .bd{opacity:.45;text-decoration:line-through}#shop .mybuys li.ref .ba{color:#E89A9A}
 #shop .mybuys .cap{margin:8px 0 0;font-size:12px;opacity:.7}#shop .mybuys a{color:#F6CF45}
+/* Flips: the settings it turns off, and the name tags */
+.flipsoff{opacity:.35;pointer-events:none;filter:saturate(.4)}
+.opts.flipsoff .opt.flipopt{opacity:1;pointer-events:auto;filter:none}
+#hOpts.flipsoff{opacity:1;pointer-events:auto;filter:none}#hOpts.flipsoff .opt:not(.flipopt){opacity:.35;pointer-events:none;filter:saturate(.4)}
+.tile.flipwin{box-shadow:0 0 0 3px #F6CF45,0 0 18px rgba(246,207,69,.75)!important}
+.tile.fliptie{animation:fliptie 1s ease-in-out infinite}
+@keyframes fliptie{50%{box-shadow:0 0 0 3px #FBE58A,0 0 14px rgba(251,229,138,.6)}}
+.tile .tag.fw{font-weight:800;color:#F6CF45}
+@media (prefers-reduced-motion:reduce){.tile.fliptie{animation:none}}
 /* Shop before launch: everyone but the owner sees one "coming soon" plaque */
 #shop.soon .shoptabs,#shop.soon .shopnote,#shop.soon .shoplk{display:none}
 .shopsoon.mq{gap:8px;padding:26px 18px 24px;border:2px solid transparent;border-radius:18px;background:linear-gradient(180deg,#3A1A0E,#1E0B05) padding-box,linear-gradient(135deg,#FFF6C2,#F6CF45 25%,#8A5A0A 50%,#FBE58A 70%,#B97C12) border-box;box-shadow:0 8px 18px rgba(0,0,0,.5)}
@@ -1752,10 +1761,10 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
     <button type="button" class="setbtn trackbtn" id="hTrack" aria-expanded="false" aria-controls="hMoney"><span class="coin">$</span><span>Track $<small id="hTrackSub">Off</small></span></button>
     </div>
     <div class="moneybox" id="hMoney" hidden>
-      <p class="cap">The game does the math after every game: the winner collects from each other player.</p>
-      <label class="mrowin"><span>Game<small>Paid by each player to the winner</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgame" inputmode="decimal" placeholder="50" maxlength="8"></span></label>
-      <label class="mrowin"><span>Point<small>For each point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMpoint" inputmode="decimal" placeholder="1" maxlength="8"></span></label>
-      <div class="opt gopt"><span><b>Golden Points</b><small>Points past the target count as Golden Points, paid at their own amount.</small></span><button class="tog" id="hGoldTog" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
+      <p class="cap" id="hMcap">The game does the math after every game: the winner collects from each other player.</p>
+      <label class="mrowin"><span id="hMgameLab">Game<small>Paid by each player to the winner</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgame" inputmode="decimal" placeholder="50" maxlength="8"></span></label>
+      <label class="mrowin" id="hMptRow"><span>Point<small>For each point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMpoint" inputmode="decimal" placeholder="1" maxlength="8"></span></label>
+      <div class="opt gopt" id="hGoldOpt"><span><b>Golden Points</b><small>Points past the target count as Golden Points, paid at their own amount.</small></span><button class="tog" id="hGoldTog" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <label class="mrowin" id="hMgoldRow"><span>Golden Point<small>For each Golden Point of difference</small></span><span class="dollar"><i>$</i><input class="txt" id="hMgolden" inputmode="decimal" placeholder="3" maxlength="8"></span></label>
       <p class="cap" id="hMnote"></p>
     </div>
@@ -1764,7 +1773,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <div class="seg"><label><input type="radio" name="vis" id="hPub" value="pub" checked>Public</label><label><input type="radio" name="vis" id="hPriv" value="priv">Private</label></div>
     </fieldset>
     <div class="field" id="hPwRow" hidden><label for="hPw">Password</label><input class="txt" id="hPw" maxlength="20" placeholder="Players need this to join" autocomplete="off"></div>
-    <fieldset>
+    <fieldset id="htSet">
       <legend>Final turn starts when someone reaches</legend>
       <div class="seg seg4">
         <label><input type="radio" name="htarget" id="ht80" value="80">80 Pig</label>
@@ -1783,6 +1792,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       </div>
     </fieldset>
     <div class="opts" id="hOpts">
+      <div class="opt flipopt"><span><b>Flips</b><small>A different game: everyone rolls 5 dice once and the highest total wins the flip. Turns every other option off.</small></span><button class="tog" data-k="flips" type="button" role="switch" aria-checked="false" aria-label="Flips"></button></div>
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" data-k="power" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" data-k="triple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
       <div class="opt"><span><b>Prime Pig</b><small>A new game type. Be the first to lock in on a prime score (5 up to the target) to capture it. After the final round, everyone gets a bonus turn for each prime they captured, with ×2 and ×3 turns still counting. Turns on Five Ones 2x.</small></span><button class="tog" data-k="prime" type="button" role="switch" aria-checked="false" aria-label="Prime Pig"></button></div>
@@ -1829,7 +1839,10 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
       <div class="opt"><span><b>Sound effects</b><small>Dice, oinks, coins and fire.</small></span><button class="tog" id="tSound" type="button" role="switch" aria-checked="true" aria-label="Sound effects"></button></div>
       <div class="opt" id="shakeOpt" hidden><span><b>Shake to roll</b><small id="shakeNote">Shake your phone to roll the dice. iPhones ask for motion access the first time.</small></span><button class="tog" id="tShake" type="button" role="switch" aria-checked="true" aria-label="Shake to roll"></button></div>
     </div>
-    <fieldset>
+    <div class="opts">
+      <div class="opt flipopt"><span><b>Flips</b><small>A different game: everyone rolls 5 dice once, the total locks in by itself, and the highest total wins the flip. Turns every other option off.</small></span><button class="tog" id="tFlips" type="button" role="switch" aria-checked="false" aria-label="Flips"></button></div>
+    </div>
+    <fieldset id="tgSet">
       <legend>Final turn starts when someone reaches</legend>
       <div class="seg seg4">
         <label><input type="radio" name="target" id="tg80" value="80">80 Pig</label>
@@ -1838,7 +1851,7 @@ dialog .txt:focus,.chatform .txt:focus{outline:none;border-color:#FBE58A;box-sha
         <label><input type="radio" name="target" id="tg200" value="200">200 Pig</label>
       </div>
     </fieldset>
-    <div class="opts">
+    <div class="opts" id="ruleOpts">
       <div class="opt"><span><b>Golden Points</b><small>Every point a player has above the target counts as a golden point, shown on the score boxes and in the summary.</small></span><button class="tog" id="tGolden" type="button" role="switch" aria-checked="false" aria-label="Golden Points"></button></div>
       <div class="opt"><span><b>Five Ones 2x</b><small>Every 1 fills a dot. Fill 5 dots and your next turn is doubled.</small></span><button class="tog" id="tPower" type="button" role="switch" aria-checked="false" aria-label="Five Ones 2x"></button></div>
       <div class="opt"><span><b>Enable 3x</b><small>Two ×2 reasons on the same turn make it ×3: Five Ones 2x, two snake eyes, or being at 0 (or 75+ behind on the final turn).</small></span><button class="tog" id="tTriple" type="button" role="switch" aria-checked="false" aria-label="Enable 3x"></button></div>
@@ -2026,8 +2039,8 @@ function rand(a,b){return a+Math.random()*(b-a)}
 function rint(n){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return u[0]%n}catch(e){return Math.floor(Math.random()*n)}}
 function d6(){try{var u=new Uint32Array(1);crypto.getRandomValues(u);return 1+u[0]%6}catch(e){return 1+Math.floor(Math.random()*6)}}
 
-var DEF={target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:30};
-var S={snd:'classic',dsize:0.85,phase:'menu',cfg:{target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
+var DEF={flips:false,target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:30};
+var S={snd:'classic',dsize:0.85,phase:'menu',cfg:{flips:false,target:100,golden:true,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false},powerTurn:false,mustRoll:false,rules:null,pend:null,inReroll:false,rrFail:false,n:4,names:['','','','','',''],types:['h','h','h','h','h','h'],finalMode:'turn',games:0,
   players:[],order:[],pos:0,cur:0,turn:0,rolls:[],bust:false,finalDone:false,finalMsg:'',queue:[],trigger:-1,ord:null,
   busy:false,rolling:false,callout:null,dice:[5,3],marks:['',''],hotTurn:false,snake:false,burnShow:null,sound:true,shake:true,skin:'classic',youSeat:0};
 
@@ -2339,7 +2352,7 @@ function loadPrefs(){try{var p=JSON.parse(localStorage.getItem('greed-setup')||'
   if(p.n>=2&&p.n<=6)S.n=p.n;if(Array.isArray(p.names))for(var i=0;i<6;i++)if(typeof p.names[i]==='string')S.names[i]=p.names[i].slice(0,10);
   if(Array.isArray(p.types))for(var j=0;j<6;j++)if('hcbg'.indexOf(p.types[j])>=0&&String(p.types[j]).length===1)S.types[j]=p.types[j];
   if(p.sound===false)S.sound=false;if(p.shake===false)S.shake=false;if(typeof p.skin==='string')S.skin=p.skin;if(typeof p.table==='string')S.table=p.table;if(typeof p.tag==='string')S.tag=p.tag;if(typeof p.snd==='string')S.snd=p.snd;if([1,0.85,0.7].indexOf(p.dsz)>=0)S.dsize=p.dsz;if(p.youSeat>=0&&p.youSeat<6)S.youSeat=p.youSeat;
-  if(p.cfg){var c=p.cfg;S.cfg={target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}};S.cfg.reroll=false;S.cfg.verify=false}catch(e){}}
+  if(p.cfg){var c=p.cfg;S.cfg={flips:!!c.flips,target:[80,100,150,200].indexOf(c.target)>=0?c.target:100,golden:!!c.golden,noDbl:!!c.noDbl,reroll:!!c.reroll,verify:!!c.verify,power:!!c.power||!!c.prime,triple:!!c.triple,prime:!!c.prime,timer:[0,15,30,60].indexOf(c.timer)>=0?c.timer:30}};S.cfg.reroll=false;S.cfg.verify=false}catch(e){}}
 function savePrefs(){if(S.online&&!ON.watch&&ON.ws){var lk=JSON.stringify(myLook());if(lk!==ON.sentLook){ON.sentLook=lk;onSend('look',{look:myLook()})}}try{localStorage.setItem('greed-setup',JSON.stringify({n:S.n,names:S.names,types:S.types,finalMode:S.finalMode,sound:S.sound,shake:S.shake,skin:S.skin,table:S.table,tag:S.tag,snd:S.snd,dsz:S.dsize||0.85,youSeat:S.youSeat,cfg:S.cfg}))}catch(e){}}
 
 /* ---------- dice graphics ---------- */
@@ -2348,12 +2361,17 @@ var FACE={1:[0,0],2:[0,-90],3:[-90,0],4:[90,0],5:[0,90],6:[0,180]};
 var tray=$('tray'),T={w:300,h:200},D=80,placed=false;
 /* the 1 on each die is the Degen Pig logo, copied from the header with its own gradient ids */
 function dieLogo(k){var src=document.querySelector('.top .pig');return src.outerHTML.replace('class="pig"','class="dlogo" aria-hidden="true"').replace(/ role="img"/,'').replace(/ aria-label="[^"]*"/,'').replace(/pg-/g,k+'-')}
-var dice=[0,1].map(function(i){
+/* five dice: two for Degen Pig, all five for Flips (setDiceCount shows the ones in play) */
+(function(){for(var i=2;i<5;i++){var sh=document.createElement('div');sh.className='shadow';sh.id='sh'+i;sh.style.display='none';tray.insertBefore(sh,$('die0'));
+  var dv=document.createElement('div');dv.className='die';dv.id='die'+i;dv.style.display='none';tray.insertBefore(dv,$('callout'))}})();
+var ALLD=[0,1,2,3,4].map(function(i){
   var el=$('die'+i),h='<div class="cube"><div class="core"></div><div class="core cx"></div><div class="core cy"></div>';
   for(var f=1;f<=6;f++){h+='<div class="face f'+f+'">'+(f===1?dieLogo('d'+i)+'<i class="pip c one"></i>':PIPS[f].map(function(p){return '<i class="pip '+p+'"></i>'}).join(''))+'</div>'}
   el.innerHTML=h+'</div>';
-  return {el:el,cube:el.firstChild,sh:$('sh'+i),x:0,y:0,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,spin:i?9:-12};
+  return {el:el,cube:el.firstChild,sh:$('sh'+i),x:0,y:0,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,spin:[-12,9,-4,14,-9][i]};
 });
+var dice=ALLD.slice(0,2);
+function setDiceCount(n){dice=ALLD.slice(0,n);ALLD.forEach(function(d,i){var on=i<n;d.el.style.display=on?'':'none';d.sh.style.display=on?'':'none'});placed=false;layout();showFaces();dice.forEach(draw)}
 function margin(){return 12+D*0.64}
 function draw(d){
   var s=1+d.z*0.55;
@@ -2362,19 +2380,20 @@ function draw(d){
   d.sh.style.transform='translate3d('+(d.x-D/2+d.z*D*0.45)+'px,'+(d.y-D/2+D*0.1+d.z*D*0.8)+'px,0) rotate('+d.spin+'deg) scale('+(1+d.z*0.25)+')';
   d.sh.style.opacity=String(0.9-d.z*0.5);
 }
-function showFaces(){dice.forEach(function(d,i){var f=FACE[S.dice[i]];d.rx=f[0];d.ry=f[1];d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')})}
+function showFaces(){dice.forEach(function(d,i){var f=FACE[(S.dice&&S.dice[i])||(i%6)+1];d.rx=f[0];d.ry=f[1];d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')})}
 function layout(){
   var r=tray.getBoundingClientRect();if(r.width<10||r.height<10)return;
   T={w:r.width,h:r.height};
   if(tray.classList.contains('tutting')){var bb=$('tutBub');T.h=Math.max(120,r.height-(bb.hidden?0:bb.offsetHeight)-54)}   /* the pig's speech bubble owns the bottom of the table */
-  D=clamp(Math.min(T.w*0.25,T.h*0.44)*(S.dsize||0.85),36,124);   /* Dice size in the Locker shrinks them on this phone only */
+  D=dice.length>2?clamp(Math.min(T.w*0.155,T.h*0.27)*(S.dsize||0.85),26,88):clamp(Math.min(T.w*0.25,T.h*0.44)*(S.dsize||0.85),36,124);   /* Dice size in the Locker shrinks them on this phone only; Flips' 5 dice are smaller */
   tray.style.setProperty('--d',D+'px');
   var m=margin();
-  if(!placed){placed=true;dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}
+  if(!placed){placed=true;if(dice.length>2)dice.forEach(function(d,k){d.x=T.w/2+(k-2)*D*1.3;d.y=T.h/2+(k%2?-1:1)*D*0.32});else{dice[0].x=T.w/2-D*0.78;dice[0].y=T.h/2+D*0.08;dice[1].x=T.w/2+D*0.78;dice[1].y=T.h/2-D*0.08}}
   dice.forEach(function(d){d.x=clamp(d.x,m,Math.max(m,T.w-m));d.y=clamp(d.y,m,Math.max(m,T.h-m));draw(d)});
 }
-function collide(){
-  var a=dice[0],b=dice[1],dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy),min=D*1.12;
+function collide(){var best=0;for(var i=0;i<dice.length;i++)for(var j=i+1;j<dice.length;j++){var c=collide2(dice[i],dice[j]);if(c>best)best=c}return best}
+function collide2(a,b){
+  var dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy),min=D*1.12;
   if(dist>=min)return 0;if(dist<0.01){dx=1;dy=0;dist=1}
   var nx=dx/dist,ny=dy/dist,o=(min-dist)/2;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;
   var an=a.vx*nx+a.vy*ny,bn=b.vx*nx+b.vy*ny;
@@ -2440,7 +2459,7 @@ function throwDice(vals,dir){
     else{ang=-Math.PI/2+rand(-0.55,0.55);speed=base*rand(1.05,1.4);sx=T.w/2+rand(-T.w*0.15,T.w*0.15);sy=T.h-m}
     dice.forEach(function(d,i){
       d.el.className='die';
-      var a=ang+(i?0.3:-0.3)+rand(-0.15,0.15),perp=ang+Math.PI/2,off=(i?1:-1)*D*0.7,sp=speed*rand(0.85,1.15),f=FACE[vals[i]];
+      var nD=dice.length,kk=i-(nD-1)/2,a=ang+kk*(nD>2?0.16:0.6)+rand(-0.15,0.15),perp=ang+Math.PI/2,off=kk*D*(nD>2?1.15:1.4),sp=speed*rand(0.85,1.15),f=FACE[vals[i]];
       d.t=0;d.tk=rand(0.05,0.1);d.dur=reduce?180:rand(1250,1650);
       d.rx0=d.rx;d.ry0=d.ry;d.sp0=d.spin;
       d.rxT=f[0]+360*(2+Math.floor(Math.random()*2))*(Math.random()<0.5?-1:1);
@@ -2478,8 +2497,8 @@ function throwDice(vals,dir){
       if(dice.every(function(d){return d.t>=d.dur&&d.z===0&&d.vz===0})){
         dice.forEach(function(d,i){var f=FACE[vals[i]];d.rx=f[0];d.ry=f[1];d.spin=((d.spin+180)%360+360)%360-180;draw(d)});
         if(hot){EMB.on=false;tray.classList.remove('rolling')}
-        if(TBL.skin&&TBL.skin.pop){var one=vals[0]===1||vals[1]===1,sm=vals[0]+vals[1],db=vals[0]===vals[1]&&!one;TBL.skin.pop((dice[0].x+dice[1].x)/2,Math.max(dice[0].y,dice[1].y)+D*.8,one?'GAME OVER':db?'+'+(sm*2)+' 2X':'+'+sm,one?'bad':db?'gold':'')}
-        if(TBL.skin&&TBL.skin.mark){if(vals[0]===1||vals[1]===1)TBL.skin.clear();else{TBL.skin.mark(vals[0]+vals[1]);if(!reduce)setTimeout(sfxChip,470)}}
+        if(TBL.skin&&TBL.skin.pop&&dice.length===2){var one=vals[0]===1||vals[1]===1,sm=vals[0]+vals[1],db=vals[0]===vals[1]&&!one;TBL.skin.pop((dice[0].x+dice[1].x)/2,Math.max(dice[0].y,dice[1].y)+D*.8,one?'GAME OVER':db?'+'+(sm*2)+' 2X':'+'+sm,one?'bad':db?'gold':'')}
+        if(TBL.skin&&TBL.skin.mark&&dice.length===2){if(vals[0]===1||vals[1]===1)TBL.skin.clear();else{TBL.skin.mark(vals[0]+vals[1]);if(!reduce)setTimeout(sfxChip,470)}}
         resolve();
       }else requestAnimationFrame(step);
     }
@@ -2493,8 +2512,8 @@ function RL(){return S.rules||S.cfg}                       /* the rule set of th
 function inGame(){return S.phase==='order'||S.phase==='play'||S.phase==='final'}
 function golden(i){return Math.max(0,P(i).score-RL().target)}
 function regular(i){return RL().golden?Math.min(P(i).score,RL().target):P(i).score}   /* with Golden Points, points above the target are counted apart */
-function isDefault(c){return c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple&&!!c.prime===DEF.prime}
-function cfgSummary(c){var x=[c.target+' Pig'];if(c.golden)x.push('Golden Points');if(c.power)x.push('Five Ones 2x');if(c.prime)x.push('Prime Pig');if(c.triple)x.push('Enable 3x');if(c.noDbl)x.push('Doubles disabled');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
+function isDefault(c){return !c.flips&&c.target===DEF.target&&c.golden===DEF.golden&&c.noDbl===DEF.noDbl&&c.reroll===DEF.reroll&&!!c.verify===DEF.verify&&!!c.power===DEF.power&&!!c.triple===DEF.triple&&!!c.prime===DEF.prime}
+function cfgSummary(c){if(c.flips)return 'Flips';var x=[c.target+' Pig'];if(c.golden)x.push('Golden Points');if(c.power)x.push('Five Ones 2x');if(c.prime)x.push('Prime Pig');if(c.triple)x.push('Enable 3x');if(c.noDbl)x.push('Doubles disabled');if(c.reroll)x.push('Re-roll Pig');if(c.verify)x.push('Verify Double');return x.join(' · ')+(isDefault(c)?' (default rules)':'')}
 function points(a,b,m){return (a===1||b===1)?0:(a+b)*(a===b&&!RL().noDbl?2:1)*(m||1)}
 function barScore(){return Math.max.apply(null,S.players.map(function(p){return p.score}))}
 function leaders(){var b=barScore();return S.players.map(function(p,i){return p.score===b?i:-1}).filter(function(i){return i>=0})}
@@ -2506,6 +2525,7 @@ function finalRollMode(){return S.phase==='final'&&S.finalMode==='roll'&&!S.pr}
 function canPassTap(){return !S.busy&&!S.pend&&!!S.bust&&(S.phase==='play'||S.phase==='final')}
 function canRoll(){
   if(S.busy)return false;
+  if(flipsOn())return S.fl.win<0;
   if(S.phase==='menu'||S.phase==='setup')return true;
   if(S.pend)return false;
   if(S.phase==='order')return !S.ord.done;
@@ -2541,7 +2561,9 @@ var botTimer=0;
 function scheduleBot(){
   if(botTimer){clearTimeout(botTimer);botTimer=0}
   if(S.online)return;
-  if(S.busy||!isBotTurn())return;
+  if(S.busy)return;
+  if(flipsOn()&&S.fl.win>=0){if(S.players.every(function(p){return p.bot}))botTimer=setTimeout(function(){botTimer=0;if(!S.busy&&flipsOn()&&S.fl.win>=0){flipNext();render()}},2500);return}
+  if(!isBotTurn())return;
   if(S.phase==='order'&&S.ord.done)return;
   botTimer=setTimeout(botAct,(S.bust||S.finalDone)?1500:S.phase==='order'?700:950);
 }
@@ -2549,6 +2571,7 @@ function botAct(){
   botTimer=0;if(S.busy||!isBotTurn())return;
   if(S.phase==='order'){if(!S.ord.done)doRoll(botThrow());return}
   if(S.phase!=='play'&&S.phase!=='final')return;
+  if(flipsOn()){if(S.fl.win<0)doRoll(botThrow());return}
   if(S.bust||S.finalDone){nextPlayer();render();return}
   if(S.pend){if(botReroll(S.cur))doReroll();else takeBust();return}
   if(botDecide(S.cur)==='lock'){lockIn();render()}else doRoll(botThrow());
@@ -2562,6 +2585,7 @@ function botReroll(i){
 function botThrow(){return {dx:rand(-0.6,0.6),dy:1,x:T.w/2+rand(-T.w*0.15,T.w*0.15),y:margin(),speed:rand(1.05,1.4)}}
 function startGame(){
   S.rules={target:S.cfg.target,golden:S.cfg.golden,noDbl:S.cfg.noDbl,reroll:false,verify:false,power:!!S.cfg.power||!!S.cfg.prime,triple:!!S.cfg.triple,prime:!!S.cfg.prime};
+  if(S.cfg.flips)S.rules={flips:true,target:S.cfg.target,golden:false,noDbl:false,reroll:false,verify:false,power:false,triple:false,prime:false};
   S.players=[];for(var i=0;i<S.n;i++){var bot=S.types[i]==='h'?null:S.types[i];S.players.push({name:S.names[i]||(bot?botName(i):(i===S.youSeat&&myId().name)||'P'+(i+1)),score:0,wins:0,hot:false,bot:bot,you:!bot&&i===S.youSeat})}
   S.games=0;S.ledger=[];S.baseOrder=null;S.sess=S.players.map(function(){return {f:[0,0,0,0,0,0],d:0,lost:0,rolls:0}});
   beginOrder();
@@ -2574,7 +2598,45 @@ function beginOrder(){
   if(G>0&&S.baseOrder&&S.baseOrder.length===S.players.length){var r=G%S.baseOrder.length;all=S.baseOrder.slice(r).concat(S.baseOrder.slice(0,r))}
   else{all=S.players.map(function(_,i){return i});for(var k=all.length-1;k>0;k--){var j=rint(k+1),tmp=all[k];all[k]=all[j];all[j]=tmp}S.baseOrder=all.slice()}
   S.order=all;S.ord=null;S.hist=S.players.map(function(){return []});chartSel=-1;
+  if(RL().flips){beginFlips();return}
   startPlay();say((G>0?'Game '+(G+1)+': ':'')+P(S.order[0]).name+' goes first');
+}
+/* ---------- Flips: a different game. Everyone rolls 5 dice once (no doubles, a 1 counts as 1); the total locks in by itself.
+   Highest total wins the flip; players tied at the top flip again until one wins. S.fl holds the flip, p.fw each player's flip wins,
+   S.fl.net each player's Track $ result in cents. The server (shared/engine.js) runs the same rules for online tables. ---------- */
+function flipsOn(){var r=S.rules;return !!(r&&r.flips)&&S.phase==='play'&&!!S.fl}
+function beginFlips(){
+  S.phase='play';S.dice=[1,2,3,4,5];S.marks=['','','','',''];S.turn=0;S.rolls=[];S.bust=false;S.pend=null;S.hotTurn=false;S.hotX=1;S.powerTurn=false;
+  S.players.forEach(function(p){p.fw=p.fw||0});
+  S.fl={round:0,start:-1,q:[],cand:[],tot:{},win:-1,tie:null,re:0,net:S.players.map(function(){return 0})};
+  flipNext(true);
+}
+function flipNext(first){
+  var f=S.fl;if(!f||(!first&&f.win<0))return false;
+  f.round++;f.start=(f.start+1)%S.n;
+  var q=S.order.slice(f.start).concat(S.order.slice(0,f.start));
+  f.q=q.slice();f.cand=q.slice();f.tot={};f.win=-1;f.tie=null;f.re=0;S.cur=q[0];
+  say('Flip '+f.round+': '+P(q[0]).name+' flips first');return true;
+}
+function flipResult(vals){
+  var f=S.fl,i=S.cur,t=vals.reduce(function(x,y){return x+y},0),p=P(i);
+  f.tot[i]=t;f.q.shift();
+  if(p.st)vals.forEach(function(v){p.st.f[v-1]++});
+  if(f.q.length){S.cur=f.q[0];say(p.name+' flipped '+t);return {flip:t}}
+  var top=Math.max.apply(null,f.cand.map(function(c){return f.tot[c]})),tied=f.cand.filter(function(c){return f.tot[c]===top});
+  if(tied.length>1){f.tie=tied.slice();f.cand=tied.slice();f.q=tied.slice();f.re++;S.cur=f.q[0];
+    say('TIE AT '+top+' · '+tied.map(function(c){return P(c).name}).join(' & ')+' flip again','gold');return {flip:t,tie:tied}}
+  var w=tied[0];f.win=w;f.tie=null;P(w).fw=(P(w).fw||0)+1;
+  var M=RL().money,c=M?Math.round((+M.game||0)*100):0;
+  if(c>0)S.players.forEach(function(_,j){if(j!==w){f.net[j]-=c;f.net[w]+=c}});
+  S.cur=w;say(P(w).name+' wins the flip with '+top+'!','gold');
+  return {flip:t,win:w};
+}
+/* after a flip lands: a coin for a total, a fanfare for the winner, the prime chime for a tie */
+function flipAfter(fx){
+  try{if(navigator.vibrate&&fx.win!=null&&!(S.online&&fx.win!==S.me))navigator.vibrate([40,40,90])}catch(e){}
+  if(fx.win!=null)sfxDoubles(true);else if(fx.tie)sfxPrime();else sfxLock(fx.flip);
+  S.busy=false;render();onNext();scheduleBot();
 }
 function orderResult(sum){
   var o=S.ord,p=o.cont[o.i];o.keys[p].push(sum);say(P(p).name+' rolled '+sum);o.i++;
@@ -2714,12 +2776,15 @@ function endGame(){
 }
 function doRoll(dir){
   if(!canRoll())return;
+  if(flipsOn()){S.busy=true;S.rolling=true;say(null);S.marks=['','','','',''];render();var v=[d6(),d6(),d6(),d6(),d6()];ac();
+    throwDice(v,dir).then(function(){S.rolling=false;S.dice=v;flipAfter(flipResult(v))});return}
   S.busy=true;S.rolling=true;say(null);S.marks=['',''];render();
   var vals=[d6(),d6()];ac();
   throwDice(vals,dir).then(function(){S.rolling=false;S.dice=vals;after(rollResult(vals[0],vals[1])||{})});
 }
 /* Sounds, buzz and the snake-eyes fire after a roll (or after a player takes a bust they could have re-rolled). */
 function after(fx){
+  if(fx&&fx.flip!=null){flipAfter(fx);return}
   try{if(navigator.vibrate&&!fx.quiet&&!(S.online&&S.cur!==S.me))navigator.vibrate(fx.bust?[60,40,120]:12)}catch(e){}
   if(fx.bust&&!fx.quiet)sfxBust();else if(fx.dbl)sfxDoubles(S.hotTurn);
   var lost=fx.bust?(S.lost||0):0,snake=fx.bust&&(fx.snake||S.snake),bank=fx.burn||0;
@@ -3342,20 +3407,21 @@ function chartPick(e){
 }
 var bellPr=false;
 function render(){
+  var nd=flipsOn()?5:2;if(dice.length!==nd)setDiceCount(nd);$('app').classList.toggle('flipsmode',flipsOn());
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
   if(S.pr&&!bellPr&&S.phase==='final'){sfxBell();setTimeout(sfxPrime,900)}bellPr=!!S.pr&&S.phase==='final';
   if(TBL.skin&&TBL.skin.clear&&!(S.rolls&&S.rolls.length))TBL.skin.clear();
   renderMain();renderPrimes();tutUI();achToast();chatUI();applySkin();applyTable();acctUI();if(S.phase==='dice')renderSkins();
   $('exitBtn').hidden=S.online||['order','play','final','over'].indexOf(S.phase)<0;
   /* keep the table one size during a game: the panel under it only ever grows to its tallest so far, never shrinks back */
-  var pl=$('play');if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
+  var pl=$('play');if(flipsOn()){if(pl._minH){pl._minH=0;pl.style.minHeight=''}}else if(S.phase==='play'||S.phase==='final'){var hh=pl.offsetHeight;if(hh>(pl._minH||0)){pl._minH=hh;pl.style.minHeight=hh+'px'}}else if(pl._minH){pl._minH=0;pl.style.minHeight=''}
   /* spectators see the game but none of the controls */
   var W=S.online&&S.me<0,ip=S.phase==='play'||S.phase==='final';
   $('watchBar').hidden=!(W&&ip);$('rollBtn').hidden=W&&ip;if(W&&ip)$('lockBtn').hidden=true;
   if(W)$('watchName').textContent=ON.meta?ON.meta.name:'';
   var wn=S.online&&ON.meta&&ON.meta.watchers||0;$('watchN').hidden=!(wn&&ip);if(wn)$('watchN').innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>'+wn+' watching';
   if(S.phase==='over'){$('againBtn').hidden=W;$('newBtn').textContent=W?'Stop watching':'Main menu'}
-  if(blocked()&&!(S.phase==='order'&&S.ord&&S.ord.done)){$('rollBtn').disabled=true;$('lockBtn').disabled=true;$('hint').hidden=true}
+  if(blocked()&&!(S.phase==='order'&&S.ord&&S.ord.done)&&!(flipsOn()&&S.fl.win>=0)){$('rollBtn').disabled=true;$('lockBtn').disabled=true;$('hint').hidden=true}
   scheduleBot();
 }
 function renderMain(){
@@ -3406,7 +3472,9 @@ function renderMain(){
         foot='<span class="bar"><i style="width:'+bank+'%"></i><i class="pend" style="width:'+pend+'%"></i></span>';
       }
     }
-    var pending=i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
+    if(flipsOn()){var fl0=S.fl,ft=fl0.tot[i];val=ft!=null?ft:'–';if(fl0.win===i)cls+=' flipwin';if(fl0.tie&&fl0.tie.indexOf(i)>=0)cls+=' fliptie';
+      foot='<span class="tag fw">'+(p.fw||0)+' win'+((p.fw||0)===1?'':'s')+(RL().money&&RL().money.game?' · '+cash(fl0.net[i]||0,true):'')+'</span>'}
+    var pending=!flipsOn()&&i!==act&&(ph==='play'||(ph==='final'&&S.queue.indexOf(i)>=0))&&(hotReasons(i,RL().power&&p.pwReady)>0);
     var pw='';if(RL().power&&ph!=='order'){var fl=p.pwReady?5:(p.pw||0);pw='<span class="pw'+(p.pwReady?' full':'')+'" aria-label="Five Ones 2x '+fl+' of 5">';for(var d=0;d<5;d++)pw+='<i'+(d<fl?' class="on"':'')+'></i>';if(p.pwReady&&p.pwCarry)pw+='<b class="pwc">+'+p.pwCarry+'</b>';pw+='</span>'}
     var capH='';if(RL().prime&&ph!=='order'){var cp=primeCaps(i);if(cp.length){
       /* captured primes stack down the left edge of the tag (up to 4), then the right edge (up to 4 more) */
@@ -3480,6 +3548,15 @@ function renderMain(){
     note.textContent=o.msg||'Highest roll goes first. A tie at the top rolls again.';
     return;
   }
+  if(flipsOn()){
+    var f=S.fl;stats.hidden=true;rolls.hidden=true;lb.hidden=true;
+    var cM=RL().money&&RL().money.game?Math.round(RL().money.game*100):0;
+    if(f.win>=0){setWho(P(f.win).name+' wins flip '+f.round+'!');rb.textContent='Next flip';rb.disabled=S.busy||(S.online&&(S.me<0||ON.watch));
+      note.textContent='Won with '+f.tot[f.win]+'.'+(cM?' '+P(f.win).name+' collects '+cash(cM)+' from each player.':'')+' Tap Next flip or the table to go again.'}
+    else{var fp=P(S.cur);setWho(f.tie?'Tie! '+fp.name+' flips again':fp.name+(f.round>1||f.q.length<S.n?' to flip':' flips first'));rb.textContent='Flip';rb.disabled=S.busy||(S.online?blocked():isBotTurn());
+      note.textContent=f.tie?'Tied at the top: '+f.tie.map(function(c){return P(c).name}).join(' and ')+' flip again.':'Roll all 5 dice. Highest total wins the flip'+(cM?' and '+cash(cM)+' from each player':'')+'.'}
+    return;
+  }
   var p=P(S.cur),bar=barScore(),nx=nextIdx();
   stats.hidden=false;
   if(finalRollMode()){
@@ -3549,6 +3626,7 @@ function renderScreens(ph){
     $('tSound').setAttribute('aria-checked',S.sound?'true':'false');$('shakeOpt').hidden=!SHAKE.ok;$('tShake').setAttribute('aria-checked',S.shake?'true':'false');
     $('shakeNote').textContent=SHAKE.denied?'Motion access was turned down. Close and reopen the page, then turn this on again.':'Shake your phone to roll the dice. iPhones ask for motion access the first time.';
     $('tGolden').setAttribute('aria-checked',c.golden?'true':'false');
+    $('tFlips').setAttribute('aria-checked',c.flips?'true':'false');$('ruleOpts').classList.toggle('flipsoff',!!c.flips);$('tgSet').classList.toggle('flipsoff',!!c.flips);$('tgSet').disabled=!!c.flips;
     $('tNoDbl').setAttribute('aria-checked',c.noDbl?'true':'false');
     $('tReroll').setAttribute('aria-checked',c.reroll?'true':'false');
     $('tVerify').setAttribute('aria-checked',c.verify?'true':'false');
@@ -3561,6 +3639,7 @@ function renderScreens(ph){
 /* the rules, in table-talk style, matching whichever rules this game (or Settings) has switched on */
 function rulesHTML(){
   var c=RL(),T=c.target,h='',dbl=!c.noDbl;
+  if(c.flips)return '<p><b>Flips</b> is a quick game of chance with 5 dice. Each player rolls all 5 dice once. Every die counts what it shows (a 1 is 1, a 6 is 6) and there are no doubles. The total locks in by itself and the dice pass to the next player.</p><p>When everyone has flipped, the <b>highest total wins the flip</b>. Players tied at the top flip again until one of them wins.</p><p>The number under each name tag counts flips won. Tap <b>Next flip</b> to go again; the first flip moves one seat along each time.</p>'+(c.money&&c.money.game?'<p><b>Track $:</b> the winner of each flip collects '+cash(Math.round(c.money.game*100))+' from every other player. The running total is on each name tag.</p>':'');
   h+='<p>You and the dice. Roll as long as you’ve got the nerve: <b>every roll adds up'+(dbl?', doubles pay double.':'.')+'</b></p>';
   if(!dbl)h+='<p class="rnote">Doubles are switched off: a double just scores what it shows.</p>';
   h+='<p>But the 1s are out to get you:</p><ul><li><b>One 1:</b> your turn’s gone. Nothing banked.</li><li><b>Two 1s (snake eyes):</b> your whole score burns to zero.</li></ul>';
@@ -3605,6 +3684,7 @@ $('presetSolo').addEventListener('click',function(){readSetup();var c=['b','c','
 $('presetAll').addEventListener('click',function(){readSetup();for(var i=0;i<6;i++)S.types[i]='h';savePrefs();render()});
 $('rollBtn').addEventListener('click',function(){
   shakeAsk();
+  if(flipsOn()){flipTap(null);return}
   if(S.online){if(S.busy||blocked())return;ac();onSend(S.pend?'reroll':(S.bust?'pass':'roll'));return}
   if(S.busy)return;ac();
   if(isBotTurn()&&!(S.phase==='order'&&S.ord.done))return;
@@ -3616,6 +3696,13 @@ $('rollBtn').addEventListener('click',function(){
 $('lockBtn').addEventListener('click',function(){if(S.online){if(S.busy||blocked())return;onSend(S.pend?'take':'lock');return}if(isBotTurn())return;if(S.pend){takeBust();return}lockIn();render()});
 $('againBtn').addEventListener('click',function(){if(S.online){ac();onVote();return}ac();$('over').scrollTop=0;showPage(0,false);beginOrder();render()});
 var leave=$('leaveDlg');
+/* Flips: the button (or a tap on the table) flips, or starts the next flip once one is won. Online, anyone seated can start the next flip. */
+function flipTap(dir){
+  if(S.online){if(S.busy)return;if(S.fl.win>=0){if(S.me>=0&&!ON.watch){ac();onSend('next')}}else if(!blocked()&&canRoll()){ac();onSend('roll',{dir:dir})}return}
+  if(S.busy)return;ac();
+  if(S.fl.win>=0){flipNext();render();scheduleBot();return}
+  if(isBotTurn())return;doRoll(dir);
+}
 function askLeave(){
   $('leaveTitle').textContent=S.online?'Leave the table?':'Back to the main menu?';
   $('leaveText').textContent=S.online?'The game ends for everyone at the table. Every finished game is already saved to each player.':'All scores for these players will be lost: this game, the scoreboard totals and the games-won tally.';
@@ -3881,6 +3968,7 @@ $('dice').addEventListener('click',function(e){
 $('backDice').addEventListener('click',function(){S.phase=LK.from==='dice'?'menu':LK.from;if(S.phase==='shop')renderShop();if(S.phase==='online')onEnter();if(S.phase==='ach')loadMe();render()});
 $('tShake').addEventListener('click',function(){S.shake=!S.shake;SHAKE.denied=false;savePrefs();if(S.shake)shakeAsk();render()});
 $('tGolden').addEventListener('click',function(){setCfg('golden',!S.cfg.golden)});
+$('tFlips').addEventListener('click',function(){setCfg('flips',!S.cfg.flips)});
 $('tNoDbl').addEventListener('click',function(){setCfg('noDbl',!S.cfg.noDbl)});
 $('tReroll').addEventListener('click',function(){setCfg('reroll',!S.cfg.reroll)});
 $('tVerify').addEventListener('click',function(){setCfg('verify',!S.cfg.verify)});
@@ -3888,7 +3976,7 @@ $('tPower').addEventListener('click',function(){if(S.cfg.power)S.cfg.prime=false
 $('tPrime').addEventListener('click',function(){if(!S.cfg.prime)S.cfg.power=true;setCfg('prime',!S.cfg.prime)});
 $('tTriple').addEventListener('click',function(){setCfg('triple',!S.cfg.triple)});
 ['tg80','tg100','tg150','tg200'].forEach(function(id){$(id).addEventListener('change',function(){setCfg('target',+$(id).value)})});
-$('defaultsBtn').addEventListener('click',function(){S.cfg={target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,triple:DEF.triple,prime:DEF.prime,timer:DEF.timer};savePrefs();render()});
+$('defaultsBtn').addEventListener('click',function(){S.cfg={flips:false,target:DEF.target,golden:DEF.golden,noDbl:DEF.noDbl,reroll:DEF.reroll,verify:DEF.verify,power:DEF.power,triple:DEF.triple,prime:DEF.prime,timer:DEF.timer};savePrefs();render()});
 $('closeRules').addEventListener('click',function(){dlg.close()});
 $('soundBtn').addEventListener('click',function(){S.sound=!S.sound;savePrefs();render();if(S.sound)sfxLock()});
 $('quitBtn').addEventListener('click',function(){dlg.close();if(S.online&&S.me<0){stopWatching();return}askLeave()});
@@ -3906,10 +3994,10 @@ tray.addEventListener('pointerup',function(e){
   shakeAsk();
   if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
   if(dist>24)dir={dx:dx,dy:dy,x:pd.x-r.left,y:pd.y-r.top,speed:clamp(dist/dt*1.1,0.85,1.9)};
-  pd=null;if(S.online){if(!S.busy&&!blocked()){if(canRoll()){ac();onSend('roll',{dir:dir})}else if(canPassTap()){ac();onSend('pass')}}return}if(isBotTurn())return;doRoll(dir);
+  pd=null;if(flipsOn()){flipTap(dir);return}if(S.online){if(!S.busy&&!blocked()){if(canRoll()){ac();onSend('roll',{dir:dir})}else if(canPassTap()){ac();onSend('pass')}}return}if(isBotTurn())return;doRoll(dir);
 });
 tray.addEventListener('pointercancel',function(){pd=null});
-tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(S.online){if(!S.busy&&!blocked()){if(canRoll())onSend('roll');else if(canPassTap())onSend('pass')}return}if(!isBotTurn())doRoll(null)}});
+tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(flipsOn()){flipTap(null);return}if(S.online){if(!S.busy&&!blocked()){if(canRoll())onSend('roll');else if(canPassTap())onSend('pass')}return}if(!isBotTurn())doRoll(null)}});
 if(window.ResizeObserver)new ResizeObserver(layout).observe(tray);
 window.addEventListener('resize',layout);
 window.addEventListener('resize',function(){var pl=$('play');pl._minH=0;pl.style.minHeight='';render()});
@@ -4018,7 +4106,7 @@ function loadMe(){
     if(S.phase==='online')renderOnline();if(S.phase==='ach')renderAch();if(S.phase==='gh')renderHist();if(S.phase==='dice')renderSkins();if(S.phase==='shop')renderShop();acctUI();if($('acctDlg').open)acctFill();
   }).catch(function(e){if(String(e.message).indexOf('401')>=0){AUTH=null;authSave();ON.user=null;if(S.phase==='online')renderOnline()}});
 }
-function rulesLine(r){var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.prime)x.push('Prime Pig');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
+function rulesLine(r){if(r.flips)return 'Flips'+(r.money&&r.money.game?' · '+cash(Math.round(r.money.game*100))+' a flip':'')+' · '+(r.timer===0?'no timer':(r.timer===60?'1 min':r.timer+' sec')+' turns');var x=[r.target+' Pig'];if(r.golden)x.push('Golden Points');if(r.power)x.push('Five Ones 2x');if(r.prime)x.push('Prime Pig');if(r.triple)x.push('Enable 3x');if(r.noDbl)x.push('no doubles');if(r.money)x.push('Track $ ('+moneyLine(r.money,r.golden)+')');if(r.reroll)x.push('Re-roll Pig');if(r.verify)x.push('Verify Double');x.push(r.timer===0?'no timer':(r.timer===60?'1 min':(r.timer||30)+'s')+' turns');return x.join(' · ')}
 var LOCK='<svg class="lock" viewBox="0 0 12 13" aria-label="Private" role="img"><rect x="1" y="5.5" width="10" height="7" rx="1.5" fill="currentColor"/><path d="M3.5 5.5V4a2.5 2.5 0 0 1 5 0v1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
 function signCardHome(){var c=$('signCard');$('signIntro').textContent='Sign in to play online. Your achievements and table history are saved to your account, on any phone.';if(ON.cardHome&&c.parentNode!==ON.cardHome)ON.cardHome.insertBefore(c,ON.cardNext||null)}
 function renderOnline(){
@@ -4065,16 +4153,17 @@ document.addEventListener('toggle',function(e){var t=e.target;if(t&&t.classList&
 function ordinalN(n){return n+ordinal(n)}
 /* online tables start from their own defaults (Five Ones 2x on, no timer); a host's last choices are remembered.
    Golden Points are part of Track $ when hosting: on only with Track $ on and its Golden Points switch on. */
-var ONLINE_DEF={target:100,golden:false,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:0,track:{on:false,game:'',point:'',golden:'',gold:false}};
+var ONLINE_DEF={flips:false,target:100,golden:false,noDbl:false,reroll:false,verify:false,power:true,triple:false,prime:false,timer:0,track:{on:false,game:'',point:'',golden:'',gold:false}};
 function hostDefaults(){var c={},k,sv=null;for(k in ONLINE_DEF)c[k]=ONLINE_DEF[k]&&typeof ONLINE_DEF[k]==='object'?Object.assign({},ONLINE_DEF[k]):ONLINE_DEF[k];try{sv=JSON.parse(localStorage.getItem('degenpig-hostcfg')||'null')}catch(e){}
   if(sv)for(k in ONLINE_DEF)if(typeof sv[k]===typeof ONLINE_DEF[k]&&sv[k]!==null)c[k]=sv[k];c.reroll=false;c.verify=false;c.noDbl=false;c.track=Object.assign({on:false,game:'',point:'',golden:'',gold:false},c.track);c.track.gold=!!c.track.gold;c.golden=!!(c.track.on&&c.track.gold);return c}
 /* Track $: the amounts the host typed, as numbers (or null when off or empty) */
 function trackMoney(c){var t=c&&c.track;if(!t||!t.on)return null;var v=function(x){var n=Math.round(parseFloat(String(x||'').replace(/[^0-9.]/g,''))*100)/100;return isFinite(n)&&n>0?Math.min(n,100000):0};
+  if(c.flips){var g=v(t.game);return g?{game:g,point:0,golden:0}:null}
   var m={game:v(t.game),point:v(t.point),golden:c.golden?v(t.golden):0};return m.game||m.point||m.golden?m:null}
 function cash(cents,sign){var a=Math.abs(cents)/100,t=a%1?a.toFixed(2):String(a);t=t.replace(/\B(?=(\d{3})+(?!\d))/g,',');return (sign?(cents>0?'+':cents<0?'−':''):'')+'$'+t}
 /* Track $ table name when the host leaves the name blank, e.g. "$10/Game $.25/Pt $1/GP" */
 function trackName(m,golden){var d=function(v){var t=v%1?v.toFixed(2):String(v);return '$'+t.replace(/^0\./,'.')};
-  var x=[];if(m.game)x.push(d(m.game)+'/Game');if(m.point)x.push(d(m.point)+'/Pt');if(golden&&m.golden)x.push(d(m.golden)+'/GP');return x.join(' ')}
+  var x=[];if(m.game&&!m.point&&!m.golden&&ON.hcfg&&ON.hcfg.flips)return d(m.game)+'/Flip';if(m.game)x.push(d(m.game)+'/Game');if(m.point)x.push(d(m.point)+'/Pt');if(golden&&m.golden)x.push(d(m.golden)+'/GP');return x.join(' ')}
 function moneyLine(m,golden){var x=[];if(m.game)x.push(cash(m.game*100)+' game');if(m.point)x.push(cash(m.point*100)+' pt');if(golden&&m.golden)x.push(cash(m.golden*100)+' golden');return x.join(' · ')}
 function renderHost(){
   $('hSeats').textContent=ON.hostSeats;$('hLess').disabled=ON.hostSeats<=2;$('hMore').disabled=ON.hostSeats>=6;
@@ -4088,6 +4177,10 @@ function renderHost(){
   $('hTrack').classList.toggle('on',!!tk.on);$('hTrack').setAttribute('aria-expanded',tk.on?'true':'false');$('hMoney').hidden=!tk.on;
   var mo=trackMoney(c);$('hName').placeholder=mo?trackName(mo,c.golden):'Monday night pigs';$('hTrackSub').textContent=!tk.on?'Off':mo?'On · '+cash(Math.round(mo.game*100))+' a game':'Fill in amounts';
   ['game','point','golden'].forEach(function(k){var el=$('hM'+k);if(document.activeElement!==el)el.value=tk[k]||''});
+  var FL=!!c.flips;if(FL)c.golden=false;
+  $('hOpts').classList.toggle('flipsoff',FL);$('htSet').classList.toggle('flipsoff',FL);$('htSet').disabled=FL;
+  $('hMptRow').hidden=FL;$('hMcap').textContent=FL?'The game does the math after every flip: the winner collects the amount from each other player.':'The game does the math after every game: the winner collects from each other player.';$('hGoldOpt').hidden=FL;$('hMgameLab').innerHTML=FL?'Flip<small>Paid by each player to the winner of each flip</small>':'Game<small>Paid by each player to the winner</small>';
+  if(FL&&tk.on)$('hTrackSub').textContent=mo?'On · '+cash(Math.round(mo.game*100))+' a flip':'Fill in the amount';
   $('hGoldTog').setAttribute('aria-checked',tk.gold?'true':'false');$('hMgoldRow').hidden=!c.golden;
   $('hMnote').textContent=c.golden?'Points are paid on scores up to '+c.target+'; anything past '+c.target+' is paid at the Golden Point amount.':'';$('hMnote').hidden=!c.golden;
 }
@@ -4332,7 +4425,7 @@ function pump(){
     ON.busy=true;S.online=true;S.me=m.you;S.busy=true;S.rolling=true;say(null);S.marks=['',''];
     if(S.phase!=='play'&&S.phase!=='final')applyState(m);
     render();ac();
-    throwDice([ev.roll.a,ev.roll.b],ev.roll.dir||null).then(function(){S.rolling=false;applyState(m);sideFx(ev);after(ev.fx||{})});
+    throwDice(ev.roll.vals||[ev.roll.a,ev.roll.b],ev.roll.dir||null).then(function(){S.rolling=false;applyState(m);sideFx(ev);after(ev.fx||{})});
     return;
   }
   applyState(m);sideFx(ev);S.busy=false;render();pump();
@@ -4383,7 +4476,7 @@ $('hOpts').addEventListener('click',function(e){var b=e.target.closest('.tog');i
 $('hCreate').addEventListener('click',function(){
   var priv=$('hPriv').checked,pw=$('hPw').value.trim(),me=myId();
   if(priv&&pw.length<3){$('hMsg').textContent='Give a private table a password of at least 3 characters.';return}
-  ON.hcfg.golden=!!(ON.hcfg.track&&ON.hcfg.track.on&&ON.hcfg.track.gold);
+  ON.hcfg.golden=!ON.hcfg.flips&&!!(ON.hcfg.track&&ON.hcfg.track.on&&ON.hcfg.track.gold);
   if(ON.hcfg.track&&ON.hcfg.track.on&&!trackMoney(ON.hcfg)){$('hMsg').textContent='Fill in at least one Track $ amount, or turn Track $ off.';$('hMgame').focus();return}
   var b=this;b.disabled=true;$('hMsg').textContent='';
   try{localStorage.setItem('degenpig-hostcfg',JSON.stringify(ON.hcfg))}catch(e){}

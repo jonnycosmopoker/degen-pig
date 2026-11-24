@@ -44,7 +44,10 @@ function cleanMoney(m) {
 }
 export function cleanRules(r) {
   r = r || {}; const t = [80, 100, 150, 200].includes(r.target) ? r.target : 100;
-  return { target: t, golden: !!r.golden, noDbl: false,   /* Disable Doubles isn't offered for online tables */ reroll: false, verify: false,   /* Re-roll Pig and Verify Double are off for now */ power: !!r.power || !!r.prime, triple: !!r.triple, prime: !!r.prime, money: cleanMoney(r.money), timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
+  const out = { target: t, golden: !!r.golden, noDbl: false,   /* Disable Doubles isn't offered for online tables */ reroll: false, verify: false,   /* Re-roll Pig and Verify Double are off for now */ power: !!r.power || !!r.prime, triple: !!r.triple, prime: !!r.prime, flips: !!r.flips, money: cleanMoney(r.money), timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
+  /* Flips is its own game: every other option is off, and Track $ is one amount per flip */
+  if (out.flips) { Object.assign(out, { golden: false, power: false, triple: false, prime: false }); if (out.money) out.money = out.money.game ? { game: out.money.game, point: 0, golden: 0 } : null }
+  return out;
 }
 
 export class TableRoom {
@@ -160,7 +163,7 @@ export class TableRoom {
       case 'look': this.setLook(this.seats[seatIdx], m.look); return this.broadcast();
       case 'leave': return this.leave(seatIdx);
       case 'again': return this.voteAgain(c.uid);
-      case 'roll': case 'lock': case 'reroll': case 'take': case 'pass': return this.act(seatIdx, m);
+      case 'roll': case 'lock': case 'reroll': case 'take': case 'pass': case 'next': return this.act(seatIdx, m);
       case 'emote': return this.emote(c, seatIdx, m.e);
     }
   }
@@ -254,11 +257,13 @@ export class TableRoom {
   }
   act(i, m) {
     const S = this.G; if (!S || (S.phase !== 'play' && S.phase !== 'final')) return;
+    /* Flips: once a flip is won, anyone sitting at the table can start the next one */
+    if (m.t === 'next') { if (!S.rules.flips || !S.fl || S.fl.win < 0 || this.now() < this.busyUntil - 400 * this.k) return; S.fx = null; S.unlocks = []; if (this.E.flipNext()) this.after({ fx: S.fx }); return }
     if (S.cur !== i || this.E.ctrl(i)) return;                   /* not your turn, or a computer is playing your seat */
     if (this.now() < this.busyUntil - 400 * this.k) return;               /* dice still rolling */
     S.fx = null; S.unlocks = [];
     let ev = null;
-    if (m.t === 'roll') { const r = this.E.roll(); if (!r) return; ev = { roll: { a: r.a, b: r.b, dir: m.dir || null }, fx: r.fx } }
+    if (m.t === 'roll') { const r = this.E.roll(); if (!r) return; ev = { roll: { a: r.a, b: r.b, vals: r.vals || null, dir: m.dir || null }, fx: r.fx } }
     else if (m.t === 'reroll') { const r = this.E.reroll(); if (!r) return; ev = { roll: { a: r.a, b: r.b, dir: null }, fx: r.fx } }
     else if (m.t === 'take') { const fx = this.E.takeBust(); if (!fx) return; ev = { fx } }
     else if (m.t === 'lock') { if (!this.E.lockIn()) return; ev = { fx: S.fx } }
@@ -279,6 +284,11 @@ export class TableRoom {
     if (this.timer) { clearTimeout(this.timer); this.timer = null } this.deadline = 0;
     const S = this.G; if (!S || this.meta.status !== 'playing' || (S.phase !== 'play' && S.phase !== 'final')) return;
     const wait = Math.max(0, this.busyUntil - this.now()), i = S.cur;
+    /* Flips: a won flip waits for someone at the table to tap Next flip (or starts by itself when only computers are left) */
+    if (S.rules.flips && S.fl && S.fl.win >= 0) {
+      if (!this.seats.some(s => s.uid && !s.away && !s.rc)) this.timer = setTimeout(() => { this.timer = null; S.fx = null; if (this.E.flipNext()) this.after({ fx: S.fx }) }, wait + 2500 * this.k);
+      this.broadcastDeadline(); return;
+    }
     if (this.E.ctrl(i)) { this.timer = setTimeout(() => this.botStep(), wait + (S.bust ? 1500 * this.k : (BOT_MS * this.k))); return }
     if (S.bust) { this.timer = setTimeout(() => { this.timer = null; S.fx = null; if (this.E.pass()) this.after({ fx: S.fx }) }, wait + (BUST_PASS_MS * this.k)); return }
     if (S.players[i].rc) {   /* paused: show everyone how long until a computer steps in */
@@ -286,14 +296,16 @@ export class TableRoom {
       this.broadcastDeadline(); return }
     if (S.rules.timer === 0) { this.broadcastDeadline(); return }   /* No timer: wait as long as it takes */
     const ms = S.rules.timer * 1000 * this.k; this.deadline = this.now() + wait + ms;
-    this.timer = setTimeout(() => { this.timer = null; S.fx = null; S.unlocks = []; const who = S.players[S.cur].name; if (this.E.timeout()) this.after({ fx: S.fx, note: who + ' ran out of time.' }) }, wait + ms);
+    this.timer = setTimeout(() => { this.timer = null; S.fx = null; S.unlocks = []; const who = S.players[S.cur].name;
+      if (S.rules.flips) { const r = this.E.roll(); if (r) this.after({ roll: { a: r.a, b: r.b, vals: r.vals, dir: null }, fx: r.fx, note: who + ' ran out of time, so the dice flipped for them.' }); return }
+      if (this.E.timeout()) this.after({ fx: S.fx, note: who + ' ran out of time.' }) }, wait + ms);
     this.broadcastDeadline();
   }
   botStep() {
     this.timer = null; const S = this.G; if (!S || (S.phase !== 'play' && S.phase !== 'final') || !this.E.ctrl(S.cur)) return this.tick();
     S.fx = null; S.unlocks = [];
     const mv = this.E.botMove(); let ev = { fx: S.fx };
-    if (mv.kind === 'roll' && mv.result) ev = { roll: { a: mv.result.a, b: mv.result.b, dir: null }, fx: mv.result.fx };
+    if (mv.kind === 'roll' && mv.result) ev = { roll: { a: mv.result.a, b: mv.result.b, vals: mv.result.vals || null, dir: null }, fx: mv.result.fx };
     else if (mv.kind === 'take') ev = { fx: mv.result };
     this.after(ev);
   }
