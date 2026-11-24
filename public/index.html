@@ -3829,7 +3829,7 @@ $('setupSettings').addEventListener('click',function(){readSetup();S.phase='sett
 $('mAch').addEventListener('click',function(){S.phase='ach';$('ach').scrollTop=0;loadMe();render()});
 $('backAch').addEventListener('click',toMenu);
 $('achWho').addEventListener('click',function(e){var b=e.target.closest('button[data-k]');if(b){achSel=b.getAttribute('data-k');renderAch()}});
-$('mShop').addEventListener('click',function(){S.phase='shop';SHOP.tab='bundles';shopMsg('');$('shop').scrollTop=0;renderShop();render()});
+$('mShop').addEventListener('click',function(){S.phase='shop';SHOP.tab='bundles';shopMsg('');$('shop').scrollTop=0;renderShop();render();loadMe()});   /* reload the account so purchases and refunds show up to date */
 $('backShop').addEventListener('click',toMenu);
 document.querySelector('.shoptabs').addEventListener('click',function(e){var b=e.target.closest('button[data-tab]');if(!b)return;SHOP.tab=b.getAttribute('data-tab');shopMsg('');renderShop()});
 /* a bundle's preview video only loads and plays while its Preview drop-down is open */
@@ -4013,7 +4013,7 @@ function achMigrate(){
 function loadMe(){
   if(!AUTH){ON.user=null;ON.rec=null;return}
   authed('/api/me').then(function(d){
-    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;try{if(ON.admin)localStorage.setItem('degenpig-owner','1');else localStorage.removeItem('degenpig-owner')}catch(e){}applySkin();applyTable();if(S.phase==='play'||S.phase==='final'||S.phase==='order')render();achMigrate();
+    ON.user=d.user;ON.rec=d.rec;ON.admin=!!d.admin;try{if(ON.admin)localStorage.setItem('degenpig-owner','1');else localStorage.removeItem('degenpig-owner')}catch(e){}applySkin();applyTable();if(S.phase==='play'||S.phase==='final'||S.phase==='order')render();if(S.phase==='shop'){var y=window.scrollY;renderShop();window.scrollTo(0,y)}if(S.phase==='dice')renderSkins();achMigrate();
     var o=myId();if(!o.name&&d.user.name){o.name=d.user.name.split(' ')[0].slice(0,10);try{localStorage.setItem('degenpig-id',JSON.stringify(o))}catch(e){}}
     /* the first sign-in on a phone that already played online moves that phone's record onto the account */
     try{if(!localStorage.getItem('degenpig-claimed')){localStorage.setItem('degenpig-claimed','1');authed('/api/claim',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({legacy:o.uid})}).then(function(){setTimeout(loadMe,300)}).catch(function(){})}}catch(e){}
