@@ -2385,7 +2385,7 @@ function draw(d){
   d.sh.style.transform='translate3d('+(d.x-D/2+d.z*D*0.45)+'px,'+(d.y-D/2+D*0.1+d.z*D*0.8)+'px,0) rotate('+d.spin+'deg) scale('+(1+d.z*0.25)+')';
   d.sh.style.opacity=String(0.9-d.z*0.5);
 }
-function showFaces(){dice.forEach(function(d,i){var rk=flipRacked(i),f=FACE[rk?1:(S.dice&&S.dice[i])||(i%6)+1];d.rx=f[0];d.ry=f[1];d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')+(rk?' rack':'')})}
+function showFaces(){dice.forEach(function(d,i){var rk=flipRacked(i),f=FACE[rk?1:(S.dice&&S.dice[i])||(i%6)+1];d.rx=f[0];d.ry=f[1];d.el.className='die'+(S.marks[i]?' '+S.marks[i]:'')+(rk?' rack':'')+((FLR.rd&&FLR.rd.k===i)||(FLR.drag&&FLR.drag.i===i)?' held':'')})}
 function layout(){
   var r=tray.getBoundingClientRect();if(r.width<10||r.height<10)return;
   T={w:r.width,h:r.height};
@@ -2660,8 +2660,23 @@ function flipRoll(idx,dir){
   });
 }
 /* the rack: the dice still to roll wait in a row along the bottom of the table */
-var FLR={hold:0,drag:null};
-function flipRacked(k){return flipsOn()&&S.fl.vals&&S.fl.vals[k]==null&&!(FLR.hold>performance.now())&&!S.rolling}
+var FLR={hold:0,drag:null,rd:null};
+/* online: another player dragging a die. Their phone sends where it is; this one glides the die there. Drawing only:
+   the result still comes from the server when they let go. */
+function flipRemoteDrag(m){
+  if(!flipsOn()||S.fl.win>=0||!S.fl.vals||S.fl.vals[m.k]!=null||S.rolling)return;var d=dice[m.k];if(!d)return;
+  if(!m.h){if(FLR.rd&&FLR.rd.k===m.k){FLR.rd=null;d.el.classList.remove('held');d.z=0;rackDice()}return}
+  if(!FLR.rd||FLR.rd.k!==m.k){if(FLR.rd){var o=dice[FLR.rd.k];o.el.classList.remove('held');o.z=0}FLR.rd={k:m.k};d.el.classList.remove('rack');d.sh.classList.remove('rack');d.el.classList.add('held')}
+  FLR.rd.tx=m.x*T.w;FLR.rd.ty=m.y*T.h;FLR.rd.t=performance.now();
+  if(!FLR.rdAnim){FLR.rdAnim=1;requestAnimationFrame(flipRdStep)}
+}
+function flipRdStep(){
+  var r=FLR.rd;if(!r||S.rolling){FLR.rdAnim=0;return}var d=dice[r.k];
+  if(performance.now()-r.t>3500){FLR.rd=null;FLR.rdAnim=0;d.el.classList.remove('held');d.z=0;rackDice();return}   /* lost track of them: back to the rack */
+  d.x+=(r.tx-d.x)*0.35;d.y+=(r.ty-d.y)*0.35;d.z+=(0.35-d.z)*0.3;draw(d);requestAnimationFrame(flipRdStep);
+}
+function flipSendDrag(h){var g=FLR.drag;if(!S.online||!g)return;var d=dice[g.i];onSend('drag',{k:g.i,x:d.x/T.w,y:d.y/T.h,h:h?1:0})}
+function flipRacked(k){return flipsOn()&&S.fl.vals&&S.fl.vals[k]==null&&!(FLR.hold>performance.now())&&!S.rolling&&!(FLR.rd&&FLR.rd.k===k)}
 function rackPos(k){var m=margin(),sp=Math.min(D*1.22,(T.w-2*m)/4);return {x:T.w/2+(k-2)*sp,y:T.h-m-D*0.12}}
 function rackDice(){if(!flipsOn())return;dice.forEach(function(d,k){if(!flipRacked(k)||(FLR.drag&&FLR.drag.i===k))return;var p=rackPos(k);d.el.classList.add('rack');d.sh.classList.add('rack');d.x=p.x;d.y=p.y;d.z=0;d.spin=0;d.rx=FACE[1][0];d.ry=FACE[1][1];draw(d)})}
 function flipCount(){var v=S.fl.vals||[],n=0,t=0;v.forEach(function(x){if(x!=null){n++;t+=x}});return {n:n,t:t}}
@@ -3441,7 +3456,7 @@ function chartPick(e){
 }
 var bellPr=false;
 function render(){
-  var nd=flipsOn()?5:2;if(dice.length!==nd)setDiceCount(nd);$('app').classList.toggle('flipsmode',flipsOn());if(flipsOn()&&!S.busy)rackDice();
+  var nd=flipsOn()?5:2;if(dice.length!==nd)setDiceCount(nd);$('app').classList.toggle('flipsmode',flipsOn());if(flipsOn())rackDice();
   if(S.phase==='final'&&bellPh==='play')sfxBell();bellPh=S.phase;
   if(S.pr&&!bellPr&&S.phase==='final'){sfxBell();setTimeout(sfxPrime,900)}bellPr=!!S.pr&&S.phase==='final';
   if(TBL.skin&&TBL.skin.clear&&!(S.rolls&&S.rolls.length))TBL.skin.clear();
@@ -4031,16 +4046,19 @@ function flipDieAt(e){var r=tray.getBoundingClientRect(),x=e.clientX-r.left,y=e.
 tray.addEventListener('pointerdown',function(e){
   if(!flipCanDrag())return;var k=flipDieAt(e);if(k<0)return;
   e.preventDefault();e.stopImmediatePropagation();pd=null;try{tray.setPointerCapture(e.pointerId)}catch(er){}
-  var d=dice[k];FLR.drag={i:k,id:e.pointerId,pts:[[e.clientX,e.clientY,performance.now()]]};d.el.classList.remove('rack');d.sh.classList.remove('rack');d.el.classList.add('held');d.z=0.35;draw(d);
+  var d=dice[k];FLR.drag={i:k,id:e.pointerId,pts:[[e.clientX,e.clientY,performance.now()]],sent:0};d.el.classList.remove('rack');d.sh.classList.remove('rack');d.el.classList.add('held');d.z=0.35;draw(d);
+  if(S.online){flipSendDrag(true);FLR.drag.hb=setInterval(function(){flipSendDrag(true)},1000)}   /* keep the others' view alive even while the finger holds still */
 },true);
 tray.addEventListener('pointermove',function(e){
   var g=FLR.drag;if(!g||g.id!==e.pointerId)return;e.preventDefault();
   var r=tray.getBoundingClientRect(),m=margin(),d=dice[g.i];d.x=clamp(e.clientX-r.left,m,T.w-m);d.y=clamp(e.clientY-r.top,m,T.h-m);draw(d);
   g.pts.push([e.clientX,e.clientY,performance.now()]);if(g.pts.length>8)g.pts.shift();
+  var nw=performance.now();if(S.online&&nw-g.sent>=60){g.sent=nw;flipSendDrag(true)}
 });
 function flipDrop(e,cancel){
-  var g=FLR.drag;if(!g)return;FLR.drag=null;var d=dice[g.i];d.el.classList.remove('held');d.z=0;
-  if(cancel||!flipCanDrag()){rackDice();return}
+  var g=FLR.drag;if(!g)return;clearInterval(g.hb);var d=dice[g.i];d.el.classList.remove('held');d.z=0;
+  if(cancel||!flipCanDrag()){if(S.online)flipSendDrag(false);FLR.drag=null;rackDice();return}
+  FLR.drag=null;
   var now=performance.now(),pts=g.pts.filter(function(p){return now-p[2]<120}),a=pts[0]||g.pts[0],b=g.pts[g.pts.length-1],ms=Math.max(16,b[2]-a[2]);
   var vx=(b[0]-a[0])/ms*1000,vy=(b[1]-a[1])/ms*1000,sp=Math.hypot(vx,vy),base=Math.max(T.w,T.h)*1.7;
   if(sp<60){var an=-Math.PI/2+rand(-1,1);vx=Math.cos(an);vy=Math.sin(an)}
@@ -4463,6 +4481,7 @@ function forgetTable(){try{localStorage.removeItem('degenpig-table')}catch(e){}}
 function onMsg(m){
   if(m.t==='chatlog'||m.t==='chat'){chatIn(m);return}
   if(m.t==='emote'){showEmote(m.i,m.e);return}
+  if(m.t==='drag'){flipRemoteDrag(m);return}
   if(m.t==='unlock'){(m.unlocks||[]).forEach(function(u){var a=ACHBY[u.id];if(a)achQ.push({a:a,lv:u.lv,who:myId().name||'You'})});loadMe();achToast();return}
   if(m.t==='timer'){ON.deadline=m.left>0?Date.now()+m.left:0;return}
   if(m.t==='error'){
@@ -4484,6 +4503,7 @@ function pump(){
     ON.busy=true;S.online=true;S.me=m.you;S.busy=true;S.rolling=true;say(null);S.marks=['',''];
     if(S.phase!=='play'&&S.phase!=='final')applyState(m);
     render();ac();
+    FLR.rd=null;
     throwDice(ev.roll.vals?ev.roll.vals.map(function(v,k){return v==null?1:v}):[ev.roll.a,ev.roll.b],ev.roll.dir||null,ev.roll.idx?{only:ev.roll.idx}:null).then(function(){S.rolling=false;applyState(m);sideFx(ev);after(ev.fx||{})});
     return;
   }

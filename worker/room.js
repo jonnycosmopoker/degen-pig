@@ -171,10 +171,21 @@ export class TableRoom {
       case 'again': return this.voteAgain(c.uid);
       case 'roll': case 'lock': case 'reroll': case 'take': case 'pass': case 'next': return this.act(seatIdx, m);
       case 'emote': return this.emote(c, seatIdx, m.e);
+      case 'drag': return this.drag(sock, c, seatIdx, m);
     }
   }
   send(sock, obj) { try { sock.send(JSON.stringify(obj)) } catch (e) { } }
   /* ---- emotes: a pig face from a seated player, passed straight to everyone at the table (at most one every 1.5s) ---- */
+  /* Flips: the flipper's finger dragging a die, passed on to everyone else at the table so they can watch it.
+     Only for drawing: it changes nothing in the game, and the roll itself is still made here when the die is let go. */
+  drag(sock, c, i, m) {
+    const S = this.G; if (!S || !S.rules.flips || S.phase !== 'play' || !S.fl || S.fl.win >= 0 || S.cur !== i || this.E.ctrl(i)) return;
+    const k = Number(m.k); if (!Number.isInteger(k) || k < 0 || k > 4 || !S.fl.vals || S.fl.vals[k] != null) return;
+    const h = m.h ? 1 : 0, now = this.now(); if (h && c.dgT && now - c.dgT < 40) return; c.dgT = now;   /* at most ~25 updates a second */
+    const num = v => { v = Number(v); return Number.isFinite(v) ? Math.round(Math.max(0, Math.min(1, v)) * 1000) / 1000 : 0.5 };
+    const out = JSON.stringify({ t: 'drag', k, x: num(m.x), y: num(m.y), h });
+    for (const [s2] of this.conns) if (s2 !== sock) { try { s2.send(out) } catch (e) { } }
+  }
   emote(c, i, e) {
     if (!EMOTES.includes(e)) return;
     const now = this.now(); if (c.emT && now - c.emT < 1500) return; c.emT = now;
