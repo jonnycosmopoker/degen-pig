@@ -2585,7 +2585,7 @@ function botAct(){
   botTimer=0;if(S.busy||!isBotTurn())return;
   if(S.phase==='order'){if(!S.ord.done)doRoll(botThrow());return}
   if(S.phase!=='play'&&S.phase!=='final')return;
-  if(flipsOn()){if(S.fl.win<0)doRoll(botThrow());return}
+  if(flipsOn()){if(S.fl.win<0){if(FLR.hold>performance.now()){botTimer=setTimeout(botAct,FLR.hold-performance.now()+450);return}doRoll(botThrow())}return}
   if(S.bust||S.finalDone){nextPlayer();render();return}
   if(S.pend){if(botReroll(S.cur))doReroll();else takeBust();return}
   if(botDecide(S.cur)==='lock'){lockIn();render()}else doRoll(botThrow());
@@ -2685,7 +2685,7 @@ function flipAfter(fx){
   try{if(navigator.vibrate&&fx.win!=null&&!(S.online&&fx.win!==S.me))navigator.vibrate([40,40,90])}catch(e){}
   if(fx.flipDie!=null){S.busy=false;render();onNext();scheduleBot();return}   /* one die (or a few) down, more to roll */
   if(fx.win!=null)sfxDoubles(true);else if(fx.tie)sfxPrime();else sfxLock(fx.flip);
-  FLR.hold=performance.now()+1500;setTimeout(render,1550);
+  FLR.hold=performance.now()+1500;setTimeout(function(){FLR.hold=0;rackDice();render()},1550);
   S.busy=false;render();onNext();scheduleBot();
 }
 function orderResult(sum){
@@ -3748,6 +3748,7 @@ $('againBtn').addEventListener('click',function(){if(S.online){ac();onVote();ret
 var leave=$('leaveDlg');
 /* Flips: the button (or a tap on the table) flips, or starts the next flip once one is won. Online, anyone seated can start the next flip. */
 function flipTap(dir){
+  if(FLR.hold>performance.now())return;   /* the last flip is still on show; the dice are about to go back to the rack */
   if(S.online){if(S.busy)return;if(S.fl.win>=0){if(S.me>=0&&!ON.watch){ac();onSend('next')}}else if(!blocked()&&canRoll()){ac();onSend('roll',{dir:dir})}return}
   if(S.busy)return;ac();
   if(S.fl.win>=0){flipNext();render();scheduleBot();return}
@@ -4041,8 +4042,8 @@ $('tutBub').addEventListener('click',function(e){e.stopPropagation();var tx=$('t
 function tutNext(){var tx=$('tutTxt');if(!tx.classList.contains('done')){clearTimeout(TUT.timer);tx.classList.add('done');$('tut').classList.remove('talk');return}if(TUT.i>=TUT.steps.length-1){tutEnd();return}TUT.i++;tutShow()}
 
 /* Flips: pick a die up off the rack, drag it, and let go to roll it */
-function flipCanDrag(){return flipsOn()&&!S.busy&&S.fl.win<0&&(S.online?!blocked():!isBotTurn())}
-function flipDieAt(e){var r=tray.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,best=-1,bd=D*0.75;dice.forEach(function(d,k){if(S.fl.vals[k]!=null)return;var dd=Math.hypot(d.x-x,d.y-y);if(dd<bd){bd=dd;best=k}});return best}
+function flipCanDrag(){return flipsOn()&&!S.busy&&S.fl.win<0&&!(FLR.hold>performance.now())&&(S.online?!blocked():!isBotTurn())}
+function flipDieAt(e){var r=tray.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,best=-1,bd=Math.max(D*1.1,34);dice.forEach(function(d,k){if(S.fl.vals[k]!=null)return;var dd=Math.hypot(d.x-x,d.y-y);if(dd<bd){bd=dd;best=k}});return best}
 tray.addEventListener('pointerdown',function(e){
   if(!flipCanDrag())return;var k=flipDieAt(e);if(k<0)return;
   e.preventDefault();e.stopImmediatePropagation();pd=null;try{tray.setPointerCapture(e.pointerId)}catch(er){}
@@ -4071,7 +4072,8 @@ tray.addEventListener('pointerup',function(e){
   shakeAsk();
   if(!pd)return;var dx=e.clientX-pd.x,dy=e.clientY-pd.y,dt=Math.max(16,performance.now()-pd.t),dist=Math.hypot(dx,dy),r=tray.getBoundingClientRect(),dir=null;
   if(dist>24)dir={dx:dx,dy:dy,x:pd.x-r.left,y:pd.y-r.top,speed:clamp(dist/dt*1.1,0.85,1.9)};
-  pd=null;if(flipsOn()){flipTap(dir);return}if(S.online){if(!S.busy&&!blocked()){if(canRoll()){ac();onSend('roll',{dir:dir})}else if(canPassTap()){ac();onSend('pass')}}return}if(isBotTurn())return;doRoll(dir);
+  pd=null;if(flipsOn()){if(S.fl.win>=0)flipTap(null);return}   /* Flips: the table never rolls; pick dice up, or tap Flip (a tap still starts the next flip) */
+  if(S.online){if(!S.busy&&!blocked()){if(canRoll()){ac();onSend('roll',{dir:dir})}else if(canPassTap()){ac();onSend('pass')}}return}if(isBotTurn())return;doRoll(dir);
 });
 tray.addEventListener('pointercancel',function(){pd=null});
 tray.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();if(flipsOn()){flipTap(null);return}if(S.online){if(!S.busy&&!blocked()){if(canRoll())onSend('roll');else if(canPassTap())onSend('pass')}return}if(!isBotTurn())doRoll(null)}});

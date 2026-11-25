@@ -293,6 +293,7 @@ export class TableRoom {
   after(ev) {
     const S = this.G; ev = ev || {}; S.watchers = this.watchers();
     if (ev.roll) this.busyUntil = this.now() + (ROLL_MS * this.k) + (ev.fx && ev.fx.burn > 0 ? (BURN_MS * this.k) : 0);
+    if (ev.roll && ev.fx && ev.fx.flip != null) this.busyUntil += 1700 * this.k;   /* Flips: a finished flip stays on show, then the dice go back to the rack before anyone rolls again */
     else if (ev.fx && ev.fx.burn > 0) this.busyUntil = this.now() + (BURN_MS * this.k);
     if (S.fx && S.fx.hot) ev.hot = true; if (S.fx && S.fx.lock) ev.lock = S.fx.lock; if (S.fx && S.fx.prime) ev.prime = S.fx.prime;
     if (S.unlocks && S.unlocks.length) { ev.unlocks = S.unlocks; S.unlocks = [] }
