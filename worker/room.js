@@ -42,7 +42,13 @@ function cleanMoney(m) {
   const out = { game: v(m.game), point: v(m.point), golden: v(m.golden) };
   return out.game || out.point || out.golden ? out : null;
 }
-export function cleanRules(r) {
+export /* a throw's direction, only for drawing it: numbers only (x, y can be 0..1 of the table when n is set) */
+function cleanDir(d) {
+  if (!d || typeof d !== 'object') return null;
+  const num = (v, lo, hi) => { v = Number(v); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : 0 };
+  return { dx: num(d.dx, -5000, 5000), dy: num(d.dy, -5000, 5000), x: num(d.x, -5000, 5000), y: num(d.y, -5000, 5000), speed: num(d.speed, 0.1, 2), n: d.n ? 1 : 0 };
+}
+function cleanRules(r) {
   r = r || {}; const t = [80, 100, 150, 200].includes(r.target) ? r.target : 100;
   const out = { target: t, golden: !!r.golden, noDbl: false,   /* Disable Doubles isn't offered for online tables */ reroll: false, verify: false,   /* Re-roll Pig and Verify Double are off for now */ power: !!r.power || !!r.prime, triple: !!r.triple, prime: !!r.prime, flips: !!r.flips, money: cleanMoney(r.money), timer: [0, 15, 30, 60].includes(r.timer) ? r.timer : DEF_RULES.timer };
   /* Flips is its own game: every other option is off, and Track $ is one amount per flip */
@@ -263,7 +269,10 @@ export class TableRoom {
     if (this.now() < this.busyUntil - 400 * this.k) return;               /* dice still rolling */
     S.fx = null; S.unlocks = [];
     let ev = null;
-    if (m.t === 'roll') { const r = this.E.roll(); if (!r) return; ev = { roll: { a: r.a, b: r.b, vals: r.vals || null, dir: m.dir || null }, fx: r.fx } }
+    if (m.t === 'roll') {
+      const r = this.E.roll(Array.isArray(m.idx) ? m.idx.slice(0, 5) : undefined); if (!r) return;
+      ev = { roll: { a: r.a, b: r.b, vals: r.vals || null, idx: r.idx || null, dir: cleanDir(m.dir) }, fx: r.fx };
+    }
     else if (m.t === 'reroll') { const r = this.E.reroll(); if (!r) return; ev = { roll: { a: r.a, b: r.b, dir: null }, fx: r.fx } }
     else if (m.t === 'take') { const fx = this.E.takeBust(); if (!fx) return; ev = { fx } }
     else if (m.t === 'lock') { if (!this.E.lockIn()) return; ev = { fx: S.fx } }

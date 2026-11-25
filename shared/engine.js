@@ -147,21 +147,21 @@ export function Engine(S) {
   function beginFlips() {
     S.phase = 'play'; S.dice = [1, 2, 3, 4, 5]; S.marks = ['', '', '', '', ''];
     S.players.forEach(p => { p.fw = p.fw || 0 });
-    S.fl = { round: 0, start: -1, q: [], cand: [], tot: {}, win: -1, tie: null, re: 0, net: S.players.map(() => 0) };
+    S.fl = { round: 0, start: -1, q: [], cand: [], tot: {}, win: -1, tie: null, re: 0, net: S.players.map(() => 0), vals: [null, null, null, null, null] };
     flipNext(true);
   }
   function flipNext(first) {
     const f = S.fl; if (!f || (!first && f.win < 0)) return false;
     f.round++; f.start = (f.start + 1) % S.n;
     const q = S.order.slice(f.start).concat(S.order.slice(0, f.start));
-    f.q = q.slice(); f.cand = q.slice(); f.tot = {}; f.win = -1; f.tie = null; f.re = 0;
+    f.q = q.slice(); f.cand = q.slice(); f.tot = {}; f.win = -1; f.tie = null; f.re = 0; f.vals = [null, null, null, null, null];
     S.cur = q[0]; S.turnId = (S.turnId || 0) + 1; S.fx = { flipNext: f.round };
     say('Flip ' + f.round + ': ' + P(q[0]).name + ' flips first');
     return true;
   }
   function flipResult(vals) {
     const f = S.fl, i = S.cur, t = vals.reduce((x, y) => x + y, 0), p = P(i);
-    f.tot[i] = t; f.q.shift();
+    f.tot[i] = t; f.q.shift(); f.vals = [null, null, null, null, null];   /* the dice go back to the rack for the next flipper */
     if (p.st) vals.forEach(v => { p.st.f[v - 1]++ });
     if (f.q.length) { S.cur = f.q[0]; S.turnId = (S.turnId || 0) + 1; say(p.name + ' flipped ' + t); return { flip: t } }
     const top = Math.max.apply(null, f.cand.map(c => f.tot[c])), tied = f.cand.filter(c => f.tot[c] === top);
@@ -310,9 +310,19 @@ export function Engine(S) {
 
   /* ---- actions; each returns false when it is not allowed right now ---- */
   function canRoll() { if (RL().flips) return S.phase === 'play' && !!S.fl && S.fl.win < 0; if (S.pend) return false; if (S.phase === 'play' || S.phase === 'final') return !S.bust; return false }
-  function roll() {
+  function roll(sel) {
     if (!canRoll()) return null;
-    if (RL().flips) { const v = [d6(), d6(), d6(), d6(), d6()]; S.dice = v; S.marks = ['', '', '', '', '']; S.fx = null; const fx = flipResult(v); S.fx = fx; return { a: v[0], b: v[1], vals: v, fx } }
+    if (RL().flips) {
+      /* a flipper can roll the dice one at a time (sel = which of the 5) or all the ones left; the total locks in once all 5 are down */
+      const f = S.fl; if (!f.vals) f.vals = [null, null, null, null, null];
+      let idx = Array.isArray(sel) ? [...new Set(sel.map(Number))].filter(k => Number.isInteger(k) && k >= 0 && k < 5 && f.vals[k] == null) : [];
+      if (Array.isArray(sel) && !idx.length) return null;   /* that die was already rolled */
+      if (!idx.length) idx = [0, 1, 2, 3, 4].filter(k => f.vals[k] == null);
+      idx.forEach(k => { f.vals[k] = d6() });
+      const vals = f.vals.slice(); S.dice = vals.map((v, k) => v == null ? (S.dice && S.dice[k]) || 1 : v); S.marks = ['', '', '', '', '']; S.fx = null;
+      const fx = vals.every(v => v != null) ? flipResult(vals) : { flipDie: idx.length, sum: vals.reduce((x, y) => x + (y || 0), 0) };
+      S.fx = fx; return { a: vals[0], b: vals[1], vals, idx, fx };
+    }
     const vals = [d6(), d6()]; S.dice = vals; S.fx = null;
     const fx = rollResult(vals[0], vals[1]) || {};
     return { a: vals[0], b: vals[1], fx };
